@@ -138,7 +138,7 @@
     <ClCompile Include="Managers\ParticleManager\ParticleManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Object\ParticleEmitter\ParticleEmitter.cpp">
+    <ClCompile Include="Objects\ParticleEmitter\ParticleEmitter.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Audio\Audio.cpp">
@@ -154,6 +154,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Lib\OpenCV\OpenCV.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\GameObject3D\GameObject3D.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -290,7 +293,7 @@
     <ClInclude Include="Managers\ParticleManager\ParticleManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Object\ParticleEmitter\ParticleEmitter.h">
+    <ClInclude Include="Objects\ParticleEmitter\ParticleEmitter.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Audio\Audio.h">
@@ -312,6 +315,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Lib\OpenCV\OpenCV.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\GameObject3D\GameObject3D.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
