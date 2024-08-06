@@ -13,6 +13,7 @@
 
 // 前方宣言
 class DXCommon;
+class TextureManager;
 
 // スプライト最大数 srvDescriptorの数と同じ
 static const uint32_t kMaxSpriteNum_ = 16;
@@ -73,7 +74,7 @@ public:
 
 	};
 
-	void Initialize(DXCommon* dxCommon);
+	void Initialize(DXCommon* dxCommon, TextureManager* textureManager);
 
 	void Update(const std::string textureName);
 
@@ -91,6 +92,7 @@ private:
 	/*-----------------------------*/
 
 	DXCommon* dxCommon_ = nullptr;
+	TextureManager* textureManager_ = nullptr;
 
 	// CreateBuffer
 	VertexResource vertexResource_;

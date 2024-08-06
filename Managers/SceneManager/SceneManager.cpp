@@ -51,16 +51,10 @@ void SceneManager::ChangeScene(SceneNo sceneNo) {
 ////////////////////////////////////////////////////////////////////////////////*/
 void SceneManager::Run() {
 
-	inputManager_ = InputManager::GetInstance();
-
 	// ウィンドウのxボタンが押されるまでループ
 	while (Engine::ProcessMessage() == 0) {
 		// フレームの開始
 		Engine::BeginFrame();
-
-		// キーの入力状態取得
-		std::memcpy(inputManager_->GetPreKeys(), inputManager_->GetKeys(), inputKeyMaxNum);
-		Engine::GetHitKeyStateAll(inputManager_->GetKeys());
 
 		prevSceneNo_ = currentSceneNo_;
 		currentSceneNo_ = currentScene_->GetSceneNo();

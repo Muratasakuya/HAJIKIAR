@@ -22,20 +22,6 @@ const DirectX::TexMetadata& TextureManager::GetMetaData(const std::string textur
 
 
 
-/*////////////////////////////////////////////////////////////////////////////////
-
-*									singleton
-
-////////////////////////////////////////////////////////////////////////////////*/
-TextureManager* TextureManager::GetInstance() {
-
-	static TextureManager instance;
-
-	return &instance;
-}
-
-
-
 // DescriptorHandleCPUの生成
 D3D12_CPU_DESCRIPTOR_HANDLE TextureManager::GetCPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index) {
 
@@ -211,7 +197,7 @@ void TextureManager::SetGraphicsRootDescriptorTable(
 *								 インスタンスの代入
 
 ////////////////////////////////////////////////////////////////////////////////*/
-void TextureManager::SetInstance(DXCommon* dxCommon, SrvManager* srvManager) {
+void TextureManager::Initialize(DXCommon* dxCommon, SrvManager* srvManager) {
 
 	assert(dxCommon);
 	assert(srvManager);

@@ -15,14 +15,15 @@ struct LeakChecker {
 	}
 };
 
-LeakChecker leakCheck;
-
 // WindowSize
 static const uint32_t windowWidth = 1280;
 static const uint32_t windowHeight = 720;
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+
+	// メモリリークチェッカー
+	LeakChecker leakCheck;
 
 	// メインシステムの初期化
 	Engine::Initialize(windowWidth, windowHeight);

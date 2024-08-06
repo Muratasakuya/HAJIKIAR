@@ -1,13 +1,13 @@
 #pragma once
 
+// Engine
+#include "Engine.h"
+
 // Base
 #include "IScene.h"
 
 // SceneFactory
 #include "SceneFactory.h"
-
-// Managers
-#include "InputManager.h"
 
 // c++
 #include <memory>
@@ -37,8 +37,6 @@ private:
 	/*-----------------------------*/
 	///			メンバ変数
 	/*-----------------------------*/
-
-	InputManager* inputManager_ = nullptr;
 
 	std::unique_ptr<IScene> currentScene_;
 	SceneFactory sceneFactory_;

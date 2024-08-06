@@ -121,12 +121,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Base\Engine\Engine.cpp" />
     <ClCompile Include="2D\Object2D\Object2D.cpp" />
     <ClCompile Include="Lib\Hash\Hash.cpp" />
-    <ClCompile Include="Managers\InputManager\InputManager.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Lib\MainCamera2D\MainCamera2D.cpp" />
     <ClCompile Include="3D\Model\Model.cpp" />
     <ClCompile Include="Managers\ModelManager\ModelManager.cpp" />
-    <ClCompile Include="Entities\Plane\Plane.cpp" />
     <ClCompile Include="Managers\ParticleManager\ParticleManager.cpp" />
     <ClCompile Include="Object\ParticleEmitter\ParticleEmitter.cpp" />
     <ClCompile Include="Lib\OpenCV\OpenCV.cpp" />
@@ -163,8 +161,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\DXLib\VertexResource\VertexResource.cpp" />
     <ClCompile Include="Managers\TextureManager\TextureManager.cpp" />
     <ClCompile Include="2D\Sprite\Sprite.cpp" />
-    <ClCompile Include="Entities\Sphere\Sphere.cpp" />
-    <ClCompile Include="Entities\Teapot\Teapot.cpp" />
     <ClCompile Include="Managers\SrvManager\SrvManager.cpp" />
     <ClCompile Include="Scenes\TitleScene\TitleScene.cpp" />
   </ItemGroup>
@@ -176,13 +172,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="2D\Object2D\Object2D.h" />
     <ClInclude Include="Engine\DXLib\PipelineStateStructure\PipelineStateStructure.h" />
     <ClInclude Include="Lib\Hash\Hash.h" />
-    <ClInclude Include="Managers\InputManager\InputManager.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Lib\MainCamera2D\MainCamera2D.h" />
     <ClInclude Include="Lib\Matrix\Matrix3x3.h" />
     <ClInclude Include="3D\Model\Model.h" />
     <ClInclude Include="Managers\ModelManager\ModelManager.h" />
-    <ClInclude Include="Entities\Plane\Plane.h" />
     <ClInclude Include="Managers\ParticleManager\ParticleManager.h" />
     <ClInclude Include="Object\ParticleEmitter\ParticleEmitter.h" />
     <ClInclude Include="Lib\OpenCV\OpenCV.h" />
@@ -221,8 +215,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\DXLib\VertexResource\VertexResource.h" />
     <ClInclude Include="Managers\TextureManager\TextureManager.h" />
     <ClInclude Include="2D\Sprite\Sprite.h" />
-    <ClInclude Include="Entities\Sphere\Sphere.h" />
-    <ClInclude Include="Entities\Teapot\Teapot.h" />
     <ClInclude Include="Managers\SrvManager\SrvManager.h" />
     <ClInclude Include="Scenes\TitleScene\TitleScene.h" />
   </ItemGroup>

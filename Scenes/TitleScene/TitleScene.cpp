@@ -9,9 +9,6 @@
 ////////////////////////////////////////////////////////////////////////////////*/
 TitleScene::TitleScene() {
 
-	input_ = InputManager::GetInstance();
-	textureManager_ = TextureManager::GetInstance();
-
 	/*======================================================*/
 	// 2Dオブジェクト
 
@@ -59,11 +56,7 @@ void TitleScene::Update() {
 	/*======================================================*/
 	// ImGui
 
-	ImGui::Begin("TitleScene");
 
-	ImGui::Text("SpaceKey -> GameScene");
-
-	ImGui::End();
 
 	/*======================================================*/
 	// 2Dオブジェクト
@@ -74,20 +67,6 @@ void TitleScene::Update() {
 	// 3Dオブジェクト
 
 
-
-	/*======================================================*/
-	// パーティクル
-
-
-
-	/*======================================================*/
-	// シーン管理
-
-	// スペースキーを押したら次のシーンに行く
-	if (input_->GetKeys()[DIK_SPACE] && !input_->GetPreKeys()[DIK_SPACE]) {
-
-		SceneManager::GetInstance()->ChangeScene(GAME);
-	}
 
 }
 

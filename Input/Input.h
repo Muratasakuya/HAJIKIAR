@@ -30,6 +30,9 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
+	Input() = default;
+	~Input() = default;
+
 	void Initialize(WinApp* winApp);
 	void Update();
 
@@ -41,9 +44,6 @@ public:
 
 	// キーのトリガー判定
 	bool TriggerKey(BYTE keyNumber);
-
-	// singleton
-	static Input* GetInstance();
 
 	// getter
 
@@ -60,9 +60,4 @@ private:
 	ComPtr<IDirectInput8> dInput_;
 	ComPtr<IDirectInputDevice8> keyboard_;
 
-	Input() = default;
-	~Input() = default;
-	// コピー禁止
-	Input(const Input&) = delete;
-	const Input& operator=(const Input&) = delete;
 };

@@ -11,8 +11,10 @@
 #include <numbers>
 #include <string>
 
+// 前方宣言
 class DXCommon;
 class SrvManager;
+class TextureManager;
 
 static const uint32_t instanceMaxCount_ = 128;
 // Δt
@@ -28,6 +30,9 @@ public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
+
+	ParticleManager() = default;
+	~ParticleManager() = default;
 
 	struct ParticleGroup {
 
@@ -48,11 +53,8 @@ public:
 	void SetGraphicsRootDescriptorTable(ID3D12GraphicsCommandList* commandList, const std::string& name, const std::string& textureName);
 	void DrawCall(ID3D12GraphicsCommandList* commandList, const std::string& name);
 
-	void Initialize(DXCommon* dxCommon, SrvManager* srvManager);
+	void Initialize(DXCommon* dxCommon, SrvManager* srvManager, TextureManager* textureManager);
 	void Update();
-
-	// singleton
-	static ParticleManager* GetInstance();
 
 private:
 	/*-----------------------------*/
@@ -61,6 +63,7 @@ private:
 
 	DXCommon* dxCommon_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
+	TextureManager* textureManager_ = nullptr;
 	VertexResource vertexReourceInstance_;
 
 	std::unordered_map<std::string, ParticleGroup> particleGroups_;
@@ -75,11 +78,10 @@ private:
 	// モデル頂点
 	ModelData modelData_;
 
-	ParticleManager() = default;
-	~ParticleManager() = default;
-	// コピー禁止
-	ParticleManager(const ParticleManager&) = delete;
-	const ParticleManager& operator=(const ParticleManager&) = delete;
+private:
+	/*-----------------------------*/
+	///			private変数
+	/*-----------------------------*/
 
 	bool IsCollision(const AABB& aabb, const Vector3& point);
 };

@@ -27,6 +27,9 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
+	Audio() = default;
+	~Audio() = default;
+
 	// チャンク
 	struct ChunkHeader {
 
@@ -56,9 +59,6 @@ public:
 	void Reset(SoundData* soundData);
 	void Finalize();
 
-	// singleton
-	static Audio* GetInstance();
-
 private:
 	/*-----------------------------*/
 	///			メンバ変数
@@ -67,9 +67,4 @@ private:
 	ComPtr<IXAudio2> xAudio2_;
 	IXAudio2MasteringVoice* masterVoice_;
 
-	Audio() = default;
-	~Audio() = default;
-	// コピー禁止
-	Audio(const Audio&) = delete;
-	const Audio& operator=(const Audio&) = delete;
 };
