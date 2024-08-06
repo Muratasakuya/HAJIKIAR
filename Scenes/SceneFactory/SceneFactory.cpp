@@ -1,0 +1,22 @@
+#include "SceneFactory.h"
+
+
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								シーン生成
+////////////////////////////////////////////////////////////////////////////////*/
+IScene* SceneFactory::CreateScene(SceneNo sceneNo) {
+
+	// シーン遷移
+	switch (sceneNo) {
+
+	case TITLE:
+
+		return new TitleScene();
+	case GAME:
+
+		return new GameScene();
+	}
+
+	return nullptr;
+}
