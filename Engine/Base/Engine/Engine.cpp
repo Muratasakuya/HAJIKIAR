@@ -120,6 +120,7 @@ void Engine::Finalize() {
 
 	// ComFinalize
 	CoUninitialize();
+
 }
 
 
