@@ -127,7 +127,7 @@ void WinApp::CreateMainWindow(uint32_t width, uint32_t height) {
 	// ウィンドウの生成
 	hwnd_ = CreateWindow(
 		L"CG2WindowClass",          // 利用するクラス名
-		L"LE2B_26_ムラタ_サクヤ_TR", // タイトルバーの文字
+		L"HAJIKIAR",                // タイトルバーの文字
 		WS_OVERLAPPEDWINDOW,        // よく見るウィンドウスタイル
 		CW_USEDEFAULT,              // 表示X座標(Windowsに任せる)
 		CW_USEDEFAULT,              // 表示Y座標(Windowsに任せる)

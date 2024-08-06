@@ -3,9 +3,6 @@
 // base
 #include "Engine.h"
 
-// Manager
-#include "ParticleManager.h"
-
 /*////////////////////////////////////////////////////////////////////////////////
 *
 *							ParticleEmitter Class
@@ -19,6 +16,8 @@ public:
 
 	ParticleEmitter();
 	~ParticleEmitter() {};
+
+	void Initialize(ParticleManager* particleManager);
 
 	void Emit();
 	void Update();

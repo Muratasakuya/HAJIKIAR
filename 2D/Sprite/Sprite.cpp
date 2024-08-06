@@ -22,11 +22,13 @@ void Sprite::SetColor(const Vector4& color) {
 *							スプライトメッシュの生成
 
 ////////////////////////////////////////////////////////////////////////////////*/
-void Sprite::Initialize(DXCommon* dxCommon) {
+void Sprite::Initialize(DXCommon* dxCommon, TextureManager* textureManager) {
 
 	assert(dxCommon);
+	assert(textureManager);
 
 	dxCommon_ = dxCommon;
+	textureManager_ = textureManager;
 
 	// スプライト
 	sprite_ = CreateData(kSpriteIndexNum_, kSpriteVertexNum_);
@@ -118,8 +120,7 @@ std::unique_ptr<Sprite::SpriteData> Sprite::CreateData(UINT vertexCount, UINT in
 ////////////////////////////////////////////////////////////////////////////////*/
 void Sprite::AjustTextureSize(const std::string textureName) {
 
-	const DirectX::TexMetadata& metaData =
-		TextureManager::GetInstance()->GetMetaData(textureName);
+	const DirectX::TexMetadata& metaData = textureManager_->GetMetaData(textureName);
 
 	transform2D_.textureSize.x = static_cast<float>(metaData.width);
 	transform2D_.textureSize.y = static_cast<float>(metaData.height);
@@ -159,8 +160,7 @@ void Sprite::Update(const std::string textureName) {
 	}
 
 	// メタデータ取得
-	const DirectX::TexMetadata& metadata =
-		TextureManager::GetInstance()->GetMetaData(textureName);
+	const DirectX::TexMetadata& metadata = textureManager_->GetMetaData(textureName);
 
 	// 横
 	float texLeft = transform2D_.textureLeftTop.x / metadata.width;

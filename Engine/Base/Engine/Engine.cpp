@@ -7,6 +7,7 @@
 #include "TextureManager.h"
 #include "ModelManager.h"
 #include "ParticleManager.h"
+#include "ParticleEmitter.h"
 #include "Input.h"
 #include "Audio.h"
 
@@ -14,12 +15,13 @@
 std::unique_ptr<WinApp> Engine::winApp_ = nullptr;
 std::unique_ptr<DXCommon> Engine::dxCommon_ = nullptr;
 std::unique_ptr<SrvManager> Engine::srvManager_ = nullptr;
-ImGuiManager* Engine::imguiManager_ = nullptr;
-TextureManager* Engine::textureManger_ = nullptr;
-ModelManager* Engine::modelManager_ = nullptr;
-ParticleManager* Engine::particleManager_ = nullptr;
-Input* Engine::input_ = nullptr;
-Audio* Engine::audio_ = nullptr;
+std::unique_ptr<ImGuiManager> Engine::imguiManager_ = nullptr;
+std::unique_ptr<TextureManager> Engine::textureManager_ = nullptr;
+std::unique_ptr<ModelManager> Engine::modelManager_ = nullptr;
+std::unique_ptr<ParticleManager> Engine::particleManager_ = nullptr;
+std::unique_ptr<ParticleEmitter> Engine::particleEmitter_ = nullptr;
+std::unique_ptr<Input> Engine::input_ = nullptr;
+std::unique_ptr<Audio> Engine::audio_ = nullptr;
 std::unique_ptr<Object3D> Engine::objects3D_ = nullptr;
 std::array<std::unique_ptr<Sprite>, kMaxSpriteNum_> Engine::sprites_ = { nullptr };
 std::unique_ptr<PipelineManager> Engine::pipelineManager_ = nullptr;
@@ -92,17 +94,29 @@ void Engine::Finalize() {
 #ifdef _DEBUG
 	imguiManager_->Finalize();
 #endif
+
+	// 手動で解放
 	dxCommon_->Finalize(winApp_.get());
 	dxCommon_.reset();
 	winApp_.reset();
 
 	srvManager_.reset();
-	objects3D_.reset();
 	pipelineManager_.reset();
+
+	textureManager_.reset();
+	modelManager_.reset();
+	particleManager_.reset();
+
+	objects3D_.reset();
 	for (auto& sprite : sprites_) {
 		sprite.reset();
 	}
+	particleEmitter_.reset();
+	
+	imguiManager_.reset();
+	input_.reset();
 	audio_->Finalize();
+	audio_.reset();
 
 	// ComFinalize
 	CoUninitialize();
@@ -143,14 +157,14 @@ void Engine::Initialize(uint32_t width, uint32_t height) {
 	/// TextureManager
 
 	// インスタンスのセット
-	textureManger_ = TextureManager::GetInstance();
-	textureManger_->SetInstance(dxCommon_.get(), srvManager_.get());
+	textureManager_ = std::make_unique<TextureManager>();
+	textureManager_->Initialize(dxCommon_.get(), srvManager_.get());
 	/*-----------------------------------------------------------------------*/
 	/// ImGuiManager
 
 #ifdef _DEBUG
 	// ImGuiの初期化
-	imguiManager_ = ImGuiManager::GetInstance();
+	imguiManager_ = std::make_unique<ImGuiManager>();
 	imguiManager_->Initialize(winApp_.get(), dxCommon_.get(), srvManager_.get());
 #endif
 	/*-----------------------------------------------------------------------*/
@@ -163,19 +177,19 @@ void Engine::Initialize(uint32_t width, uint32_t height) {
 	/// Input
 
 	// インプットの初期化
-	input_ = Input::GetInstance();
+	input_ = std::make_unique<Input>();
 	input_->Initialize(winApp_.get());
 	/*-----------------------------------------------------------------------*/
 	/// Input
 
 	// オーディオ初期化
-	audio_ = Audio::GetInstance();
+	audio_ = std::make_unique<Audio>();
 	audio_->Initialize();
 	/*-----------------------------------------------------------------------*/
 	/// ModelManager
 
-	// モデルメッシュインスタンスの生成
-	modelManager_ = ModelManager::GetInstance();
+	// モデル初期化
+	modelManager_ = std::make_unique<ModelManager>();
 	modelManager_->Initialize(dxCommon_.get());
 	/*-----------------------------------------------------------------------*/
 	/// Object3D
@@ -189,24 +203,18 @@ void Engine::Initialize(uint32_t width, uint32_t height) {
 	// スプライトの初期化
 	for (auto& sprite : sprites_) {
 		sprite = std::make_unique<Sprite>();
-		sprite->Initialize(dxCommon_.get());
+		sprite->Initialize(dxCommon_.get(),textureManager_.get());
 	}
 	/*-----------------------------------------------------------------------*/
-	/// ParticleManager
+	/// Particle
 
 	// パーティクル初期化
-	particleManager_ = ParticleManager::GetInstance();
-	particleManager_->Initialize(dxCommon_.get(), srvManager_.get());
-}
+	particleManager_ = std::make_unique<ParticleManager>();
+	particleManager_->Initialize(dxCommon_.get(), srvManager_.get(),textureManager_.get());
 
-/*--------------------------------------------------------------------*/
-/// 入力関数
-
-// 全てのキーの入力状態取得
-void Engine::GetHitKeyStateAll(char* keyState) {
-
-	const std::array<BYTE, inputKeyMaxNum>& keys = input_->GetAllKey();
-	std::memcpy(keyState, keys.data(), keys.size());
+	// エミッタ初期化
+	particleEmitter_ = std::make_unique<ParticleEmitter>();
+	particleEmitter_->Initialize(particleManager_.get());
 }
 
 /*------------------------------------------------------------------------------*/
@@ -228,7 +236,7 @@ void Engine::DrawTriangle(
 	objects3D_->SetBufferData(commandList.Get(), ObjectTriangle);
 	if (pipelineType == Normal) {
 		// SRVのセット
-		textureManger_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
+		textureManager_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
 	}
 	// DrawCall
 	objects3D_->DrawCall(commandList.Get(), ObjectTriangle);
@@ -253,7 +261,7 @@ void Engine::DrawSprite(const Transform2D& transform2D, Vector4 color, const std
 	// 頂点バッファのセット
 	sprite->SetBufferData(commandList.Get());
 	// SRVのセット
-	textureManger_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
+	textureManager_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
 	// DrawCall
 	sprite->DrawCall(commandList.Get());
 
@@ -276,7 +284,7 @@ void Engine::DrawSphere(
 	// 頂点バッファのセット
 	objects3D_->SetBufferData(commandList.Get(), ObjectSphere);
 	// SRVのセット
-	textureManger_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
+	textureManager_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
 	// DrawCall
 	objects3D_->DrawCall(commandList.Get(), ObjectSphere);
 }
@@ -295,7 +303,7 @@ void Engine::DrawModel(const Transform& transform, const Material& material, con
 	// 頂点バッファのセット
 	modelManager_->SetBufferData(modelName, commandList.Get());
 	// SRVのセット
-	textureManger_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
+	textureManager_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
 	// DrawCall
 	modelManager_->DrawCall(modelName, commandList.Get());
 }
@@ -314,4 +322,13 @@ void Engine::DrawParticle(const std::string name, const std::string textureName,
 	particleManager_->SetGraphicsRootDescriptorTable(commandList.Get(), name, textureName);
 	// DrawCall
 	particleManager_->DrawCall(commandList.Get(), name);
+}
+
+/*--------------------------------------------------------------------*/
+/// ライブラリ関数
+
+// 画像読み込み
+void Engine::LoadTexture(const std::string filePath) {
+
+	textureManager_->LoadTexture(filePath);
 }

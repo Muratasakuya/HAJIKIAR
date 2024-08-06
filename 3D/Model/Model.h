@@ -40,12 +40,12 @@ public:
 		ConstBufferData cBufferData_;
 	};
 
-	void CreateModelMesh(DXCommon* dxCommon,const std::string modelName, UINT vertexCount);
+	void CreateModelMesh(DXCommon* dxCommon, const std::string modelName, UINT vertexCount);
 
-	void Update(const std::string& modelName, const Transform& transform, const Material& material, const PunctualLight& punctualLight);
+	void Update(const std::string& modelName, const std::vector<VertexData> VertexData,
+		const Transform& transform, const Material& material, const PunctualLight& punctualLight);
 
 	void SetBufferData(const std::string& modelName, ID3D12GraphicsCommandList* commandList);
-	void DrawCall(const std::string& modelName, ID3D12GraphicsCommandList* commandList);
 
 	// getter
 

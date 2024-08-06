@@ -1,16 +1,13 @@
 #include "ParticleEmitter.h"
 
 #include "ImGuiManager.h"
-
+#include "ParticleManager.h"
 
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								コンストラクタ
 ////////////////////////////////////////////////////////////////////////////////*/
 ParticleEmitter::ParticleEmitter() {
-
-	// インスタンス代入
-	particleManager_ = ParticleManager::GetInstance();
 
 	// エミッタ情報の初期化
 	emitter_.count = 3;
@@ -26,6 +23,18 @@ ParticleEmitter::ParticleEmitter() {
 	name_.push_back(useName);
 
 	isAddParticle_ = false;
+}
+
+
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								  初期化
+////////////////////////////////////////////////////////////////////////////////*/
+void ParticleEmitter::Initialize(ParticleManager* particleManager) {
+
+	assert(particleManager);
+
+	particleManager_ = particleManager;
 }
 
 

@@ -25,6 +25,7 @@ class ImGuiManager;
 class TextureManager;
 class ModelManager;
 class ParticleManager;
+class ParticleEmitter;
 class Audio;
 class Input;
 
@@ -55,12 +56,6 @@ public:
 	static bool ProcessMessage();
 
 	/*--------------------------------------------------------------------*/
-	/// 入力関数
-
-	// 全てのキーの入力状態取得
-	static void GetHitKeyStateAll(char* keyState);
-
-	/*--------------------------------------------------------------------*/
 	/// 描画関数
 
 	// スプライト
@@ -77,11 +72,17 @@ public:
 		const std::string textureName, PipelineType pipelineType, BlendMode blendMode);
 
 	// モデル
-	static void DrawModel(const Transform& transform, const Material& material, const PunctualLight& punctualLight, 
+	static void DrawModel(const Transform& transform, const Material& material, const PunctualLight& punctualLight,
 		const std::string modelName, const std::string textureName, PipelineType pipelineType, BlendMode blendMode);
 
 	// パーティクル
 	static void DrawParticle(const std::string name, const std::string textureName, BlendMode blendMode);
+
+	/*--------------------------------------------------------------------*/
+	/// ライブラリ関数
+
+	// 画像読み込み
+	static void LoadTexture(const std::string filePath);
 
 private:
 	/*-----------------------------*/
@@ -90,17 +91,21 @@ private:
 
 	static std::unique_ptr<WinApp> winApp_;
 	static std::unique_ptr<DXCommon> dxCommon_;
+
 	static std::unique_ptr<SrvManager> srvManager_;
-	static std::unique_ptr<Object3D> objects3D_;
-	static std::array<std::unique_ptr<Sprite>, kMaxSpriteNum_> sprites_;
 	static std::unique_ptr<PipelineManager> pipelineManager_;
 
-	static Input* input_;
-	static Audio* audio_;
-	static ImGuiManager* imguiManager_;
-	static TextureManager* textureManger_;
-	static ModelManager* modelManager_;
-	static ParticleManager* particleManager_;
+	static std::unique_ptr<TextureManager> textureManager_;
+	static std::unique_ptr<ModelManager> modelManager_;
+	static std::unique_ptr<ParticleManager> particleManager_;
+
+	static std::unique_ptr<Object3D> objects3D_;
+	static std::array<std::unique_ptr<Sprite>, kMaxSpriteNum_> sprites_;
+	static std::unique_ptr<ParticleEmitter> particleEmitter_;
+
+	static std::unique_ptr<ImGuiManager> imguiManager_;
+	static std::unique_ptr<Input> input_;
+	static std::unique_ptr<Audio> audio_;
 
 	// スプライトの使用インデックス
 	static uint32_t indexSprite_;

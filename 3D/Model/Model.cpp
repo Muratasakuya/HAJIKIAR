@@ -168,12 +168,11 @@ void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, UIN
 *									更新処理
 
 ////////////////////////////////////////////////////////////////////////////////*/
-void Model::Update(const std::string& modelName, const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
+void Model::Update(const std::string& modelName, const std::vector<VertexData> VertexData,
+	const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
 
 	// 頂点バッファへデータ転送
-	std::memcpy(models_[modelName]->vertexData,
-		ModelManager::GetInstance()->GetModelData(modelName).vertices.data(),
-		sizeof(VertexData) * ModelManager::GetInstance()->GetModelData(modelName).vertices.size());
+	std::memcpy(models_[modelName]->vertexData, VertexData.data(), sizeof(VertexData) * VertexData.size());
 
 #pragma region /// ConstBufferの更新 ///
 
@@ -250,16 +249,4 @@ void Model::SetBufferData(const std::string& modelName, ID3D12GraphicsCommandLis
 	commandList->SetGraphicsRootConstantBufferView(3, models_[modelName]->cBufferData_.lightResource.Get()->GetGPUVirtualAddress());
 	// カメラCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(4, models_[modelName]->cBufferData_.cameraResource.Get()->GetGPUVirtualAddress());
-}
-
-
-
-/*////////////////////////////////////////////////////////////////////////////////
-
-*								   モデル描画
-
-////////////////////////////////////////////////////////////////////////////////*/
-void Model::DrawCall(const std::string& modelName, ID3D12GraphicsCommandList* commandList) {
-
-	commandList->DrawInstanced(UINT(ModelManager::GetInstance()->GetModelData(modelName).vertices.size()), 1, 0, 0);
 }

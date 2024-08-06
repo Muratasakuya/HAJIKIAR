@@ -13,20 +13,6 @@ ModelData ModelManager::GetModelData(const std::string& modelName) {
 
 /*////////////////////////////////////////////////////////////////////////////////
 
-*									singleton
-
-////////////////////////////////////////////////////////////////////////////////*/
-ModelManager* ModelManager::GetInstance() {
-
-	static ModelManager instance;
-
-	return &instance;
-}
-
-
-
-/*////////////////////////////////////////////////////////////////////////////////
-
 *								Mtlファイルを読む関数
 
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -343,7 +329,7 @@ void ModelManager::Initialize(DXCommon* dxCommon) {
 void ModelManager::Update(
 	const std::string& modelName, const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
 
-	model_->Update(modelName, transform, material, punctualLight);
+	model_->Update(modelName, models_[modelName].vertices, transform, material, punctualLight);
 }
 
 

@@ -36,6 +36,9 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
+	ModelManager() = default;
+	~ModelManager() = default;
+
 	void Initialize(DXCommon* dxCommon);
 
 	void LoadModel(const std::string& directoryPath, const std::string& filename);
@@ -51,9 +54,6 @@ public:
 
 	void SetBufferData(const std::string& modelName, ID3D12GraphicsCommandList* commandList);
 	void DrawCall(const std::string& modelName, ID3D12GraphicsCommandList* commandList);
-
-	// singleton
-	static ModelManager* GetInstance();
 
 	// getter
 
@@ -72,9 +72,4 @@ private:
 
 	std::unique_ptr<Model> model_;
 	
-	ModelManager() = default;
-	~ModelManager() = default;
-	// コピー禁止
-	ModelManager(const ModelManager&) = delete;
-	ModelManager& operator=(const ModelManager&) = delete;
 };

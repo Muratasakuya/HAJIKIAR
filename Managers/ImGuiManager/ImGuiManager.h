@@ -24,6 +24,9 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
+	ImGuiManager() = default;
+	~ImGuiManager() = default;
+
 	void Initialize(WinApp* winApp,DXCommon* dxCommon, SrvManager* srvManager);
 
 	void Begin();
@@ -32,8 +35,6 @@ public:
 
 	void Finalize();
 
-	// singleton
-	static ImGuiManager* GetInstance();
 
 private:
 	/*-----------------------------*/
@@ -44,9 +45,4 @@ private:
 	DXCommon* dxCommon_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
 
-	ImGuiManager() = default;
-	~ImGuiManager() = default;
-	// コピー禁止
-	ImGuiManager(const ImGuiManager&) = delete;
-	const ImGuiManager& operator=(const ImGuiManager&) = delete;
 };

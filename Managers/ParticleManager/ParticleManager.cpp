@@ -25,20 +25,6 @@ bool ParticleManager::IsCollision(const AABB& aabb, const Vector3& point) {
 
 /*////////////////////////////////////////////////////////////////////////////////
 
-*									singleton
-
-////////////////////////////////////////////////////////////////////////////////*/
-ParticleManager* ParticleManager::GetInstance() {
-
-	static ParticleManager instance;
-
-	return &instance;
-}
-
-
-
-/*////////////////////////////////////////////////////////////////////////////////
-
 *								頂点データの生成
 
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -89,11 +75,16 @@ void ParticleManager::CreateVertexData() {
 *									   初期化
 
 ////////////////////////////////////////////////////////////////////////////////*/
-void ParticleManager::Initialize(DXCommon* dxCommon, SrvManager* srvManager) {
+void ParticleManager::Initialize(DXCommon* dxCommon, SrvManager* srvManager,TextureManager* textureManager) {
+
+	assert(dxCommon);
+	assert(srvManager);
+	assert(textureManager);
 
 	// インスタンス代入
 	dxCommon_ = dxCommon;
 	srvManager_ = srvManager;
+	textureManager_ = textureManager;
 
 	// ランダムエンジン初期化
 	// 処理保留
@@ -154,7 +145,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	//1.マテリアルデータにテクスチャのファイルパスを指定
 	group.filePath = filePath;
 	//2.テクスチャを読み込む
-	TextureManager::GetInstance()->LoadTexture(group.filePath);
+	textureManager_->LoadTexture(group.filePath);
 	//3.マテリアルデータにテクスチャのSRVインデックスを記録
 	//4.インスタンシング用のリソースの生成
 	group.numInstance = instanceMaxCount_;
@@ -321,7 +312,7 @@ void ParticleManager::SetBufferData(ID3D12GraphicsCommandList* commandList, cons
 void ParticleManager::SetGraphicsRootDescriptorTable(
 	ID3D12GraphicsCommandList* commandList, const std::string& name, const std::string& textureName) {
 
-	TextureManager::GetInstance()->SetGraphicsRootDescriptorTable(commandList, 1, textureName);
+	textureManager_->SetGraphicsRootDescriptorTable(commandList, 1, textureName);
 	commandList->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(particleGroups_[name].instancingSrvIndex));
 }
 
