@@ -21,23 +21,13 @@ enum class DescriptorType {
 static const uint32_t descriptorNum = static_cast<size_t>(DescriptorType::DescriptorTypeNum);
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *							DXDescriptor Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class DXDescriptor {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
-
-	ComPtr<ID3D12Resource> MakeDepthStencilTextureResource(ID3D12Device* device, int32_t width, int32_t height);
-
-	ComPtr<ID3D12DescriptorHeap> MakeDescriptorHeap(
-		DescriptorType descriptorType,
-		ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType,
-		UINT numDescriptors, bool shaderVisible
-	);
 
 	void CreateRTV(ID3D12Device* device, ID3D12Resource* swapChainResources1, ID3D12Resource* swapChainResources2);
 	void CreateDSV(ID3D12Device* device, uint32_t width, uint32_t height);
@@ -69,4 +59,17 @@ private:
 	ComPtr<ID3D12Resource> depthStencilResource_;
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc_{};
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle_;
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
+
+	ComPtr<ID3D12Resource> MakeDepthStencilTextureResource(ID3D12Device* device, int32_t width, int32_t height);
+
+	ComPtr<ID3D12DescriptorHeap> MakeDescriptorHeap(
+		DescriptorType descriptorType,
+		ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType,
+		UINT numDescriptors, bool shaderVisible
+	);
 };

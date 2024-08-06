@@ -6,9 +6,9 @@
 #include "ModelManager.h"
 #include "MainCamera3D.h"
 
-
-
-// 衝突判定
+/*////////////////////////////////////////////////////////////////////////////////
+*								衝突判定
+////////////////////////////////////////////////////////////////////////////////*/
 bool ParticleManager::IsCollision(const AABB& aabb, const Vector3& point) {
 
 	// ポイントがAABBの範囲内にあるかをチェック
@@ -21,12 +21,8 @@ bool ParticleManager::IsCollision(const AABB& aabb, const Vector3& point) {
 	return false;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								頂点データの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ParticleManager::CreateVertexData() {
 
@@ -68,12 +64,8 @@ void ParticleManager::CreateVertexData() {
 	assert(SUCCEEDED(hr));
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *									   初期化
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ParticleManager::Initialize(DXCommon* dxCommon, SrvManager* srvManager,TextureManager* textureManager) {
 
@@ -100,12 +92,8 @@ void ParticleManager::Initialize(DXCommon* dxCommon, SrvManager* srvManager,Text
 
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								パーティクルグループの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ParticleManager::CreateParticleGroup(const std::string name, const std::string filePath) {
 
@@ -159,12 +147,8 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 		group.instancingSrvIndex, group.instancingResource.Get(), group.numInstance, sizeof(ParticleForGPU));
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								パーティクル発生装置
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ParticleManager::Emit(const std::string name, const Vector3& pos, uint32_t count) {
 
@@ -200,12 +184,8 @@ void ParticleManager::Emit(const std::string name, const Vector3& pos, uint32_t 
 	}
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *									更新処理
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ParticleManager::Update() {
 
@@ -283,12 +263,8 @@ void ParticleManager::Update() {
 	}
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								頂点バッファのセット
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ParticleManager::SetBufferData(ID3D12GraphicsCommandList* commandList, const std::string& name) {
 
@@ -302,12 +278,8 @@ void ParticleManager::SetBufferData(ID3D12GraphicsCommandList* commandList, cons
 	commandList->SetGraphicsRootConstantBufferView(0, particleGroups_[name].instancingResource.Get()->GetGPUVirtualAddress());
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *									SRVのセット
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ParticleManager::SetGraphicsRootDescriptorTable(
 	ID3D12GraphicsCommandList* commandList, const std::string& name, const std::string& textureName) {
@@ -316,12 +288,8 @@ void ParticleManager::SetGraphicsRootDescriptorTable(
 	commandList->SetGraphicsRootDescriptorTable(2, srvManager_->GetGPUDescriptorHandle(particleGroups_[name].instancingSrvIndex));
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *									パーティクル描画
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ParticleManager::DrawCall(ID3D12GraphicsCommandList* commandList, const std::string& name) {
 

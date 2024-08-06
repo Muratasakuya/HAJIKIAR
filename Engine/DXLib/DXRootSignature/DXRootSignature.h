@@ -11,12 +11,13 @@
 // c++
 #include <array>
 
+///===============================================================================
+/// クラス前方宣言
 class DXCommon;
+///===============================================================================
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *							DXRootSignature Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class DXRootSignature {
 public:
@@ -24,8 +25,9 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
-	DXRootSignature() {};
-	~DXRootSignature() {};
+	// default
+	DXRootSignature() = default;
+	~DXRootSignature() = default;
 
 	void Create(DXCommon* dxCommon, PipelineType pipelineType);
 

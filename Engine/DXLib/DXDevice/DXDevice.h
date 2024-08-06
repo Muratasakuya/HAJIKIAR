@@ -3,22 +3,23 @@
 // DirectX
 #include <d3d12.h>
 #include <dxgi1_6.h>
-
 #include "ComPtr.h"
 
 // c++
 #include <cassert>
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *							DXDevice Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class DXDevice {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
+
+	// default
+	DXDevice() = default;
+	~DXDevice() = default;
 
 	void Initialize();
 
@@ -36,4 +37,3 @@ private:
 	ComPtr<IDXGIFactory7> dxgiFactory_;
 	ComPtr<IDXGIAdapter4> useAdapter_;
 };
-

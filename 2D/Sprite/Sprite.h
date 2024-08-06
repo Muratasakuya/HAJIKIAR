@@ -11,9 +11,13 @@
 #include <array>
 #include <cassert>
 
-// 前方宣言
+///===============================================================================
+/// クラス前方宣言
+#pragma region
 class DXCommon;
 class TextureManager;
+#pragma endregion
+///===============================================================================
 
 // スプライト最大数 srvDescriptorの数と同じ
 static const uint32_t kMaxSpriteNum_ = 16;
@@ -23,15 +27,17 @@ static const UINT kSpriteVertexNum_ = 6;
 static const UINT kSpriteIndexNum_ = 4;
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *									Sprite Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class Sprite {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
+
+	// default
+	Sprite() = default;
+	~Sprite() = default;
 
 	// スプライトデータ
 	struct SpriteData {
@@ -108,15 +114,17 @@ private:
 
 	// スプライトデータ
 	std::unique_ptr<SpriteData> sprite_;
-	// スプライト生成
-	std::unique_ptr<SpriteData> CreateData(UINT vertexCount, UINT indexCount);
 
 	/*--------------------------------------------------------------------*/
 
+private:
 	/*-----------------------------*/
-	///			メンバ関数
+	///			private関数
 	/*-----------------------------*/
 
+	// テクスチャのサイズを合わせる
 	void AjustTextureSize(const std::string textureName);
+	// スプライト生成
+	std::unique_ptr<SpriteData> CreateData(UINT vertexCount, UINT indexCount);
 
 };

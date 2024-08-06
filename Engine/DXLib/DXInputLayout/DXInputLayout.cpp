@@ -1,19 +1,13 @@
 #include "DXInputLayout.h"
 
-
-
 // inputLayoutDesc_ getter
 D3D12_INPUT_LAYOUT_DESC DXInputLayout::GetInputLayoutDesc(PipelineType pipelineType) {
 
 	return inputLayoutDesc_[pipelineType];
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								DXInputLayoutの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void DXInputLayout::Create(PipelineType pipelineType) {
 

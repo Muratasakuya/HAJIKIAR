@@ -1,7 +1,5 @@
 #include "ModelManager.h"
 
-
-
 // models_[modelName] getter
 ModelData ModelManager::GetModelData(const std::string& modelName) {
 
@@ -9,12 +7,8 @@ ModelData ModelManager::GetModelData(const std::string& modelName) {
 	return models_[modelName];
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								Mtlファイルを読む関数
-
 ////////////////////////////////////////////////////////////////////////////////*/
 ModelMaterialData ModelManager::LoadMaterialTemplateFile(const std::string& directorypath, const std::string& filename) {
 
@@ -46,12 +40,8 @@ ModelMaterialData ModelManager::LoadMaterialTemplateFile(const std::string& dire
 	return materialData;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							aiNodeをNodeに変換する関数
-
 ////////////////////////////////////////////////////////////////////////////////*/
 Node ModelManager::ReadNode(aiNode* node) {
 
@@ -84,12 +74,8 @@ Node ModelManager::ReadNode(aiNode* node) {
 	return result;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								Objファイルを読む関数
-
 ////////////////////////////////////////////////////////////////////////////////*/
 ModelData ModelManager::LoadObjFile(const std::string& directoryPath, const std::string& filename) {
 
@@ -165,12 +151,8 @@ ModelData ModelManager::LoadObjFile(const std::string& directoryPath, const std:
 	return modelData;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								GLTFファイルを読む関数
-
 ////////////////////////////////////////////////////////////////////////////////*/
 ModelData ModelManager::LoadGLTFFile(const std::string& directoryPath, const std::string& filename) {
 
@@ -249,12 +231,8 @@ ModelData ModelManager::LoadGLTFFile(const std::string& directoryPath, const std
 	return modelData;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								モデルを作成する関数
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::LoadModel(const std::string& directoryPath, const std::string& filename) {
 
@@ -269,12 +247,8 @@ void ModelManager::LoadModel(const std::string& directoryPath, const std::string
 	model_->CreateModelMesh(dxCommon_, identifier, static_cast<UINT>(models_[identifier].vertices.size()));
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							   GLTFモデルを作成する関数
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::LoadGLTFModel(const std::string& directoryPath, const std::string& filename) {
 
@@ -289,12 +263,8 @@ void ModelManager::LoadGLTFModel(const std::string& directoryPath, const std::st
 	model_->CreateModelMesh(dxCommon_, identifier, static_cast<UINT>(models_[identifier].vertices.size()));
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							自作したモデルを作成する関数
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::MakeModel(ModelData modelData, const std::string& modelName) {
 
@@ -303,12 +273,8 @@ void ModelManager::MakeModel(ModelData modelData, const std::string& modelName) 
 	models_[modelName] = modelData;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							モデルメッシュインスタンスの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::Initialize(DXCommon* dxCommon) {
 
@@ -319,12 +285,8 @@ void ModelManager::Initialize(DXCommon* dxCommon) {
 	model_ = std::make_unique<Model>();
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *									更新処理
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::Update(
 	const std::string& modelName, const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
@@ -332,24 +294,16 @@ void ModelManager::Update(
 	model_->Update(modelName, models_[modelName].vertices, transform, material, punctualLight);
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							  頂点バッファセット
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::SetBufferData(const std::string& modelName, ID3D12GraphicsCommandList* commandList) {
 
 	model_->SetBufferData(modelName, commandList);
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								   モデル描画
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::DrawCall(const std::string& modelName, ID3D12GraphicsCommandList* commandList) {
 

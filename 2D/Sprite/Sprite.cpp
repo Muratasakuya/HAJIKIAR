@@ -3,8 +3,6 @@
 #include "DXCommon.h"
 #include "TextureManager.h"
 
-
-
 // this->transform2D_ = transform2D setter
 void Sprite::SetTransform2D(const Transform2D& transform2D) {
 
@@ -14,13 +12,11 @@ void Sprite::SetTransform2D(const Transform2D& transform2D) {
 // color_ = color setter
 void Sprite::SetColor(const Vector4& color) {
 
-	color_ = color;
+	this->color_ = color;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							スプライトメッシュの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Sprite::Initialize(DXCommon* dxCommon, TextureManager* textureManager) {
 
@@ -39,9 +35,7 @@ void Sprite::Initialize(DXCommon* dxCommon, TextureManager* textureManager) {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							スプライトメッシュの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 std::unique_ptr<Sprite::SpriteData> Sprite::CreateData(UINT vertexCount, UINT indexCount) {
 
@@ -111,12 +105,8 @@ std::unique_ptr<Sprite::SpriteData> Sprite::CreateData(UINT vertexCount, UINT in
 	return data;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							テクスチャサイズをイメージに合わせる
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Sprite::AjustTextureSize(const std::string textureName) {
 
@@ -131,12 +121,8 @@ void Sprite::AjustTextureSize(const std::string textureName) {
 	// これいるか？
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							スプライト頂点データの作成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Sprite::Update(const std::string textureName) {
 
@@ -219,12 +205,8 @@ void Sprite::Update(const std::string textureName) {
 	sprite_->materialData->uvTransform = Matrix4x4::MakeIdentity4x4();
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								頂点バッファセット
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Sprite::SetBufferData(ID3D12GraphicsCommandList* commandList) {
 
@@ -238,12 +220,8 @@ void Sprite::SetBufferData(ID3D12GraphicsCommandList* commandList) {
 	commandList->SetGraphicsRootConstantBufferView(1, sprite_->matrixResource.Get()->GetGPUVirtualAddress());
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								  スプライト描画
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Sprite::DrawCall(ID3D12GraphicsCommandList* commandList) {
 

@@ -11,7 +11,9 @@
 #include "Input.h"
 #include "Audio.h"
 
-#pragma region /// staticMembers ///
+///===============================================================================
+/// staticメンバ変数初期化
+#pragma region
 std::unique_ptr<WinApp> Engine::winApp_ = nullptr;
 std::unique_ptr<DXCommon> Engine::dxCommon_ = nullptr;
 std::unique_ptr<SrvManager> Engine::srvManager_ = nullptr;
@@ -27,13 +29,15 @@ std::array<std::unique_ptr<Sprite>, kMaxSpriteNum_> Engine::sprites_ = { nullptr
 std::unique_ptr<PipelineManager> Engine::pipelineManager_ = nullptr;
 uint32_t Engine::indexSprite_ = 0;
 #pragma endregion
+///===============================================================================
 
 
+
+///===============================================================================
+/// メインシステム
 
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								 フレーム開始処理
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Engine::BeginFrame() {
 
@@ -45,12 +49,8 @@ void Engine::BeginFrame() {
 	srvManager_->PreDraw();
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								 フレーム終了処理
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Engine::EndFrame() {
 
@@ -64,12 +64,8 @@ void Engine::EndFrame() {
 	indexSprite_ = 0;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							  メッセージの受け渡し処理
-
 ////////////////////////////////////////////////////////////////////////////////*/
 bool Engine::ProcessMessage() {
 
@@ -82,12 +78,8 @@ bool Engine::ProcessMessage() {
 	}
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *									終了処理
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Engine::Finalize() {
 
@@ -112,7 +104,7 @@ void Engine::Finalize() {
 		sprite.reset();
 	}
 	particleEmitter_.reset();
-	
+
 	imguiManager_.reset();
 	input_.reset();
 	audio_->Finalize();
@@ -123,12 +115,8 @@ void Engine::Finalize() {
 
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								メインシステムの初期化
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Engine::Initialize(uint32_t width, uint32_t height) {
 
@@ -204,24 +192,28 @@ void Engine::Initialize(uint32_t width, uint32_t height) {
 	// スプライトの初期化
 	for (auto& sprite : sprites_) {
 		sprite = std::make_unique<Sprite>();
-		sprite->Initialize(dxCommon_.get(),textureManager_.get());
+		sprite->Initialize(dxCommon_.get(), textureManager_.get());
 	}
 	/*-----------------------------------------------------------------------*/
 	/// Particle
 
 	// パーティクル初期化
 	particleManager_ = std::make_unique<ParticleManager>();
-	particleManager_->Initialize(dxCommon_.get(), srvManager_.get(),textureManager_.get());
+	particleManager_->Initialize(dxCommon_.get(), srvManager_.get(), textureManager_.get());
 
 	// エミッタ初期化
 	particleEmitter_ = std::make_unique<ParticleEmitter>();
 	particleEmitter_->Initialize(particleManager_.get());
 }
 
-/*------------------------------------------------------------------------------*/
+
+
+///===============================================================================
 /// 描画関数
 
-// 三角形
+/*////////////////////////////////////////////////////////////////////////////////
+*									三角形
+////////////////////////////////////////////////////////////////////////////////*/
 void Engine::DrawTriangle(
 	const Transform& transform, const Material& material, const PunctualLight& punctualLight,
 	const std::string textureName, PipelineType pipelineType, BlendMode blendMode) {
@@ -243,7 +235,9 @@ void Engine::DrawTriangle(
 	objects3D_->DrawCall(commandList.Get(), ObjectTriangle);
 }
 
-// スプライト
+/*////////////////////////////////////////////////////////////////////////////////
+*								   スプライト
+////////////////////////////////////////////////////////////////////////////////*/
 void Engine::DrawSprite(const Transform2D& transform2D, Vector4 color, const std::string textureName, BlendMode blendMode) {
 
 	// CommandListをdxCommonClassからもってくる
@@ -270,7 +264,9 @@ void Engine::DrawSprite(const Transform2D& transform2D, Vector4 color, const std
 	indexSprite_++;
 }
 
-// 球
+/*////////////////////////////////////////////////////////////////////////////////
+*									  球
+////////////////////////////////////////////////////////////////////////////////*/
 void Engine::DrawSphere(
 	const Transform& transform, const Material& material, const PunctualLight& punctualLight,
 	const std::string textureName, PipelineType pipelineType, BlendMode blendMode) {
@@ -290,7 +286,9 @@ void Engine::DrawSphere(
 	objects3D_->DrawCall(commandList.Get(), ObjectSphere);
 }
 
-// モデル
+/*////////////////////////////////////////////////////////////////////////////////
+*									 モデル
+////////////////////////////////////////////////////////////////////////////////*/
 void Engine::DrawModel(const Transform& transform, const Material& material, const PunctualLight& punctualLight,
 	const std::string modelName, const std::string textureName, PipelineType pipelineType, BlendMode blendMode) {
 
@@ -309,7 +307,9 @@ void Engine::DrawModel(const Transform& transform, const Material& material, con
 	modelManager_->DrawCall(modelName, commandList.Get());
 }
 
-// パーティクル
+/*////////////////////////////////////////////////////////////////////////////////
+*									 パーティクル
+////////////////////////////////////////////////////////////////////////////////*/
 void Engine::DrawParticle(const std::string name, const std::string textureName, BlendMode blendMode) {
 
 	// CommandListをdxCommonClassからもってくる
@@ -325,10 +325,14 @@ void Engine::DrawParticle(const std::string name, const std::string textureName,
 	particleManager_->DrawCall(commandList.Get(), name);
 }
 
-/*--------------------------------------------------------------------*/
+
+
+///===============================================================================
 /// ライブラリ関数
 
-// 画像読み込み
+/*////////////////////////////////////////////////////////////////////////////////
+*									 画像読み込み
+////////////////////////////////////////////////////////////////////////////////*/
 void Engine::LoadTexture(const std::string filePath) {
 
 	textureManager_->LoadTexture(filePath);

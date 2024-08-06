@@ -1,7 +1,5 @@
 #include "Logger.h"
 
-
-
 // 出力ウィンドウに文字を表示
 void Log(const std::string& message) {
 

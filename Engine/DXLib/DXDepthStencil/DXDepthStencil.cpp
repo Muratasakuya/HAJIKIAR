@@ -1,19 +1,13 @@
 #include "DXDepthStencil.h"
 
-
-
 // depthStencilDesc_ getter
 D3D12_DEPTH_STENCIL_DESC DXDepthStencil::GetDepthStencilDesc() {
 
 	return depthStencilDesc_;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								DXDepthStencilの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void DXDepthStencil::Create(bool depthEnable) {
 

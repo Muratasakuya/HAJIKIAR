@@ -9,15 +9,17 @@
 #include <array>
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *								DXBlendState Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class DXRasterizerState {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
+
+	// default
+	DXRasterizerState() = default;
+	~DXRasterizerState() = default;
 
 	void Create(PipelineType pipelineType);
 

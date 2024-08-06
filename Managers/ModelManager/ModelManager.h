@@ -22,13 +22,13 @@
 #include <filesystem>
 #include <cassert>
 
-// 前方宣言
+///===============================================================================
+/// クラス前方宣言
 class DXCommon;
+///===============================================================================
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *							ModelManager Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class ModelManager {
 public:
@@ -36,6 +36,7 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
+	// default
 	ModelManager() = default;
 	~ModelManager() = default;
 
@@ -69,7 +70,6 @@ private:
 	VertexResource vertexResource_;
 
 	std::unordered_map<std::string, ModelData> models_;
-
 	std::unique_ptr<Model> model_;
 	
 };

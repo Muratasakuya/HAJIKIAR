@@ -5,13 +5,8 @@
 #include "ComPtr.h"
 #include "PipelineStateStructure.h"
 
-// c++
-#include <array>
-
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *								DXBlendState Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class DXBlendState {
 public:
@@ -19,8 +14,9 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
-	DXBlendState() {};
-	~DXBlendState() {};
+	// default
+	DXBlendState() = default;
+	~DXBlendState() = default;
 
 	D3D12_RENDER_TARGET_BLEND_DESC Create(BlendMode blendMode);
 

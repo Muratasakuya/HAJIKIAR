@@ -1,7 +1,5 @@
 #include "DXDevice.h"
 
-
-
 // device_ getter
 ID3D12Device* DXDevice::GetDevice() const {
 
@@ -14,12 +12,8 @@ IDXGIFactory7* DXDevice::GetDxgiFactory() const {
 	return dxgiFactory_.Get();
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							DXDeviceの初期化
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void DXDevice::Initialize() {
 

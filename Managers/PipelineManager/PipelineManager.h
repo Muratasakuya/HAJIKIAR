@@ -18,12 +18,13 @@
 #include <array>
 #include <cassert>
 
+///===============================================================================
+/// クラス前方宣言
 class DXCommon;
+///===============================================================================
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *							PipelineManager Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class PipelineManager {
 public:
@@ -58,6 +59,11 @@ private:
 
 	std::array<std::array<ComPtr<ID3D12PipelineState>, blendModeNum>, pipelineTypeNum> pipelineStates_;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc_{};
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
 
 	// シェーダのコンパイル
 	IDxcBlob* CompileShader(

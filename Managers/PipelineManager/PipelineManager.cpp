@@ -2,12 +2,8 @@
 
 #include "DXCommon.h"
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								 デストラクタ
-
 ////////////////////////////////////////////////////////////////////////////////*/
 PipelineManager::~PipelineManager() {
 
@@ -16,8 +12,6 @@ PipelineManager::~PipelineManager() {
 	rasterizerState_.reset();
 	depthStencil_.reset();
 }
-
-
 
 // DXCを使用してShaderをCompileする
 IDxcBlob* PipelineManager::CompileShader(
@@ -106,12 +100,8 @@ IDxcBlob* PipelineManager::CompileShader(
 	return shaderBlob;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								  ShaderのCompile
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void PipelineManager::ShaderCompile(
 	DXCommon* dxCommon, PipelineType pipelineType) {
@@ -188,12 +178,8 @@ void PipelineManager::ShaderCompile(
 	}
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								PipelineStateの作成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void PipelineManager::CreatePipelineState(
 	DXCommon* dxCommon, IDxcBlob* vs, IDxcBlob* ps, ID3D12RootSignature* rootSigature, D3D12_INPUT_LAYOUT_DESC inputLayout,
@@ -229,12 +215,8 @@ void PipelineManager::CreatePipelineState(
 	assert(SUCCEEDED(hr));
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								PSOの作成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void PipelineManager::CreatePipelineStateObject(DXCommon* dxCommon) {
 
@@ -281,12 +263,8 @@ void PipelineManager::CreatePipelineStateObject(DXCommon* dxCommon) {
 	}
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								パイプラインのセット
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void PipelineManager::SetGraphicsPipeline(
 	ID3D12GraphicsCommandList* commandList, PipelineType pipelineType, BlendMode blendMode) {

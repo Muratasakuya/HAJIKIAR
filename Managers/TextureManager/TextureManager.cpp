@@ -3,8 +3,6 @@
 #include "DXCommon.h"
 #include "SrvManager.h"
 
-
-
 const DirectX::TexMetadata& TextureManager::GetMetaData(const std::string textureName) {
 
 	// テクスチャ名が存在するかチェック
@@ -19,8 +17,6 @@ const DirectX::TexMetadata& TextureManager::GetMetaData(const std::string textur
 
 	return textureData.metadata;
 }
-
-
 
 // DescriptorHandleCPUの生成
 D3D12_CPU_DESCRIPTOR_HANDLE TextureManager::GetCPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index) {
@@ -40,12 +36,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetGPUDescriptorHandle(ID3D12Descrip
 	return handleGPU;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							   Textureデータの読み込み
-
 ////////////////////////////////////////////////////////////////////////////////*/
 DirectX::ScratchImage TextureManager::Load(const std::string& filePath) {
 
@@ -66,12 +58,8 @@ DirectX::ScratchImage TextureManager::Load(const std::string& filePath) {
 	return mipImages;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *						    TextureResourceを作成する関数
-
 ////////////////////////////////////////////////////////////////////////////////*/
 ComPtr<ID3D12Resource> TextureManager::CreateTextureResource(ID3D12Device* device, const DirectX::TexMetadata& metadata) {
 
@@ -109,12 +97,8 @@ ComPtr<ID3D12Resource> TextureManager::CreateTextureResource(ID3D12Device* devic
 	return resource;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *						  TextureResourceにデータを転送する関数
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void TextureManager::UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages) {
 
@@ -139,12 +123,8 @@ void TextureManager::UploadTextureData(ID3D12Resource* texture, const DirectX::S
 	}
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							  動的なテクスチャ読み込み関数
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void TextureManager::LoadTexture(const std::string& filePath) {
 
@@ -174,12 +154,8 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 	}
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *									SRVのセット
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void TextureManager::SetGraphicsRootDescriptorTable(
 	ID3D12GraphicsCommandList* commandList, UINT rootParamaterIndex, std::string identifier) {
@@ -190,12 +166,8 @@ void TextureManager::SetGraphicsRootDescriptorTable(
 	commandList->SetGraphicsRootDescriptorTable(rootParamaterIndex, textures_[identifier].gpuHandle);
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								 インスタンスの代入
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void TextureManager::Initialize(DXCommon* dxCommon, SrvManager* srvManager) {
 
