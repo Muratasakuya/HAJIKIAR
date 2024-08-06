@@ -2,20 +2,14 @@
 
 #include "DXCommon.h"
 
-
-
 // rootSignature_ getter
 ID3D12RootSignature* DXRootSignature::GetRootSignature(PipelineType pipelineType) const {
 
 	return rootSignature_[pipelineType].Get();
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							DXRootSignatureの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void DXRootSignature::Create(DXCommon* dxCommon, PipelineType pipelineType) {
 

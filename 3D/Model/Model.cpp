@@ -19,12 +19,8 @@ Model::Object3DModelData* Model::GetModel(const std::string& modelName) const {
 	}
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							  モデルメッシュの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, UINT vertexCount) {
 
@@ -161,12 +157,8 @@ void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, UIN
 
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
-*									更新処理
-
+*								　更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
 void Model::Update(const std::string& modelName, const std::vector<VertexData> VertexData,
 	const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
@@ -229,13 +221,8 @@ void Model::Update(const std::string& modelName, const std::vector<VertexData> V
 
 }
 
-
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							  頂点バッファセット
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Model::SetBufferData(const std::string& modelName, ID3D12GraphicsCommandList* commandList) {
 

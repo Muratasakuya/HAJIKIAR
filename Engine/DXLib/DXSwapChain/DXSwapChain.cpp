@@ -2,8 +2,6 @@
 
 #include "WinApp.h"
 
-
-
 // swapChain_ getter
 IDXGISwapChain4* DXSwapChain::GetSwapChain() const {
 
@@ -22,13 +20,8 @@ DXGI_SWAP_CHAIN_DESC1& DXSwapChain::GetSwapChainDesc() {
 	return swapChainDesc_;
 }
 
-
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							DXSwapChainの初期化
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void DXSwapChain::Initialize(
 	WinApp* winApp, IDXGIFactory7* dxgiFactory, ID3D12CommandQueue* commandQueue,

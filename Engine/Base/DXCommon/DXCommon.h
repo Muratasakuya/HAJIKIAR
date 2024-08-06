@@ -18,13 +18,13 @@
 #include <chrono>
 #include <thread>
 
-// 前方宣言
+///===============================================================================
+/// クラス前方宣言
 class WinApp;
+///===============================================================================
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *							DirectXCommon Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class DXCommon {
 public:
@@ -32,17 +32,9 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
-	DXCommon() {};
-	~DXCommon() {};
-
-	void DebugLayer();
-	void DebugInfo();
-
-	void CreateFenceEvent();
-	void InitializeDXCompiler();
-	void CreateCommand();
-	void TransitionBarrier();
-	void ClearWindow();
+	// default
+	DXCommon() = default;
+	~DXCommon() = default;
 
 	void Initialize(WinApp* winApp, uint32_t width, uint32_t height);
 
@@ -59,7 +51,6 @@ public:
 	IDxcCompiler3* GetDxcCompiler() const;
 	IDxcIncludeHandler* GetIncludeHandler() const;
 	DXGI_SWAP_CHAIN_DESC1& GetSwapChainDesc();
-
 
 private:
 	/*-----------------------------*/
@@ -105,6 +96,15 @@ private:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
+
+	void DebugLayer();
+	void DebugInfo();
+
+	void CreateFenceEvent();
+	void InitializeDXCompiler();
+	void CreateCommand();
+	void TransitionBarrier();
+	void ClearWindow();
 
 	void InitializeFixFPS();
 	void UpdateFixFPS();

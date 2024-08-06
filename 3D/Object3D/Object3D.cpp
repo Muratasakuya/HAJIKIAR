@@ -2,12 +2,8 @@
 
 #include "DXCommon.h"
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								  初期化
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Object3D::Initialize(DXCommon* dxCommon) {
 
@@ -25,11 +21,8 @@ void Object3D::Initialize(DXCommon* dxCommon) {
 	sphere_ = CreateSphereData(kSphereIndexNum_, kSphereVertexNum_);
 }
 
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								三角形生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 std::unique_ptr<Object3D::TriangleData> Object3D::CreateTriangleData(UINT vertexCount) {
 
@@ -160,12 +153,8 @@ std::unique_ptr<Object3D::TriangleData> Object3D::CreateTriangleData(UINT vertex
 	return data;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								  球生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 std::unique_ptr<Object3D::SphereData> Object3D::CreateSphereData(UINT vertexCount, UINT indexCount) {
 
@@ -313,12 +302,8 @@ std::unique_ptr<Object3D::SphereData> Object3D::CreateSphereData(UINT vertexCoun
 	return data;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								 更新処理
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Object3D::Update(const Object3DType& objectType, const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
 
@@ -577,12 +562,8 @@ void Object3D::Update(const Object3DType& objectType, const Transform& transform
 	}
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							  頂点バッファセット
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Object3D::SetBufferData(ID3D12GraphicsCommandList* commandList, const Object3DType& objectType) {
 
@@ -615,12 +596,8 @@ void Object3D::SetBufferData(ID3D12GraphicsCommandList* commandList, const Objec
 	}
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								  3Dオブジェクト描画
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Object3D::DrawCall(ID3D12GraphicsCommandList* commandList, const Object3DType& objectType) {
 

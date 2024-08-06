@@ -1,7 +1,5 @@
 #include "DXDescriptor.h"
 
-
-
 // descriptorHeaps_[static_cast<size_t>(DescriptorType::DSV)] getter
 ID3D12DescriptorHeap* DXDescriptor::GetDSVDescriptorHeap() const {
 
@@ -20,9 +18,9 @@ D3D12_CPU_DESCRIPTOR_HANDLE DXDescriptor::GetDSVHandle() {
 	return dsvHandle_;
 }
 
-
-
-// DepthStencilTextureを作成する関数
+/*////////////////////////////////////////////////////////////////////////////////
+*						DepthStencilTextureを作成する関数
+////////////////////////////////////////////////////////////////////////////////*/
 ComPtr<ID3D12Resource> DXDescriptor::MakeDepthStencilTextureResource(ID3D12Device* device, int32_t width, int32_t height) {
 
 	HRESULT hr;
@@ -61,7 +59,9 @@ ComPtr<ID3D12Resource> DXDescriptor::MakeDepthStencilTextureResource(ID3D12Devic
 	return resource;
 }
 
-// DescriptorHeapを作成する関数
+/*////////////////////////////////////////////////////////////////////////////////
+*						   DescriptorHeapを作成する関数
+////////////////////////////////////////////////////////////////////////////////*/
 ComPtr<ID3D12DescriptorHeap> DXDescriptor::MakeDescriptorHeap(
 	DescriptorType descriptorType, ID3D12Device* device,
 	D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
@@ -80,12 +80,8 @@ ComPtr<ID3D12DescriptorHeap> DXDescriptor::MakeDescriptorHeap(
 	return descriptorHeap;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							Render Terger VIewの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void DXDescriptor::CreateRTV(ID3D12Device* device, ID3D12Resource* swapChainResources1, ID3D12Resource* swapChainResources2) {
 
@@ -106,12 +102,8 @@ void DXDescriptor::CreateRTV(ID3D12Device* device, ID3D12Resource* swapChainReso
 	device->CreateRenderTargetView(swapChainResources2, &rtvDesc_, rtvHandles_[1]);
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							Depth Stencil VIewの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void DXDescriptor::CreateDSV(ID3D12Device* device, uint32_t width, uint32_t height) {
 
@@ -127,12 +119,8 @@ void DXDescriptor::CreateDSV(ID3D12Device* device, uint32_t width, uint32_t heig
 		&dsvDesc, descriptorHeaps_[static_cast<size_t>(DescriptorType::DSV)]->GetCPUDescriptorHandleForHeapStart());
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *									初期化
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void DXDescriptor::Initialize(
 	ID3D12Device* device, ID3D12Resource* swapChainResources1, ID3D12Resource* swapChainResources2,

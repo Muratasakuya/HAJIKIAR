@@ -1,19 +1,13 @@
 #include "DXRasterizerState.h"
 
-
-
 // rasterizerDesc_ getter
 D3D12_RASTERIZER_DESC DXRasterizerState::GetRasterizerDesc(PipelineType pipelineType) {
 
 	return rasterizerDesc_[pipelineType];
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							DXRasterizerStateの生成
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void DXRasterizerState::Create(PipelineType pipelineType) {
 

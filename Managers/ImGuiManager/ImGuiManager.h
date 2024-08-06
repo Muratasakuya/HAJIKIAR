@@ -14,9 +14,7 @@ class DXCommon;
 class SrvManager;
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *							ImGuiManager Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class ImGuiManager {
 public:
@@ -24,6 +22,7 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
+	// default
 	ImGuiManager() = default;
 	~ImGuiManager() = default;
 
@@ -34,7 +33,6 @@ public:
 	void Draw();
 
 	void Finalize();
-
 
 private:
 	/*-----------------------------*/

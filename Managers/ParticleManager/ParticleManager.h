@@ -11,19 +11,20 @@
 #include <numbers>
 #include <string>
 
-// 前方宣言
+///===============================================================================
+/// クラス前方宣言
 class DXCommon;
 class SrvManager;
 class TextureManager;
+///===============================================================================
 
+// インスタンスの最大数
 static const uint32_t instanceMaxCount_ = 128;
 // Δt
 static const float kDeltaTime = 1.0f / 60.0f;
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *							ParticleManager Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class ParticleManager {
 public:
@@ -31,6 +32,7 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
+	// default
 	ParticleManager() = default;
 	~ParticleManager() = default;
 
@@ -80,7 +82,7 @@ private:
 
 private:
 	/*-----------------------------*/
-	///			private変数
+	///			private関数
 	/*-----------------------------*/
 
 	bool IsCollision(const AABB& aabb, const Vector3& point);

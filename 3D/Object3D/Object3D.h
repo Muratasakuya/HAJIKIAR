@@ -1,7 +1,6 @@
 #pragma once
 
 // DirectX
-
 #include "CBufferStructure.h"
 #include "VertexResource.h"
 
@@ -16,13 +15,14 @@
 #include <numbers>
 #include <cassert>
 
-// 前方宣言
+///===============================================================================
+/// クラス前方宣言
 class DXCommon;
+///===============================================================================
 
 ///* 使用可能3Dオブジェクト *///
 // 三角形 Triangle
 // 球 SPhere
-
 enum Object3DType {
 
 	ObjectTriangle,
@@ -40,15 +40,17 @@ static const UINT kSphereVertexNum_ = kSphereSubdivision * kSphereSubdivision * 
 static const UINT kSphereIndexNum_ = kSphereSubdivision * kSphereSubdivision * 4;
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *								Object3D Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class Object3D {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
+
+	// default
+	Object3D() = default;
+	~Object3D() = default;
 
 	// 三角形データ
 	struct TriangleData {

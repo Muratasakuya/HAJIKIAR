@@ -6,9 +6,7 @@
 #include "PipelineStateStructure.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *								DXDepthStencil Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class DXDepthStencil{
 public:
@@ -16,8 +14,9 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
-	DXDepthStencil() {};
-	~DXDepthStencil() {};
+	// default
+	DXDepthStencil() = default;
+	~DXDepthStencil() = default;
 
 	void Create(bool depthEnable);
 

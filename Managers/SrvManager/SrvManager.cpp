@@ -2,8 +2,6 @@
 
 #include "DXCommon.h"
 
-
-
 // SRVの最大数
 const uint32_t SrvManager::kMaxSRVCount_ = 512;
 
@@ -50,12 +48,8 @@ ComPtr<ID3D12DescriptorHeap> SrvManager::MakeDescriptorHeap(ID3D12Device* device
 	return descriptorHeap;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							SRV生成 2DTexture
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void SrvManager::CreateSRVForTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DXGI_FORMAT format, UINT mipLevels) {
 
@@ -68,12 +62,8 @@ void SrvManager::CreateSRVForTexture2D(uint32_t srvIndex, ID3D12Resource* pResou
 	dxCommon_->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *						  SRV生成 StructureBuffer
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void SrvManager::CreateSRVForStructureBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride) {
 
@@ -89,12 +79,8 @@ void SrvManager::CreateSRVForStructureBuffer(uint32_t srvIndex, ID3D12Resource* 
 	dxCommon_->GetDevice()->CreateShaderResourceView(pResource, &srvDesc, GetCPUDescriptorHandle(srvIndex));
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							使用インデックスの計算
-
 ////////////////////////////////////////////////////////////////////////////////*/
 uint32_t SrvManager::Allocate() {
 
@@ -110,24 +96,16 @@ uint32_t SrvManager::Allocate() {
 	return index + 1;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *							割り当て可能かどうかのチェック
-
 ////////////////////////////////////////////////////////////////////////////////*/
 bool SrvManager::CanAllocate() {
 
 	return useIndex_ < kMaxSRVCount_;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								  描画前処理
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void SrvManager::PreDraw() {
 
@@ -135,12 +113,8 @@ void SrvManager::PreDraw() {
 	dxCommon_->GetCommandList()->SetDescriptorHeaps(1, descriptorHeaps);
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *									初期化
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void SrvManager::Initialize(DXCommon* dxCommon) {
 

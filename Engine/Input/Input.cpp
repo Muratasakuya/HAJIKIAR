@@ -6,15 +6,11 @@
 
 #include "WinApp.h"
 
-
-
 // key_<array> getter
 const std::array<BYTE, inputKeyMaxNum>& Input::GetAllKey() const {
 
 	return key_;
 }
-
-
 
 // キーの押下判定
 bool Input::PushKey(BYTE keyNumber) {
@@ -40,12 +36,8 @@ bool Input::TriggerKey(BYTE keyNumber) {
 	return false;
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								Inputの初期化
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Input::Initialize(WinApp* winApp) {
 
@@ -70,12 +62,8 @@ void Input::Initialize(WinApp* winApp) {
 	assert(SUCCEEDED(hr));
 }
 
-
-
 /*////////////////////////////////////////////////////////////////////////////////
-
 *								Inputの更新処理
-
 ////////////////////////////////////////////////////////////////////////////////*/
 void Input::Update() {
 

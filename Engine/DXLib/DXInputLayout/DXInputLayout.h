@@ -9,18 +9,17 @@
 #include <array>
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *							DXInputLayout Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
-class DXInputLayout{
+class DXInputLayout {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
 
-	DXInputLayout() {};
-	~DXInputLayout() {};
+	// default
+	DXInputLayout() = default;
+	~DXInputLayout() = default;
 
 	void Create(PipelineType pipelineType);
 

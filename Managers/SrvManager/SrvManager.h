@@ -9,19 +9,23 @@
 #include <cassert>
 #include <array>
 
-// 前方宣言
+///===============================================================================
+/// クラス前方宣言
 class DXCommon;
+///===============================================================================
 
 /*////////////////////////////////////////////////////////////////////////////////
-*
 *							SrvManager Class
-*
 ////////////////////////////////////////////////////////////////////////////////*/
 class SrvManager {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
+
+	// default
+	SrvManager() = default;
+	~SrvManager() = default;
 
 	uint32_t Allocate();
 	bool CanAllocate();
@@ -52,6 +56,11 @@ private:
 
 	ComPtr<ID3D12DescriptorHeap> descriptorHeap_;
 	uint32_t descriptorSize_;
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
 
 	ComPtr<ID3D12DescriptorHeap> MakeDescriptorHeap(
 		ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType,

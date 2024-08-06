@@ -7,19 +7,17 @@
 #include "Logger.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
-* 
 *							Windows Application Class 
-* 
 ////////////////////////////////////////////////////////////////////////////////*/
-
 class WinApp {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
 
-	WinApp() {};
-	~WinApp() {};
+	// default
+	WinApp() = default;
+	~WinApp() = default;
 
 	bool ProcessMessage();
 	void CreateMainWindow(uint32_t width, uint32_t height);
@@ -37,6 +35,11 @@ private:
 	// windowHandle
 	HWND hwnd_{};
 	WNDCLASS wc_{};
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
 
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	void RegisterWindowClass();
