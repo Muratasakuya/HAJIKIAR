@@ -92,6 +92,10 @@ public:
 
 	// 画像読み込み
 	static void LoadTexture(const std::string filePath);
+	// テクスチャassert あるかチェック
+	static void CheckTextureAvailability(const std::string textureName);
+	// モデルassert あるかチェック
+	static void CheckModelAvailability(const std::string modelName);
 
 private:
 	/*-----------------------------*/
@@ -108,7 +112,7 @@ private:
 	static std::unique_ptr<ModelManager> modelManager_;
 	static std::unique_ptr<ParticleManager> particleManager_;
 
-	static std::unique_ptr<Object3D> objects3D_;
+	static std::array<std::unique_ptr<Object3D>, kMaxObject3DNum_> objects3D_;
 	static std::array<std::unique_ptr<Sprite>, kMaxSpriteNum_> sprites_;
 	static std::unique_ptr<ParticleEmitter> particleEmitter_;
 
@@ -116,6 +120,8 @@ private:
 	static std::unique_ptr<Input> input_;
 	static std::unique_ptr<Audio> audio_;
 
+	// 3Dオブジェクトの使用インデックス
+	static uint32_t indexObject3D_;
 	// スプライトの使用インデックス
 	static uint32_t indexSprite_;
 };

@@ -15,6 +15,7 @@
 #include <vector>
 #include <memory>
 #include <list>
+#include <numbers>
 #include <string>
 
 /*==========================================================*/
@@ -74,6 +75,14 @@ struct DirectionalLight {
 	Vector4 color;
 	Vector3 direction;
 	float intensity;
+
+	// DefaultInitialize
+	void Initialize() {
+
+		color = { 1.0f,1.0f,1.0f,1.0f };
+		direction = { 0.0f,-1.0f,0.0f };
+		intensity = 1.0f;
+	};
 };
 struct PointLight {
 
@@ -83,6 +92,16 @@ struct PointLight {
 	float radius;
 	float decay;
 	float padding[2];
+
+	// DefaultInitialize
+	void Initialize() {
+
+		color = { 1.0f,1.0f,1.0f,1.0f };
+		pos = { 0.0f,0.0f,0.0f };
+		radius = 5.0f;
+		intensity = 1.0f;
+		decay = 1.0f;
+	};
 };
 struct SpotLight {
 
@@ -95,12 +114,33 @@ struct SpotLight {
 	float cosAngle;
 	float cosFalloffStart;
 	float padding[2];
+
+	// DefaultInitialize
+	void Initialize() {
+
+		color = { 1.0f,1.0f,1.0f,1.0f };
+		pos = { 0.0f,0.0f,0.0f };
+		distance = 10.0f;
+		intensity = 1.0f;
+		direction = { -1.0f,-1.0f,0.0f };
+		decay = 1.0f;
+		cosAngle = std::cos(std::numbers::pi_v<float> / 3.0f);
+		cosFalloffStart = 1.0f;
+	};
 };
 struct PunctualLight {
 
 	DirectionalLight directional;
 	PointLight point;
 	SpotLight spot;
+
+	// DefaultInitialize
+	void Initialize() {
+
+		directional.Initialize();
+		point.Initialize();
+		spot.Initialize();
+	};
 };
 /*==========================================================*/
 /// 座標変換データ

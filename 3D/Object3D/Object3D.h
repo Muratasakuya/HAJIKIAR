@@ -29,6 +29,9 @@ enum Object3DType {
 	ObjectSphere,
 };
 
+// 3Dオブジェクトの最大数
+static const uint32_t kMaxObject3DNum_ = 12;
+
 // 球の頂点数 
 static const UINT kTriangleVertexNum_ = 3;
 

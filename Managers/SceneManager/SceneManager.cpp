@@ -15,7 +15,7 @@ SceneManager* SceneManager::GetInstance() {
 ////////////////////////////////////////////////////////////////////////////////*/
 SceneManager::SceneManager() {
 
-	currentSceneNo_ = TITLE;
+	currentSceneNo_ = GAME;
 	currentScene_ = static_cast<std::unique_ptr<IScene>>(sceneFactory_.CreateScene(currentSceneNo_));
 	currentScene_->Initialize();
 }

@@ -13,18 +13,19 @@
 #include <string>
 #include <filesystem>
 
+
 /*////////////////////////////////////////////////////////////////////////////////
-*								GameObject3D Class
+*								GameOject2D Class
 ////////////////////////////////////////////////////////////////////////////////*/
-class GameObject3D :
-	public Collider<Vector3> {
+class GameObject2D :
+	public Collider<Vector2> {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
 
-	GameObject3D(GameObjectType type);
-	~GameObject3D();
+	GameObject2D();
+	~GameObject2D();
 
 	void Initialize();
 	void Update();
@@ -36,12 +37,11 @@ public:
 	// setter
 
 	void SetTexture(const std::string name);
-	void SetModel(const std::string name);
-	void SetPos(Vector3 pos);
+	void SetPos(Vector2 pos);
 
 	// getter
 
-	Vector3 GetCenterPos() const override;
+	Vector2 GetCenterPos() const override;
 
 private:
 	/*-----------------------------*/
@@ -51,24 +51,16 @@ private:
 	/*--------------------------------------------------------------*/
 	// メインオブジェクト
 
-	// SRT
-	Transform transform_;
+	// トランスフォーム
+	Transform2D transform2D_{};
 
-	// マテリアル
-	Material material_;
-
-	// ライト
-	PunctualLight light_;
+	// 色
+	Vector4 color_{};
 
 	/*--------------------------------------------------------------*/
 	// サブオブジェクト
 
-	// オブジェクトのタイプ
-	GameObjectType type_;
-
 	// 使用するテクスチャの名前
 	std::string textureName_;
-	// 使用するモデルの名前
-	std::string modelName_;
 
 };
