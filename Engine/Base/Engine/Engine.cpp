@@ -24,9 +24,10 @@ std::unique_ptr<ParticleManager> Engine::particleManager_ = nullptr;
 std::unique_ptr<ParticleEmitter> Engine::particleEmitter_ = nullptr;
 std::unique_ptr<Input> Engine::input_ = nullptr;
 std::unique_ptr<Audio> Engine::audio_ = nullptr;
-std::unique_ptr<Object3D> Engine::objects3D_ = nullptr;
+std::array<std::unique_ptr<Object3D>, kMaxObject3DNum_> Engine::objects3D_ = { nullptr };
 std::array<std::unique_ptr<Sprite>, kMaxSpriteNum_> Engine::sprites_ = { nullptr };
 std::unique_ptr<PipelineManager> Engine::pipelineManager_ = nullptr;
+uint32_t Engine::indexObject3D_ = 0;
 uint32_t Engine::indexSprite_ = 0;
 #pragma endregion
 ///===============================================================================
@@ -61,6 +62,7 @@ void Engine::EndFrame() {
 	dxCommon_->PostDraw();
 
 	// 使用カウントリセット
+	indexObject3D_ = 0;
 	indexSprite_ = 0;
 }
 
@@ -99,7 +101,9 @@ void Engine::Finalize() {
 	modelManager_.reset();
 	particleManager_.reset();
 
-	objects3D_.reset();
+	for (auto& object3D : objects3D_) {
+		object3D.reset();
+	}
 	for (auto& sprite : sprites_) {
 		sprite.reset();
 	}
@@ -184,8 +188,10 @@ void Engine::Initialize(uint32_t width, uint32_t height) {
 	/// Object3D
 
 	// 3Dオブジェクトの初期化
-	objects3D_ = std::make_unique<Object3D>();
-	objects3D_->Initialize(dxCommon_.get());
+	for (auto& objects3D : objects3D_) {
+		objects3D = std::make_unique<Object3D>();
+		objects3D->Initialize(dxCommon_.get());
+	}
 	/*-----------------------------------------------------------------------*/
 	/// Sprite
 
@@ -221,18 +227,23 @@ void Engine::DrawTriangle(
 	// CommandListをdxCommonClassからもってくる
 	ComPtr<ID3D12GraphicsCommandList> commandList = dxCommon_->GetCommandList();
 
+	auto& object3D = objects3D_[indexObject3D_];
+
 	// 更新
-	objects3D_->Update(ObjectTriangle, transform, material, punctualLight);
+	object3D->Update(ObjectTriangle, transform, material, punctualLight);
 	// パイプラインのセット
 	pipelineManager_->SetGraphicsPipeline(commandList.Get(), pipelineType, blendMode);
 	// 頂点バッファのセット
-	objects3D_->SetBufferData(commandList.Get(), ObjectTriangle);
+	object3D->SetBufferData(commandList.Get(), ObjectTriangle);
 	if (pipelineType == Normal) {
 		// SRVのセット
 		textureManager_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
 	}
 	// DrawCall
-	objects3D_->DrawCall(commandList.Get(), ObjectTriangle);
+	object3D->DrawCall(commandList.Get(), ObjectTriangle);
+
+	// 使用カウント上昇
+	indexObject3D_++;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -274,16 +285,21 @@ void Engine::DrawSphere(
 	// CommandListをdxCommonClassからもってくる
 	ComPtr<ID3D12GraphicsCommandList> commandList = dxCommon_->GetCommandList();
 
+	auto& object3D = objects3D_[indexObject3D_];
+
 	// 更新
-	objects3D_->Update(ObjectSphere, transform, material, punctualLight);
+	object3D->Update(ObjectSphere, transform, material, punctualLight);
 	// パイプラインのセット
 	pipelineManager_->SetGraphicsPipeline(commandList.Get(), pipelineType, blendMode);
 	// 頂点バッファのセット
-	objects3D_->SetBufferData(commandList.Get(), ObjectSphere);
+	object3D->SetBufferData(commandList.Get(), ObjectSphere);
 	// SRVのセット
 	textureManager_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
 	// DrawCall
-	objects3D_->DrawCall(commandList.Get(), ObjectSphere);
+	object3D->DrawCall(commandList.Get(), ObjectSphere);
+
+	// 使用カウント上昇
+	indexObject3D_++;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -336,4 +352,20 @@ void Engine::DrawParticle(const std::string name, const std::string textureName,
 void Engine::LoadTexture(const std::string filePath) {
 
 	textureManager_->LoadTexture(filePath);
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*							  テクスチャassert あるかチェック
+////////////////////////////////////////////////////////////////////////////////*/
+void Engine::CheckTextureAvailability(const std::string textureName) {
+
+	textureManager_->CheckAvailability(textureName);
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								モデルassert あるかチェック
+////////////////////////////////////////////////////////////////////////////////*/
+void Engine::CheckModelAvailability(const std::string modelName) {
+
+
 }

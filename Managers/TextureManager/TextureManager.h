@@ -10,10 +10,11 @@
 #include "Logger.h"
 
 // c++
-#include <unordered_map>
 #include <string>
-#include <filesystem>
 #include <vector>
+#include <unordered_map>
+#include <filesystem>
+#include <iostream> 
 
 ///===============================================================================
 /// クラス前方宣言
@@ -35,6 +36,7 @@ public:
 	~TextureManager() = default;
 
 	void LoadTexture(const std::string& filePath);
+	void CheckAvailability(const std::string name);
 
 	void SetGraphicsRootDescriptorTable(
 		ID3D12GraphicsCommandList* commandList, UINT rootParamaterIndex, std::string identifier);

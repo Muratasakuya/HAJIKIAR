@@ -83,7 +83,7 @@ std::unique_ptr<Object3D::TriangleData> Object3D::CreateTriangleData(UINT vertex
 		= vertexResource_.CreateBufferResource(dxCommon_->GetDevice(), sizeof(TransformationMatrix));
 
 	// 座標変換データのマッピング
-	hr = data->cBufferData_.materialResource->Map(
+	hr = data->cBufferData_.matrixResource->Map(
 		0, nullptr, reinterpret_cast<void**>(&data->cBufferData_.transformationMatrix));
 	// 作れなければエラー
 	assert(SUCCEEDED(hr));
@@ -345,7 +345,7 @@ void Object3D::Update(const Object3DType& objectType, const Transform& transform
 
 		// 行列の更新
 		triangle_->cBufferData_.transformationMatrix->World = worldMatrix;
-		triangle_->cBufferData_.transformationMatrix->WVP = worldMatrix;
+		triangle_->cBufferData_.transformationMatrix->WVP = wvpMatrix;
 		triangle_->cBufferData_.transformationMatrix->WorldInverseTranspose = worldInverseTranspose;
 
 		// マテリアルの更新

@@ -18,6 +18,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <iostream> 
 #include <unordered_map>
 #include <filesystem>
 #include <cassert>
@@ -50,6 +51,8 @@ public:
 	ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
 	ModelData LoadGLTFFile(const std::string& directoryPath, const std::string& filename);
 	Node ReadNode(aiNode* node);
+
+	void CheckAvailability(const std::string name);
 
 	void Update(const std::string& modelName, const Transform& transform, const Material& material, const PunctualLight& punctualLight);
 

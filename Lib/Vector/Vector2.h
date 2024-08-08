@@ -1,4 +1,9 @@
 #pragma once
+
+#include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 /// <summary>
 /// 2次元ベクトル
 /// </summary>
@@ -30,6 +35,14 @@ public:
 
 	// 非等価演算子 !=
 	bool operator!=(const Vector2& other) const;
+
+	/*-------------------------------------------------------------*/
+	/// 関数
+
+	// ノルム
+	static float Length(const Vector2& v);
+	// 正規化
+	static Vector2 Normalize(const Vector2& v);
 
 };
 
