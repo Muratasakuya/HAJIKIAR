@@ -367,5 +367,5 @@ void Engine::CheckTextureAvailability(const std::string textureName) {
 ////////////////////////////////////////////////////////////////////////////////*/
 void Engine::CheckModelAvailability(const std::string modelName) {
 
-
+	modelManager_->CheckAvailability(modelName);
 }

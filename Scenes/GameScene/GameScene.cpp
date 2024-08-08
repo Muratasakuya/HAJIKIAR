@@ -26,6 +26,10 @@ void GameScene::Initialize() {
 	// 生成
 	collisionManager_ = std::make_unique<CollisionManager>();
 
+	// ImGui
+	// 生成
+	imguiRenderer_ = std::make_unique<ImGuiRenderer>();
+
 	/*======================================================*/
 	// 2Dオブジェクト
 
@@ -58,7 +62,7 @@ void GameScene::Update() {
 	/*======================================================*/
 	// ImGui
 
-
+	imguiRenderer_->Render(spheres);
 
 	/*======================================================*/
 	// 2Dオブジェクト

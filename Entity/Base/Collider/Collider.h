@@ -3,6 +3,8 @@
 #include "Vector2.h"
 #include "Vector3.h"
 
+#include <string>
+
 // ゲームオブジェクトの種類
 enum class GameObjectType {
 
