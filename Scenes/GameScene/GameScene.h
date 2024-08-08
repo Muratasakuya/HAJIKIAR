@@ -9,6 +9,9 @@
 // 衝突管理
 #include "CollisionManager.h"
 
+// ImGui
+#include "ImGuiRenderer.h"
+
 // c++
 #include <memory>
 #include <array>
@@ -40,15 +43,16 @@ private:
 	/*-----------------------------*/
 
 	std::unique_ptr<CollisionManager> collisionManager_;
+	std::unique_ptr<ImGuiRenderer> imguiRenderer_;
 
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
 
-	std::list<std::unique_ptr<GameObject3D>> spheres;
+	
 
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト
 
-
+	std::list<std::unique_ptr<GameObject3D>> spheres;
 
 };

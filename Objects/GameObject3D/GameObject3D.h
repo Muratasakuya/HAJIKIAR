@@ -30,6 +30,8 @@ public:
 	void Update();
 	void Draw();
 
+	void ImGui();
+
 	// 衝突コールバック関数
 	void OnCollision() override;
 
@@ -42,6 +44,7 @@ public:
 	// getter
 
 	Vector3 GetCenterPos() const override;
+	GameObjectType GetType() const;
 
 private:
 	/*-----------------------------*/
@@ -59,6 +62,12 @@ private:
 
 	// ライト
 	PunctualLight light_;
+
+	// ライティングフラグ
+	bool enableLighting_;
+	bool enableHalfLambert_;
+	bool enablePhongReflection_;
+	bool enableBlinnPhongReflection_;
 
 	/*--------------------------------------------------------------*/
 	// サブオブジェクト
