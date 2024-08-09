@@ -94,8 +94,14 @@ public:
 	static void LoadTexture(const std::string filePath);
 	// テクスチャassert あるかチェック
 	static void CheckTextureAvailability(const std::string textureName);
+
 	// モデルassert あるかチェック
 	static void CheckModelAvailability(const std::string modelName);
+
+	// キーの押下判定
+	static bool PushKey(BYTE keyNumber);
+	// キーのトリガー判定
+	static bool TriggerKey(BYTE keyNumber);
 
 private:
 	/*-----------------------------*/

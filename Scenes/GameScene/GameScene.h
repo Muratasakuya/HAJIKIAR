@@ -13,6 +13,9 @@
 // ImGui
 #include "ImGuiRenderer.h"
 
+// Lib
+#include "OpenCV.h"
+
 // c++
 #include <memory>
 #include <array>
@@ -56,5 +59,13 @@ private:
 	// 3Dオブジェクト
 
 	
+	/*----------------------------------------------------------------------*/
+	// OpenCV
+
+	// ゲーム開始
+	bool gameStart_;
+
+	std::unique_ptr<OpenCV> openCV_;
+	bool isCameraOpened_;
 
 };
