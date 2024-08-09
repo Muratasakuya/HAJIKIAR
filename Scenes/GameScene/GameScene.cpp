@@ -2,6 +2,7 @@
 
 #include "SceneManager.h"
 #include "ImGuiManager.h"
+#include "Input.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								コンストラクタ
@@ -52,6 +53,14 @@ void GameScene::Initialize() {
 	/*======================================================*/
 	// 3Dオブジェクト
 
+	/*======================================================*/
+	// OpenCV
+
+	// 生成と初期化
+	openCV_ = std::make_unique<OpenCV>();
+	openCV_->Initialize();
+	isCameraOpened_ = false;
+	gameStart_ = false;
 
 }
 
@@ -63,10 +72,45 @@ void GameScene::Update() {
 	/*======================================================*/
 	// ImGui
 
-	
+	/*======================================================*/
+	// 入力処理
+
+	// スペースでカメラ起動
+	if (!isCameraOpened_) {
+		if (Engine::TriggerKey(DIK_SPACE)) {
+
+			openCV_->OpenCamera();
+			isCameraOpened_ = true;
+		}
+	}
+
+	// カメラ起動後エンターキーを押したら
+	if (Engine::TriggerKey(DIK_RETURN)) {
+
+		// ゲーム開始 (仮)
+		gameStart_ = true;
+	}
+
+	// ゲームが始まってから
+	if (gameStart_) {
+
+		// 指定した色を複数同時トラッキングする
+		openCV_->ColorTracking();
+	} else {
+
+		// ゲームが始まるまで
+		openCV_->Update();
+	}
 
 	/*======================================================*/
 	// 2Dオブジェクト
+
+	if (gameStart_) {
+
+		// OpenCVから取得した値を代入
+		sprites_[0]->SetPos(openCV_->GetBlueCenterPos());
+		sprites_[1]->SetPos(openCV_->GetGreenCenterPos());
+	}
 
 	for (const auto& sprite : sprites_) {
 
@@ -99,6 +143,9 @@ void GameScene::Update() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void GameScene::Draw() {
 
+	// OpenCV
+	openCV_->Draw();
+
 	/*======================================================*/
 	// 2Dオブジェクト
 
@@ -106,7 +153,6 @@ void GameScene::Draw() {
 
 		sprite->Draw();
 	}
-
 
 	/*======================================================*/
 	// 3Dオブジェクト
