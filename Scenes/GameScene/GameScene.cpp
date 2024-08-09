@@ -19,8 +19,11 @@ GameScene::~GameScene() {}
 void GameScene::Initialize() {
 
 	// テクスチャロード
-	const std::string textureName = "mario.png";
-	Engine::LoadTexture("./Resources/Images/" + textureName);
+	const std::string playerTextureName = "playerHajiki.png";
+	const std::string targetTextureName = "targetHAJIKIActive.png";
+
+	Engine::LoadTexture("./Resources/Images/" + playerTextureName);
+	Engine::LoadTexture("./Resources/Images/" + targetTextureName);
 
 	// 衝突管理
 	// 生成
@@ -33,25 +36,23 @@ void GameScene::Initialize() {
 	/*======================================================*/
 	// 2Dオブジェクト
 
+	// 2つ
+	for (size_t index = 0; index < sprites_.size(); index++) {
 
+		sprites_[index] = std::make_unique<GameObject2D>();
+		sprites_[index]->Initialize();
+		sprites_[index]->SetPos({ 96.0f + index * 96.0f,96.0f });
+		sprites_[index]->SetHalfSize(48.0f);
+		sprites_[index]->SetColliderType(ColliderType::Circle);
+	}
+
+	sprites_[0]->SetTexture(playerTextureName);
+	sprites_[1]->SetTexture(targetTextureName);
 
 	/*======================================================*/
 	// 3Dオブジェクト
 
-	// 生成するインスタンスの数
-	const uint32_t sphereNum = 3;
 
-	for (uint32_t index = 0; index < sphereNum; index++) {
-
-		auto sphere = std::make_unique<GameObject3D>(GameObjectType::Sphere);
-		sphere->Initialize();
-		sphere->SetTexture(textureName);
-		sphere->SetPos({ -1.5f + index * 2.0f,0.0f,0.0f });
-		sphere->SetHalfSize(1.0f);
-		sphere->SetColliderType(ColliderType::Sphere);
-
-		spheres.push_back(std::move(sphere));
-	}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -62,20 +63,20 @@ void GameScene::Update() {
 	/*======================================================*/
 	// ImGui
 
-	imguiRenderer_->Render(spheres);
+	
 
 	/*======================================================*/
 	// 2Dオブジェクト
 
+	for (const auto& sprite : sprites_) {
 
+		sprite->Update();
+	}
 
 	/*======================================================*/
 	// 3Dオブジェクト
 
-	for (const auto& sphere : spheres) {
-
-		sphere->Update();
-	}
+	
 
 	/*======================================================*/
 	// 衝突判定
@@ -84,9 +85,9 @@ void GameScene::Update() {
 	collisionManager_->Reset();
 
 	// コライダー追加
-	for (const auto& sphere : spheres) {
+	for (const auto& sprite : sprites_) {
 
-		collisionManager_->AddCollider(sphere.get());
+		collisionManager_->AddCollider(sprite.get());
 	}
 
 	// 衝突判定と応答
@@ -101,14 +102,14 @@ void GameScene::Draw() {
 	/*======================================================*/
 	// 2Dオブジェクト
 
+	for (const auto& sprite : sprites_) {
+
+		sprite->Draw();
+	}
 
 
 	/*======================================================*/
 	// 3Dオブジェクト
 
-	for (const auto& sphere : spheres) {
-
-		sphere->Draw();
-	}
 
 }

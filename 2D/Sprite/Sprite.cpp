@@ -117,8 +117,6 @@ void Sprite::AjustTextureSize(const std::string textureName) {
 
 	// 画像サイズをテクスチャサイズに合わせる
 	transform2D_.size = transform2D_.textureSize;
-
-	// これいるか？
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -147,6 +145,9 @@ void Sprite::Update(const std::string textureName) {
 
 	// メタデータ取得
 	const DirectX::TexMetadata& metadata = textureManager_->GetMetaData(textureName);
+
+	// サイズを合わせる
+	AjustTextureSize(textureName);
 
 	// 横
 	float texLeft = transform2D_.textureLeftTop.x / metadata.width;

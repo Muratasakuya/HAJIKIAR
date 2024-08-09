@@ -4,6 +4,7 @@
 #include "IScene.h"
 
 // GameObject
+#include "GameObject2D.h"
 #include "GameObject3D.h"
 
 // 衝突管理
@@ -48,11 +49,12 @@ private:
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
 
-	
+	static const uint32_t spriteNum_ = 2;
+	std::array<std::unique_ptr<GameObject2D>, spriteNum_> sprites_;
 
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト
 
-	std::list<std::unique_ptr<GameObject3D>> spheres;
+	
 
 };

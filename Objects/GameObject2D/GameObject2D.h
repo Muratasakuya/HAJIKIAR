@@ -38,10 +38,12 @@ public:
 
 	void SetTexture(const std::string name);
 	void SetPos(Vector2 pos);
+	void SetSize(Vector2 size);
 
 	// getter
 
 	Vector2 GetCenterPos() const override;
+	GameObjectType GetType() const;
 
 private:
 	/*-----------------------------*/
@@ -59,6 +61,9 @@ private:
 
 	/*--------------------------------------------------------------*/
 	// サブオブジェクト
+
+	// オブジェクトのタイプ
+	const GameObjectType type_ = GameObjectType::Object2D;
 
 	// 使用するテクスチャの名前
 	std::string textureName_;
