@@ -77,7 +77,7 @@
       <AdditionalOptions>/ignore:4049 /ignore:4098 %(AdditionalOptions)</AdditionalOptions>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
       <AdditionalLibraryDirectories>$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MD;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MDd;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MT;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MTd;$(ProjectDir)/Engine/Externals/assimp/lib/Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world4100d.lib;opencv_world4100.lib;libcrypto.lib;assimp-vc143-mdd.lib</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world4100d.lib;libcrypto.lib;assimp-vc143-mdd.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -108,7 +108,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/ignore:4049 /ignore:4098 %(AdditionalOptions)</AdditionalOptions>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
       <AdditionalLibraryDirectories>$(ProjectDir)/Engine/Externals/opencv\build\x64\vc17\lib;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MD;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MDd;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MT;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MTd;$(ProjectDir)/Engine/Externals/assimp/lib/Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world4100d.lib;libcrypto-3-x64.lib;assimp-vc143-mt.lib</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world4100.lib;libcrypto.lib;assimp-vc143-mt.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
