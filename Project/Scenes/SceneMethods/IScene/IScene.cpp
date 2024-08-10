@@ -8,3 +8,6 @@ SceneNo IScene::GetSceneNo() const {
 
 // タイトルシーンで初期化
 SceneNo IScene::sceneNo_ = SceneNo::TITLE;
+
+// ゲームモード とりあえずソロ
+GameMode IScene::gameMode_ = GameMode::SOLO;

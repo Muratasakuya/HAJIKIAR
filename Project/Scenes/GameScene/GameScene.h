@@ -2,6 +2,9 @@
 
 // Base
 #include "IScene.h"
+// GameMode
+#include "SoloGame.h"
+#include "MatchGame.h"
 
 // GameObject
 #include "GameObject2D.h"
@@ -18,11 +21,6 @@
 
 // c++
 #include <memory>
-#include <array>
-#include <vector>
-#include <list>
-#include <string>
-#include <numbers>
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								GameScene Class
@@ -45,6 +43,10 @@ private:
 	/*-----------------------------*/
 	///			メンバ変数
 	/*-----------------------------*/
+
+	// ゲームモード
+	std::unique_ptr<SoloGame> soloGame_;
+	std::unique_ptr<MatchGame> matchGame_;
 
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
