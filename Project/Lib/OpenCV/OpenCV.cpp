@@ -1,5 +1,15 @@
 #include "OpenCV.h"
 
+/*////////////////////////////////////////////////////////////////////////////////
+*								singleton
+////////////////////////////////////////////////////////////////////////////////*/
+OpenCV* OpenCV::GetInstance() {
+
+	static OpenCV instance;
+
+	return &instance;
+}
+
 // 複数のQRコードデータを取得
 std::string OpenCV::GetQRCodeData() {
 
@@ -35,9 +45,6 @@ void OpenCV::OpenCamera() {
 
 	// カメラ起動
 	camera_.open(0);
-
-	// ウィンドウの名前
-	cv::namedWindow("CameraCapture");
 
 	// カメラが開けなければエラー
 	if (!camera_.isOpened()) {
@@ -112,25 +119,7 @@ void OpenCV::QRTracking(const std::vector<std::string>& qrCodeDataList) {
 ////////////////////////////////////////////////////////////////////////////////*/
 void OpenCV::ColorTracking() {
 
-	// カメラが開かれていなければ早期リターン
-	if (!camera_.isOpened()) {
-		return;
-	}
-
-	// カメラから画像データを読んでframeに送る
-	camera_ >> frame_;
-
-	// 何も取得できなければ早期リターン
-	if (frame_.empty()) {
-		return;
-	}
-
 #pragma region /// method ///
-	// 取得したフレームの左右反転
-	cv::flip(frame_, frame_, 1);
-
-	// ガウシアンブラー
-	cv::GaussianBlur(frame_, frame_, cv::Size(5, 5), 0);
 
 	// フレームをHSV色空間に変換
 	cv::Mat hsvFrame;
@@ -178,7 +167,11 @@ void OpenCV::ColorTracking() {
 				static_cast<int>(m.m10 / m.m00),
 				static_cast<int>(m.m01 / m.m00));
 
-			currentGreenCenter = { static_cast<float>(center.x), static_cast<float>(center.y) };
+			// 座標の正規化
+			float normalizedX = static_cast<float>(center.x) / 640.0f;
+			float normalizedY = static_cast<float>(center.y) / 360.0f;
+
+			currentGreenCenter = { normalizedX * 1280.0f, normalizedY * 720.0f };
 
 			// 最初に見つけた中心だけを取得
 			break;
@@ -197,7 +190,11 @@ void OpenCV::ColorTracking() {
 				static_cast<int>(m.m10 / m.m00),
 				static_cast<int>(m.m01 / m.m00));
 
-			currentBlueCenter = { static_cast<float>(center.x), static_cast<float>(center.y) };
+			// 座標の正規化
+			float normalizedX = static_cast<float>(center.x) / 640.0f;
+			float normalizedY = static_cast<float>(center.y) / 360.0f;
+
+			currentBlueCenter = { normalizedX * 1280.0f, normalizedY * 720.0f };
 
 			// 最初に見つけた中心だけを取得
 			break;
@@ -254,12 +251,13 @@ void OpenCV::Update() {
 	// ガウシアンブラー
 	cv::GaussianBlur(frame_, frame_, cv::Size(5, 5), 0);
 
+	// 色のトラッキング
+	ColorTracking();
+
 	//// QRコードの検出とデコード
 	//decodedText_ = qrDecoder_.detectAndDecode(frame_);
-
 	//// QRコードを検出できたら
 	//if (!decodedText_.empty()) {
-
 	//	// QRCodeデータ追加
 	//	qrCodeData_.push_back(decodedText_);
 	//}
@@ -269,6 +267,9 @@ void OpenCV::Update() {
 *								    描画処理
 ////////////////////////////////////////////////////////////////////////////////*/
 void OpenCV::Draw() {
+
+	// カメラがどこを映しているかだけで描画する必要はない
+	// デバッグ用に近い
 
 	// カメラが開かれていなければ早期リターン
 	if (!camera_.isOpened()) {

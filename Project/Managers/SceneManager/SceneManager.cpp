@@ -15,6 +15,9 @@ SceneManager* SceneManager::GetInstance() {
 ////////////////////////////////////////////////////////////////////////////////*/
 SceneManager::SceneManager() {
 
+	// インスタンスの代入
+	openCV_ = OpenCV::GetInstance();
+
 	currentSceneNo_ = TITLE;
 	currentScene_ = static_cast<std::unique_ptr<IScene>>(sceneFactory_.CreateScene(currentSceneNo_));
 	currentScene_->Initialize();
@@ -26,6 +29,7 @@ SceneManager::SceneManager() {
 SceneManager::~SceneManager() {
 
 	currentScene_.reset();
+	openCV_->Finalize();
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +52,6 @@ void SceneManager::Run() {
 		// フレームの開始
 		NewMoon::BeginFrame();
 
-		prevSceneNo_ = currentSceneNo_;
 		currentSceneNo_ = currentScene_->GetSceneNo();
 
 		// 更新 描画

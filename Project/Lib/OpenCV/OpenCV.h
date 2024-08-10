@@ -42,6 +42,9 @@ public:
 
 	void Finalize();
 
+	// singleton
+	static OpenCV* GetInstance();
+
 	// getter
 
 	std::string GetQRCodeData();
@@ -76,5 +79,4 @@ private:
 	Vector2 prevBlueCenter_;
 
 	bool isFirstFrame_ = true;
-
 };
