@@ -16,9 +16,6 @@
 // ImGui
 #include "ImGuiRenderer.h"
 
-// Lib
-#include "OpenCV.h"
-
 // c++
 #include <memory>
 

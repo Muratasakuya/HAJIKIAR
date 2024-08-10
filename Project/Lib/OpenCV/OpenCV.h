@@ -28,17 +28,16 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
-	OpenCV() {};
-	~OpenCV() {};
+	// default
+	OpenCV() = default;
+	~OpenCV() = default;
 
 	void OpenCamera();
 	void QRTracking(const std::vector<std::string>& qrCodeDataList);
 	void ColorTracking();
 
 	void Initialize();
-
 	void Update();
-
 	void Draw();
 
 	void Finalize();
