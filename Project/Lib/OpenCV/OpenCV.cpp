@@ -254,15 +254,15 @@ void OpenCV::Update() {
 	// ガウシアンブラー
 	cv::GaussianBlur(frame_, frame_, cv::Size(5, 5), 0);
 
-	// QRコードの検出とデコード
-	decodedText_ = qrDecoder_.detectAndDecode(frame_);
+	//// QRコードの検出とデコード
+	//decodedText_ = qrDecoder_.detectAndDecode(frame_);
 
-	// QRコードを検出できたら
-	if (!decodedText_.empty()) {
+	//// QRコードを検出できたら
+	//if (!decodedText_.empty()) {
 
-		// QRCodeデータ追加
-		qrCodeData_.push_back(decodedText_);
-	}
+	//	// QRCodeデータ追加
+	//	qrCodeData_.push_back(decodedText_);
+	//}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
