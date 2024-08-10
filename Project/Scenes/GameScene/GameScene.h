@@ -13,6 +13,8 @@
 // 衝突管理
 #include "CollisionManager.h"
 
+#include "OpenCV.h"
+
 // ImGui
 #include "ImGuiRenderer.h"
 

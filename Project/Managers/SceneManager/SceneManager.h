@@ -5,9 +5,11 @@
 
 // Base
 #include "IScene.h"
-
 // SceneFactory
 #include "SceneFactory.h"
+
+// Lib
+#include "OpenCV.h"
 
 // c++
 #include <memory>
@@ -36,10 +38,11 @@ private:
 	///			メンバ変数
 	/*-----------------------------*/
 
+	OpenCV* openCV_ = nullptr;
+
 	std::unique_ptr<IScene> currentScene_;
 	SceneFactory sceneFactory_;
 
 	SceneNo currentSceneNo_{};
-	SceneNo prevSceneNo_{};
 
 };
