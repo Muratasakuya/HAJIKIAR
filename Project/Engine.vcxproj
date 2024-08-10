@@ -46,7 +46,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(SolutionDir)..\Generated\Obj\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)..\Generated\Outputs\$(Configuration)\</OutDir>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Engine\imgui;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ProjectDir)Engine\Externals\opencv\build\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(ProjectDir)Engine\Externals\opencv\build\x64\vc17\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -76,8 +76,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/ignore:4049 /ignore:4098 %(AdditionalOptions)</AdditionalOptions>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalLibraryDirectories>$(ProjectDir)/Engine/Externals/opencv\build\x64\vc17\lib;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MD;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MDd;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MT;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MTd;$(ProjectDir)/Engine/Externals/assimp/lib/Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world4100d.lib;libcrypto.lib;assimp-vc143-mdd.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MD;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MDd;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MT;$(ProjectDir)/Engine/Externals/OpenSSL-Win64\lib\VC\x64\MTd;$(ProjectDir)/Engine/Externals/assimp/lib/Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world4100d.lib;opencv_world4100.lib;libcrypto.lib;assimp-vc143-mdd.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
