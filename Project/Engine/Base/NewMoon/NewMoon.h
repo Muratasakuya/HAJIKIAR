@@ -9,6 +9,9 @@
 // Managers
 #include "PipelineManager.h"
 
+// Input
+#include "Input.h"
+
 // c++
 #include <cstdint>
 #include <memory>
@@ -29,22 +32,21 @@ class ModelManager;
 class ParticleManager;
 class ParticleEmitter;
 class Audio;
-class Input;
 #pragma endregion
 ///===============================================================================
 
 /*////////////////////////////////////////////////////////////////////////////////
-*									Engine Class
+*									NewMoon Class
 ////////////////////////////////////////////////////////////////////////////////*/
-class Engine {
+class NewMoon {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
 
 	// default
-	Engine() = default;
-	~Engine() = default;
+	NewMoon() = default;
+	~NewMoon() = default;
 
 	///===============================================================================
 	/// メインシステム

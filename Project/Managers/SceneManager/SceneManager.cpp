@@ -15,7 +15,7 @@ SceneManager* SceneManager::GetInstance() {
 ////////////////////////////////////////////////////////////////////////////////*/
 SceneManager::SceneManager() {
 
-	currentSceneNo_ = GAME;
+	currentSceneNo_ = TITLE;
 	currentScene_ = static_cast<std::unique_ptr<IScene>>(sceneFactory_.CreateScene(currentSceneNo_));
 	currentScene_->Initialize();
 }
@@ -44,9 +44,9 @@ void SceneManager::ChangeScene(SceneNo sceneNo) {
 void SceneManager::Run() {
 
 	// ウィンドウのxボタンが押されるまでループ
-	while (Engine::ProcessMessage() == 0) {
+	while (NewMoon::ProcessMessage() == 0) {
 		// フレームの開始
-		Engine::BeginFrame();
+		NewMoon::BeginFrame();
 
 		prevSceneNo_ = currentSceneNo_;
 		currentSceneNo_ = currentScene_->GetSceneNo();
@@ -56,7 +56,7 @@ void SceneManager::Run() {
 		currentScene_->Draw();
 
 		// フレームの終了
-		Engine::EndFrame();
+		NewMoon::EndFrame();
 	}
 
 }

@@ -7,4 +7,4 @@ SceneNo IScene::GetSceneNo() const {
 }
 
 // タイトルシーンで初期化
-SceneNo IScene::sceneNo_ = SceneNo::GAME;
+SceneNo IScene::sceneNo_ = SceneNo::TITLE;

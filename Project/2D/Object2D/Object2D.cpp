@@ -1,7 +1,7 @@
 #include "Object2D.h"
 
 // Base
-#include "Engine.h"
+#include "NewMoon.h"
 #include "ImGuiManager.h"
 
 // transform2D_.pos = pos setter
@@ -93,5 +93,5 @@ void Object2D::Draw(const std::string textureName, BlendMode blendMode) {
 	std::string identifierTexture = texturePath.stem().string();
 	std::string useTextureName = identifierTexture;
 
-	Engine::DrawSprite(transform2D_, color_, useTextureName, blendMode);
+	NewMoon::DrawSprite(transform2D_, color_, useTextureName, blendMode);
 }

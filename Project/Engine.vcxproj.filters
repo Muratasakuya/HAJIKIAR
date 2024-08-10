@@ -24,7 +24,7 @@
     <ClCompile Include="Engine\Base\WinApp\WinApp.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Base\Engine\Engine.cpp">
+    <ClCompile Include="Engine\Base\NewMoon\NewMoon.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Lib\Logger\Logger.cpp">
@@ -105,7 +105,7 @@
     <ClCompile Include="Scenes\GameScene\GameScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Scenes\IScene\IScene.cpp">
+    <ClCompile Include="Scenes\SceneMethods\IScene\IScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Managers\SceneManager\SceneManager.cpp">
@@ -147,7 +147,7 @@
     <ClCompile Include="Scenes\TitleScene\TitleScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Scenes\SceneFactory\SceneFactory.cpp">
+    <ClCompile Include="Scenes\SceneMethods\SceneFactory\SceneFactory.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Lib\Hash\Hash.cpp">
@@ -171,6 +171,15 @@
     <ClCompile Include="Lib\ImGuiRenderer\ImGuiRenderer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Scenes\TutorialScene\TutorialScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\SelectScene\SelectScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\ResultScene\ResultScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Base\DXCommon\DXCommon.h">
@@ -179,7 +188,7 @@
     <ClInclude Include="Engine\Base\WinApp\WinApp.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Base\Engine\Engine.h">
+    <ClInclude Include="Engine\Base\NewMoon\NewMoon.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Lib\Logger\Logger.h">
@@ -269,7 +278,7 @@
     <ClInclude Include="Scenes\GameScene\GameScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Scenes\IScene\IScene.h">
+    <ClInclude Include="Scenes\SceneMethods\IScene\IScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Managers\SceneManager\SceneManager.h">
@@ -314,10 +323,10 @@
     <ClInclude Include="Scenes\TitleScene\TitleScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Scenes\AbstractSceneFactory\AbstractSceneFactory.h">
+    <ClInclude Include="Scenes\SceneMethods\AbstractSceneFactory\AbstractSceneFactory.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Scenes\SceneFactory\SceneFactory.h">
+    <ClInclude Include="Scenes\SceneMethods\SceneFactory\SceneFactory.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Engine\DXLib\PipelineStateStructure\PipelineStateStructure.h">
@@ -342,6 +351,15 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Lib\ImGuiRenderer\ImGuiRenderer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\TutorialScene\TutorialScene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\SelectScene\SelectScene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\ResultScene\ResultScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

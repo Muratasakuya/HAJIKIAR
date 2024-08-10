@@ -26,7 +26,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	LeakChecker leakCheck;
 
 	// メインシステムの初期化
-	Engine::Initialize(windowWidth, windowHeight);
+	NewMoon::Initialize(windowWidth, windowHeight);
 
 	// シーン管理クラスのインスタンス
 	SceneManager* sceneManager = SceneManager::GetInstance();
@@ -35,7 +35,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	sceneManager->Run();
 
 	// ライブラリ終了
-	Engine::Finalize();
+	NewMoon::Finalize();
 
 	return 0;
 }

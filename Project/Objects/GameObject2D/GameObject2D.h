@@ -1,7 +1,7 @@
 #pragma once
 
-// Engine
-#include "Engine.h"
+// NewMoon
+#include "NewMoon.h"
 
 // 構造体
 #include "CBufferStructure.h"
