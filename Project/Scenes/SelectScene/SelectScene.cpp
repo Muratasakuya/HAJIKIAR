@@ -42,16 +42,31 @@ void SelectScene::Update() {
 	// ImGui
 
 	ImGui::Begin("SelectScene");
-	ImGui::Text("SpaceKey: Select -> Game");
+	ImGui::Text("SpaceKey: Select -> Title");
+	ImGui::Text("1Key: Select -> Game(Solo)");
+	ImGui::Text("2Key: Select -> Game(Match)");
 	ImGui::End();
 
 	/*======================================================*/
 	// シーン遷移処理
 
-	// Tutorial -> Select
+	// Select -> Title
 	if (NewMoon::TriggerKey(DIK_SPACE)) {
 
+		SceneManager::GetInstance()->ChangeScene(TITLE);
+	}
+
+	// Select -> Game(Solo)
+	if (NewMoon::TriggerKey(DIK_1)) {
+
 		SceneManager::GetInstance()->ChangeScene(GAME);
+		gameMode_ = GameMode::SOLO;
+	}
+	// Select -> Game(Match)
+	if (NewMoon::TriggerKey(DIK_2)) {
+
+		SceneManager::GetInstance()->ChangeScene(GAME);
+		gameMode_ = GameMode::MATCH;
 	}
 
 	/*======================================================*/

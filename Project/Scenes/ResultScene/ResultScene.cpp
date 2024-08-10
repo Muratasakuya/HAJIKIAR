@@ -42,16 +42,22 @@ void ResultScene::Update() {
 	// ImGui
 
 	ImGui::Begin("ResultScene");
-	ImGui::Text("SpaceKey: Result -> Title");
+	ImGui::Text("SpaceKey: Result -> Select");
+	ImGui::Text("EnterKey: Result -> Game");
 	ImGui::End();
 
 	/*======================================================*/
 	// シーン遷移処理
 
-	// Result -> Title
+	// Result -> Select
 	if (NewMoon::TriggerKey(DIK_SPACE)) {
 
-		SceneManager::GetInstance()->ChangeScene(TITLE);
+		SceneManager::GetInstance()->ChangeScene(SELECT);
+	}
+	// Result -> Game
+	if (NewMoon::TriggerKey(DIK_RETURN)) {
+
+		SceneManager::GetInstance()->ChangeScene(GAME);
 	}
 
 	/*======================================================*/
