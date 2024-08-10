@@ -10,7 +10,7 @@ void GameObject3D::SetTexture(const std::string name) {
 	std::string identifier = textureName.stem().string();
 
 	// テクスチャがあるかチェック
-	Engine::CheckTextureAvailability(identifier);
+	NewMoon::CheckTextureAvailability(identifier);
 
 	// 使用するテクスチャ名を設定
 	textureName_ = identifier;
@@ -23,7 +23,7 @@ void GameObject3D::SetModel(const std::string name) {
 	std::string identifier = modelName.stem().string();
 
 	// モデルがあるかチェック
-	Engine::CheckModelAvailability(identifier);
+	NewMoon::CheckModelAvailability(identifier);
 
 	// 使用するテクスチャを設定
 	modelName_ = identifier;
@@ -102,22 +102,22 @@ void GameObject3D::Draw() {
 		// テクスチャなし三角形
 	case GameObjectType::PrimitiveTriangle:
 
-		Engine::DrawTriangle(transform_, material_, light_, textureName_, Primitive, kBlendModeNormal);
+		NewMoon::DrawTriangle(transform_, material_, light_, textureName_, Primitive, kBlendModeNormal);
 		break;
 		// テクスチャあり三角形
 	case GameObjectType::Triangle:
 
-		Engine::DrawTriangle(transform_, material_, light_, textureName_, Normal, kBlendModeNormal);
+		NewMoon::DrawTriangle(transform_, material_, light_, textureName_, Normal, kBlendModeNormal);
 		break;
 		// 球
 	case GameObjectType::Sphere:
 
-		Engine::DrawSphere(transform_, material_, light_, textureName_, Normal, kBlendModeNormal);
+		NewMoon::DrawSphere(transform_, material_, light_, textureName_, Normal, kBlendModeNormal);
 		break;
 		// モデル
 	case GameObjectType::Model:
 
-		Engine::DrawModel(transform_, material_, light_, modelName_, textureName_, Normal, kBlendModeNormal);
+		NewMoon::DrawModel(transform_, material_, light_, modelName_, textureName_, Normal, kBlendModeNormal);
 		break;
 	}
 }
@@ -135,7 +135,7 @@ void GameObject3D::OnCollision() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void GameObject3D::ImGui() {
 
-	ImGui::Begin("Engine");
+	ImGui::Begin("NewMoon");
 
 	static bool showTransform = false;
 	static bool showMaterial = false;
@@ -190,7 +190,7 @@ void GameObject3D::ImGui() {
 		material_.enableBlinnPhongReflection = enableBlinnPhongReflection_;
 	}
 
-	// 一回やめ、あしたからはALの評価課題やってください。それまでEngine制作はお預け
+	// 一回やめ、あしたからはALの評価課題やってください。それまでNewMoon制作はお預け
 	// やりたいことリスト
 	// 1. Lightingを柔軟に入れ替える、HalfLambertにpointとspotもいれる
 	// 2. Googleスライドみたいなグリッド線表示

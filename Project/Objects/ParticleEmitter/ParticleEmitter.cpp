@@ -87,6 +87,6 @@ void ParticleEmitter::Update() {
 
 		std::string name = name_[index];
 
-		Engine::DrawParticle(name, name, kBlendModeAdd);
+		NewMoon::DrawParticle(name, name, kBlendModeAdd);
 	}
 }

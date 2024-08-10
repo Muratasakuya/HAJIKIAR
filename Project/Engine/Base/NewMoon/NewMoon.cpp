@@ -1,4 +1,4 @@
-#include "Engine.h"
+#include "NewMoon.h"
 
 #include "WinApp.h"
 #include "DXCommon.h"
@@ -8,27 +8,26 @@
 #include "ModelManager.h"
 #include "ParticleManager.h"
 #include "ParticleEmitter.h"
-#include "Input.h"
 #include "Audio.h"
 
 ///===============================================================================
 /// staticメンバ変数初期化
 #pragma region
-std::unique_ptr<WinApp> Engine::winApp_ = nullptr;
-std::unique_ptr<DXCommon> Engine::dxCommon_ = nullptr;
-std::unique_ptr<SrvManager> Engine::srvManager_ = nullptr;
-std::unique_ptr<ImGuiManager> Engine::imguiManager_ = nullptr;
-std::unique_ptr<TextureManager> Engine::textureManager_ = nullptr;
-std::unique_ptr<ModelManager> Engine::modelManager_ = nullptr;
-std::unique_ptr<ParticleManager> Engine::particleManager_ = nullptr;
-std::unique_ptr<ParticleEmitter> Engine::particleEmitter_ = nullptr;
-std::unique_ptr<Input> Engine::input_ = nullptr;
-std::unique_ptr<Audio> Engine::audio_ = nullptr;
-std::array<std::unique_ptr<Object3D>, kMaxObject3DNum_> Engine::objects3D_ = { nullptr };
-std::array<std::unique_ptr<Sprite>, kMaxSpriteNum_> Engine::sprites_ = { nullptr };
-std::unique_ptr<PipelineManager> Engine::pipelineManager_ = nullptr;
-uint32_t Engine::indexObject3D_ = 0;
-uint32_t Engine::indexSprite_ = 0;
+std::unique_ptr<WinApp> NewMoon::winApp_ = nullptr;
+std::unique_ptr<DXCommon> NewMoon::dxCommon_ = nullptr;
+std::unique_ptr<SrvManager> NewMoon::srvManager_ = nullptr;
+std::unique_ptr<ImGuiManager> NewMoon::imguiManager_ = nullptr;
+std::unique_ptr<TextureManager> NewMoon::textureManager_ = nullptr;
+std::unique_ptr<ModelManager> NewMoon::modelManager_ = nullptr;
+std::unique_ptr<ParticleManager> NewMoon::particleManager_ = nullptr;
+std::unique_ptr<ParticleEmitter> NewMoon::particleEmitter_ = nullptr;
+std::unique_ptr<Input> NewMoon::input_ = nullptr;
+std::unique_ptr<Audio> NewMoon::audio_ = nullptr;
+std::array<std::unique_ptr<Object3D>, kMaxObject3DNum_> NewMoon::objects3D_ = { nullptr };
+std::array<std::unique_ptr<Sprite>, kMaxSpriteNum_> NewMoon::sprites_ = { nullptr };
+std::unique_ptr<PipelineManager> NewMoon::pipelineManager_ = nullptr;
+uint32_t NewMoon::indexObject3D_ = 0;
+uint32_t NewMoon::indexSprite_ = 0;
 #pragma endregion
 ///===============================================================================
 
@@ -40,7 +39,7 @@ uint32_t Engine::indexSprite_ = 0;
 /*////////////////////////////////////////////////////////////////////////////////
 *								 フレーム開始処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::BeginFrame() {
+void NewMoon::BeginFrame() {
 
 	input_->Update();
 #ifdef _DEBUG
@@ -53,7 +52,7 @@ void Engine::BeginFrame() {
 /*////////////////////////////////////////////////////////////////////////////////
 *								 フレーム終了処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::EndFrame() {
+void NewMoon::EndFrame() {
 
 #ifdef _DEBUG
 	imguiManager_->End();
@@ -69,7 +68,7 @@ void Engine::EndFrame() {
 /*////////////////////////////////////////////////////////////////////////////////
 *							  メッセージの受け渡し処理
 ////////////////////////////////////////////////////////////////////////////////*/
-bool Engine::ProcessMessage() {
+bool NewMoon::ProcessMessage() {
 
 	if (winApp_->ProcessMessage()) {
 
@@ -83,7 +82,7 @@ bool Engine::ProcessMessage() {
 /*////////////////////////////////////////////////////////////////////////////////
 *									終了処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::Finalize() {
+void NewMoon::Finalize() {
 
 #ifdef _DEBUG
 	imguiManager_->Finalize();
@@ -122,7 +121,7 @@ void Engine::Finalize() {
 /*////////////////////////////////////////////////////////////////////////////////
 *								メインシステムの初期化
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::Initialize(uint32_t width, uint32_t height) {
+void NewMoon::Initialize(uint32_t width, uint32_t height) {
 
 	// ComInitialize
 #pragma warning(push)
@@ -220,7 +219,7 @@ void Engine::Initialize(uint32_t width, uint32_t height) {
 /*////////////////////////////////////////////////////////////////////////////////
 *									三角形
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::DrawTriangle(
+void NewMoon::DrawTriangle(
 	const Transform& transform, const Material& material, const PunctualLight& punctualLight,
 	const std::string textureName, PipelineType pipelineType, BlendMode blendMode) {
 
@@ -249,7 +248,7 @@ void Engine::DrawTriangle(
 /*////////////////////////////////////////////////////////////////////////////////
 *								   スプライト
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::DrawSprite(const Transform2D& transform2D, Vector4 color, const std::string textureName, BlendMode blendMode) {
+void NewMoon::DrawSprite(const Transform2D& transform2D, Vector4 color, const std::string textureName, BlendMode blendMode) {
 
 	// CommandListをdxCommonClassからもってくる
 	ComPtr<ID3D12GraphicsCommandList> commandList = dxCommon_->GetCommandList();
@@ -278,7 +277,7 @@ void Engine::DrawSprite(const Transform2D& transform2D, Vector4 color, const std
 /*////////////////////////////////////////////////////////////////////////////////
 *									  球
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::DrawSphere(
+void NewMoon::DrawSphere(
 	const Transform& transform, const Material& material, const PunctualLight& punctualLight,
 	const std::string textureName, PipelineType pipelineType, BlendMode blendMode) {
 
@@ -305,7 +304,7 @@ void Engine::DrawSphere(
 /*////////////////////////////////////////////////////////////////////////////////
 *									 モデル
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::DrawModel(const Transform& transform, const Material& material, const PunctualLight& punctualLight,
+void NewMoon::DrawModel(const Transform& transform, const Material& material, const PunctualLight& punctualLight,
 	const std::string modelName, const std::string textureName, PipelineType pipelineType, BlendMode blendMode) {
 
 	// CommandListをdxCommonClassからもってくる
@@ -326,7 +325,7 @@ void Engine::DrawModel(const Transform& transform, const Material& material, con
 /*////////////////////////////////////////////////////////////////////////////////
 *									 パーティクル
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::DrawParticle(const std::string name, const std::string textureName, BlendMode blendMode) {
+void NewMoon::DrawParticle(const std::string name, const std::string textureName, BlendMode blendMode) {
 
 	// CommandListをdxCommonClassからもってくる
 	ComPtr<ID3D12GraphicsCommandList> commandList = dxCommon_->GetCommandList();
@@ -349,7 +348,7 @@ void Engine::DrawParticle(const std::string name, const std::string textureName,
 /*////////////////////////////////////////////////////////////////////////////////
 *									 画像読み込み
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::LoadTexture(const std::string filePath) {
+void NewMoon::LoadTexture(const std::string filePath) {
 
 	textureManager_->LoadTexture(filePath);
 }
@@ -357,7 +356,7 @@ void Engine::LoadTexture(const std::string filePath) {
 /*////////////////////////////////////////////////////////////////////////////////
 *							  テクスチャassert あるかチェック
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::CheckTextureAvailability(const std::string textureName) {
+void NewMoon::CheckTextureAvailability(const std::string textureName) {
 
 	textureManager_->CheckAvailability(textureName);
 }
@@ -365,7 +364,7 @@ void Engine::CheckTextureAvailability(const std::string textureName) {
 /*////////////////////////////////////////////////////////////////////////////////
 *								モデルassert あるかチェック
 ////////////////////////////////////////////////////////////////////////////////*/
-void Engine::CheckModelAvailability(const std::string modelName) {
+void NewMoon::CheckModelAvailability(const std::string modelName) {
 
 	modelManager_->CheckAvailability(modelName);
 }
@@ -373,7 +372,7 @@ void Engine::CheckModelAvailability(const std::string modelName) {
 /*////////////////////////////////////////////////////////////////////////////////
 *									キーの押下判定
 ////////////////////////////////////////////////////////////////////////////////*/
-bool Engine::PushKey(BYTE keyNumber) {
+bool NewMoon::PushKey(BYTE keyNumber) {
 
 	return input_->PushKey(keyNumber);
 }
@@ -381,7 +380,7 @@ bool Engine::PushKey(BYTE keyNumber) {
 /*////////////////////////////////////////////////////////////////////////////////
 *								   キーのトリガー判定
 ////////////////////////////////////////////////////////////////////////////////*/
-bool Engine::TriggerKey(BYTE keyNumber) {
+bool NewMoon::TriggerKey(BYTE keyNumber) {
 
 	return input_->TriggerKey(keyNumber);
 }

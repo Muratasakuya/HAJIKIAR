@@ -1,23 +1,23 @@
-#include "TitleScene.h"
+#include "SelectScene.h"
 
-#include "ImGuiManager.h"
 #include "SceneManager.h"
+#include "ImGuiManager.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								コンストラクタ
 ////////////////////////////////////////////////////////////////////////////////*/
-TitleScene::TitleScene() {}
+SelectScene::SelectScene() {}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								  デストラクタ
 ////////////////////////////////////////////////////////////////////////////////*/
-TitleScene::~TitleScene() {}
+SelectScene::~SelectScene() {}
 
 
 /*////////////////////////////////////////////////////////////////////////////////
 *									 初期化
 ////////////////////////////////////////////////////////////////////////////////*/
-void TitleScene::Initialize() {
+void SelectScene::Initialize() {
 
 	/*======================================================*/
 	// 2Dオブジェクト
@@ -36,22 +36,22 @@ void TitleScene::Initialize() {
 /*////////////////////////////////////////////////////////////////////////////////
 *								    更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void TitleScene::Update() {
+void SelectScene::Update() {
 
 	/*======================================================*/
 	// ImGui
 
-	ImGui::Begin("TitleScene");
-	ImGui::Text("SpaceKey: Title -> Tutorial");
+	ImGui::Begin("SelectScene");
+	ImGui::Text("SpaceKey: Select -> Game");
 	ImGui::End();
 
 	/*======================================================*/
 	// シーン遷移処理
 
-	// Title -> Tutorial
+	// Tutorial -> Select
 	if (NewMoon::TriggerKey(DIK_SPACE)) {
 
-		SceneManager::GetInstance()->ChangeScene(TUTORIAL);
+		SceneManager::GetInstance()->ChangeScene(GAME);
 	}
 
 	/*======================================================*/
@@ -69,7 +69,7 @@ void TitleScene::Update() {
 /*////////////////////////////////////////////////////////////////////////////////
 *								    描画処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void TitleScene::Draw() {
+void SelectScene::Draw() {
 
 	/*======================================================*/
 	// 2Dオブジェクト

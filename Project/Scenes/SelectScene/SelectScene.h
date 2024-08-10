@@ -4,17 +4,17 @@
 #include "IScene.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
-*								TitleScene Class
+*								SelectScene Class
 ////////////////////////////////////////////////////////////////////////////////*/
-class TitleScene :
+class SelectScene :
 	public IScene {
 public:
 	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
 
-	TitleScene();
-	~TitleScene();
+	SelectScene();
+	~SelectScene();
 
 	void Initialize()override;
 	void Update()override;

@@ -8,7 +8,7 @@ void GameObject2D::SetTexture(const std::string name) {
 	std::string identifier = textureName.stem().string();
 
 	// テクスチャがあるかチェック
-	Engine::CheckTextureAvailability(identifier);
+	NewMoon::CheckTextureAvailability(identifier);
 
 	// 使用するテクスチャ名を設定
 	textureName_ = identifier;
@@ -87,7 +87,7 @@ void GameObject2D::Update() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void GameObject2D::Draw() {
 
-	Engine::DrawSprite(transform2D_, color_, textureName_, kBlendModeNormal);
+	NewMoon::DrawSprite(transform2D_, color_, textureName_, kBlendModeNormal);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
