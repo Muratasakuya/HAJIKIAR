@@ -32,7 +32,7 @@ void TitleScene::Initialize() {
 	background_ = std::make_unique<GameObject2D>();
 	background_->Initialize();
 	background_->SetTexture(backgroundTextureName_);
-	background_->SetColor({ 0.25f,0.25f,0.25f,1.0f });
+	background_->SetColor({ 0.16f,0.16f,0.16f,1.0f });
 
 	/*======================================================*/
 	// 3Dオブジェクト
