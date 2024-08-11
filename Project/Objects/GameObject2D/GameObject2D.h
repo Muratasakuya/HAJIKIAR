@@ -39,6 +39,7 @@ public:
 	void SetTexture(const std::string name);
 	void SetPos(Vector2 pos);
 	void SetSize(Vector2 size);
+	void SetColor(Vector4 color);
 
 	// getter
 

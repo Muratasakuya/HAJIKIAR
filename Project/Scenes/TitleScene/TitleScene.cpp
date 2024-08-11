@@ -20,9 +20,19 @@ TitleScene::~TitleScene() {}
 void TitleScene::Initialize() {
 
 	/*======================================================*/
+	// テクスチャ読み込み
+
+	// 背景画像
+	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + backgroundTextureName_);
+
+	/*======================================================*/
 	// 2Dオブジェクト
 
-
+	// 背景画像
+	background_ = std::make_unique<GameObject2D>();
+	background_->Initialize();
+	background_->SetTexture(backgroundTextureName_);
+	background_->SetColor({ 0.25f,0.25f,0.25f,1.0f });
 
 	/*======================================================*/
 	// 3Dオブジェクト
@@ -74,7 +84,8 @@ void TitleScene::Draw() {
 	/*======================================================*/
 	// 2Dオブジェクト
 
-
+	// 背景画像
+	background_->Draw();
 
 	/*======================================================*/
 	// 3Dオブジェクト
