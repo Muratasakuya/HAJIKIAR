@@ -41,6 +41,19 @@ class Audio;
 class NewMoon {
 public:
 	/*-----------------------------*/
+	///			public変数
+	/*-----------------------------*/
+
+	// ウィンドウサイズ
+	// int
+	static uint32_t kWindowWidthd;
+	static uint32_t kWindowHeightd;
+	// float
+	static float kWindowWidthf;
+	static float kWindowHeightf;
+
+public:
+	/*-----------------------------*/
 	///			メンバ関数
 	/*-----------------------------*/
 
@@ -104,6 +117,10 @@ public:
 	static bool PushKey(BYTE keyNumber);
 	// キーのトリガー判定
 	static bool TriggerKey(BYTE keyNumber);
+
+	// フルスクリーン設定
+	static void SetFullScreenMode(bool fullScreen);
+	static bool IsFullScreenMode();
 
 private:
 	/*-----------------------------*/

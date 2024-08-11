@@ -1,6 +1,7 @@
 #include "MainCamera3D.h"
 
 #include "ImGuiManager.h"
+#include "NewMoon.h"
 
 // transform_.translate getter
 Vector3 MainCamera3D::GetWorldPos() const {
@@ -51,7 +52,7 @@ void MainCamera3D::Initialize() {
 	viewMatrix_ = Matrix4x4::Inverse(cameraMatrix_);
 
 	projectionMatrix_ =
-		Matrix4x4::MakePerspectiveFovMatrix(0.45f, 1280.0f / 720.0f, 0.1f, 100.0f);
+		Matrix4x4::MakePerspectiveFovMatrix(0.45f, NewMoon::kWindowWidthf / NewMoon::kWindowHeightf, 0.1f, 100.0f);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

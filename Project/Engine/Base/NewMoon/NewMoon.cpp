@@ -13,6 +13,10 @@
 ///===============================================================================
 /// staticメンバ変数初期化
 #pragma region
+uint32_t NewMoon::kWindowWidthd = 1280;
+uint32_t NewMoon::kWindowHeightd = 720;
+float NewMoon::kWindowWidthf = 1280.0f;
+float NewMoon::kWindowHeightf = 720.0f;
 std::unique_ptr<WinApp> NewMoon::winApp_ = nullptr;
 std::unique_ptr<DXCommon> NewMoon::dxCommon_ = nullptr;
 std::unique_ptr<SrvManager> NewMoon::srvManager_ = nullptr;
@@ -129,6 +133,15 @@ void NewMoon::Initialize(uint32_t width, uint32_t height) {
 #pragma warning(disable:6031)
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 #pragma warning(pop)
+
+	/*-----------------------------------------------------------------------*/
+	/// ウィンドウサイズの設定
+	// int
+	kWindowWidthd = width;
+	kWindowHeightd = height;
+	// float
+	kWindowWidthf = static_cast<float>(width);
+	kWindowHeightf = static_cast<float>(height);
 
 	/*-----------------------------------------------------------------------*/
 	/// WinApp
@@ -384,3 +397,15 @@ bool NewMoon::TriggerKey(BYTE keyNumber) {
 
 	return input_->TriggerKey(keyNumber);
 }
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								   フルスクリーン設定
+////////////////////////////////////////////////////////////////////////////////*/
+void NewMoon::SetFullScreenMode(bool fullScreen) {
+
+	winApp_->SetFullscreen(fullScreen);
+}
+/*////////////////////////////////////////////////////////////////////////////////
+*								  フルスクリーンかどうか
+////////////////////////////////////////////////////////////////////////////////*/
+bool NewMoon::IsFullScreenMode() { return winApp_->IsFullscreen(); }

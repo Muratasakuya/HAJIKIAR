@@ -15,6 +15,9 @@ SceneManager* SceneManager::GetInstance() {
 ////////////////////////////////////////////////////////////////////////////////*/
 SceneManager::SceneManager() {
 
+	// デフォルトでフルスクリーン設定
+	NewMoon::SetFullScreenMode(true);
+
 	// インスタンスの代入
 	openCV_ = OpenCV::GetInstance();
 
@@ -51,6 +54,19 @@ void SceneManager::Run() {
 	while (NewMoon::ProcessMessage() == 0) {
 		// フレームの開始
 		NewMoon::BeginFrame();
+
+		// フルスクリーン設定 F11切り替え
+		if (NewMoon::IsFullScreenMode()) {
+			if (NewMoon::TriggerKey(DIK_F11)) {
+
+				NewMoon::SetFullScreenMode(false);
+			}
+		} else {
+			if (NewMoon::TriggerKey(DIK_F11)) {
+
+				NewMoon::SetFullScreenMode(true);
+			}
+		}
 
 		currentSceneNo_ = currentScene_->GetSceneNo();
 

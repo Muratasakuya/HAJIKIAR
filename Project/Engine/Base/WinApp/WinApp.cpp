@@ -16,11 +16,15 @@ HWND WinApp::GetHwnd() const {
 
 	return hwnd_;
 }
-
 // wc_ getter
 WNDCLASS WinApp::GetWindowClass() const {
 
 	return wc_;
+}
+// isFullscreen_ getter
+bool WinApp::IsFullscreen() const {
+
+	return isFullscreen_;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -103,14 +107,16 @@ void WinApp::CreateMainWindow(uint32_t width, uint32_t height) {
 	wrc.right = width;
 	wrc.bottom = height;
 
+	windowStyle_ = WS_OVERLAPPEDWINDOW;
+
 	// クライアント領域を元に実際のサイズにwrcを変更してもらう
-	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
+	AdjustWindowRect(&wrc, windowStyle_, false);
 
 	// ウィンドウの生成
 	hwnd_ = CreateWindow(
 		L"CG2WindowClass",          // 利用するクラス名
 		L"HAJIKIAR",                // タイトルバーの文字
-		WS_OVERLAPPEDWINDOW,        // よく見るウィンドウスタイル
+		windowStyle_,        // よく見るウィンドウスタイル
 		CW_USEDEFAULT,              // 表示X座標(Windowsに任せる)
 		CW_USEDEFAULT,              // 表示Y座標(Windowsに任せる)
 		wrc.right - wrc.left,       // ウィンドウの横幅
@@ -123,4 +129,50 @@ void WinApp::CreateMainWindow(uint32_t width, uint32_t height) {
 
 	// ウィンドウを表示する
 	ShowWindow(hwnd_, SW_SHOW);
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								フルスクリーン設定
+////////////////////////////////////////////////////////////////////////////////*/
+void WinApp::SetFullscreen(bool fullscreen) {
+
+	if (isFullscreen_ != fullscreen) {
+		if (fullscreen) {
+
+			// 元の状態を覚えておく
+			GetWindowRect(hwnd_, &windowRect_);
+
+			// 仮想フルスクリーン化
+			SetWindowLong(
+				hwnd_, GWL_STYLE,
+				windowStyle_ &
+				~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+
+			RECT fullscreenRect{ 0 };
+			HMONITOR monitor = MonitorFromWindow(hwnd_, MONITOR_DEFAULTTONEAREST);
+			MONITORINFO info;
+			info.cbSize = sizeof(info);
+			GetMonitorInfo(monitor, &info);
+			fullscreenRect.right = info.rcMonitor.right - info.rcMonitor.left;
+			fullscreenRect.bottom = info.rcMonitor.bottom - info.rcMonitor.top;
+
+			SetWindowPos(
+				hwnd_, HWND_TOPMOST, fullscreenRect.left, fullscreenRect.top, fullscreenRect.right,
+				fullscreenRect.bottom, SWP_FRAMECHANGED | SWP_NOACTIVATE);
+			ShowWindow(hwnd_, SW_MAXIMIZE);
+
+		} else {
+			// 通常ウィンドウに戻す
+			SetWindowLong(hwnd_, GWL_STYLE, windowStyle_);
+
+			SetWindowPos(
+				hwnd_, HWND_NOTOPMOST, windowRect_.left, windowRect_.top,
+				windowRect_.right - windowRect_.left, windowRect_.bottom - windowRect_.top,
+				SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+			ShowWindow(hwnd_, SW_NORMAL);
+		}
+	}
+
+	isFullscreen_ = fullscreen;
 }
