@@ -1,5 +1,7 @@
 #include "GameObject2D.h"
 
+#include "ImGuiManager.h"
+
 // Sceneで読み込んだテクスチャをセット
 void GameObject2D::SetTexture(const std::string name) {
 
@@ -21,6 +23,11 @@ void GameObject2D::SetPos(Vector2 pos) {
 // サイズのセット
 void GameObject2D::SetSize(Vector2 size) {
 	transform2D_.size = size;
+}
+
+// 色のセット
+void GameObject2D::SetColor(Vector4 color){
+	color_ = color;
 }
 
 // 中心座標取得 transform_.translate getter
@@ -58,11 +65,11 @@ void GameObject2D::Initialize() {
 	//　描画サイズ 必要な場合のみセット
 	transform2D_.size = { 0.0f,0.0f };
 	// アンカーポイント 基本中心
-	transform2D_.anchorPoint = { 0.5f,0.5f };
+	transform2D_.anchorPoint = { 0.0f,0.0f };
 	// テクスチャ左上座標
 	transform2D_.textureLeftTop = { 0.0f,0.0f };
 	// テクスチャ切り出しサイズ
-	transform2D_.textureSize = { 100.0f,100.0f };
+	transform2D_.textureSize = { 0.0f,0.0f };
 	// フリップ設定
 	transform2D_.isFlipX = false;
 	transform2D_.isFlipY = false;
@@ -74,13 +81,7 @@ void GameObject2D::Initialize() {
 /*////////////////////////////////////////////////////////////////////////////////
 *								   更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void GameObject2D::Update() {
-
-	if (!GetIsHit()) {
-
-		color_ = { 1.0f,1.0f,1.0f,1.0f };
-	}
-}
+void GameObject2D::Update() {}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								   描画処理
