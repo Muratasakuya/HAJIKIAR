@@ -1,6 +1,7 @@
 #include "MainCamera2D.h"
 
 #include "ImGuiManager.h"
+#include "NewMoon.h"
 
 // viewMatrix_ getter
 Matrix4x4 MainCamera2D::GetViewMatrix() const {
@@ -39,7 +40,7 @@ void MainCamera2D::Initialize() {
 	viewMatrix_ = Matrix4x4::Inverse(cameraMatrix_);
 
 	orthoMatrix_ =
-		Matrix4x4::MakeOrthographicMatrix(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 100.0f);
+		Matrix4x4::MakeOrthographicMatrix(0.0f, 0.0f, NewMoon::kWindowWidthf, NewMoon::kWindowHeightf, 0.0f, 100.0f);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

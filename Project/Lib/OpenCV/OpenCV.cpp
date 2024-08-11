@@ -1,5 +1,7 @@
 #include "OpenCV.h"
 
+#include "NewMoon.h"
+
 /*////////////////////////////////////////////////////////////////////////////////
 *								singleton
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -171,7 +173,7 @@ void OpenCV::ColorTracking() {
 			float normalizedX = static_cast<float>(center.x) / 640.0f;
 			float normalizedY = static_cast<float>(center.y) / 360.0f;
 
-			currentGreenCenter = { normalizedX * 1280.0f, normalizedY * 720.0f };
+			currentGreenCenter = { normalizedX * NewMoon::kWindowWidthf, normalizedY * NewMoon::kWindowHeightf };
 
 			// 最初に見つけた中心だけを取得
 			break;
@@ -194,7 +196,7 @@ void OpenCV::ColorTracking() {
 			float normalizedX = static_cast<float>(center.x) / 640.0f;
 			float normalizedY = static_cast<float>(center.y) / 360.0f;
 
-			currentBlueCenter = { normalizedX * 1280.0f, normalizedY * 720.0f };
+			currentBlueCenter = { normalizedX * NewMoon::kWindowWidthf, normalizedY * NewMoon::kWindowHeightf };
 
 			// 最初に見つけた中心だけを取得
 			break;

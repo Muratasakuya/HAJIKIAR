@@ -3,6 +3,7 @@
 #include "DXCommon.h"
 #include "WinApp.h"
 #include "SrvManager.h"
+#include "NewMoon.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
 *							  フレームの開始
