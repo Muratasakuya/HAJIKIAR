@@ -175,6 +175,10 @@ void TextureManager::CheckAvailability(const std::string name) {
 void TextureManager::SetGraphicsRootDescriptorTable(
 	ID3D12GraphicsCommandList* commandList, UINT rootParamaterIndex, std::string identifier) {
 
+	if (identifier == "Un") {
+		return;
+	}
+
 	ID3D12DescriptorHeap* descriptorHeaps[] = { srvManager_->GetDescriptorHeap() };
 	commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 

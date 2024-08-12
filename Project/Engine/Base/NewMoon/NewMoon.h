@@ -110,6 +110,8 @@ public:
 	// テクスチャassert あるかチェック
 	static void CheckTextureAvailability(const std::string textureName);
 
+	// モデル読み込み
+	static void LoadModel(const std::string& directoryPath, const std::string& filename);
 	// モデルassert あるかチェック
 	static void CheckModelAvailability(const std::string modelName);
 
