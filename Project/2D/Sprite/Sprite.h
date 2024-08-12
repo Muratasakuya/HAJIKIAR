@@ -20,7 +20,7 @@ class TextureManager;
 ///===============================================================================
 
 // スプライト最大数 srvDescriptorの数と同じ
-static const uint32_t kMaxSpriteNum_ = 32;
+static const uint32_t kMaxSpriteNum_ = 16;
 // スプライトの頂点数 Vertex
 static const UINT kSpriteVertexNum_ = 6;
 // スプライトの頂点数　Index
