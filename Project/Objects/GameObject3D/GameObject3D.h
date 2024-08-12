@@ -30,6 +30,9 @@ public:
 	void Update();
 	void Draw();
 
+	void MoveRight();
+	void MoveLeft();
+
 	void ImGui();
 
 	// 衝突コールバック関数
