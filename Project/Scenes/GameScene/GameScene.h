@@ -50,6 +50,8 @@ private:
 
 	// 背景画像
 	std::unique_ptr<GameObject2D> background_;
+	// debug
+	std::unique_ptr<GameObject2D> debugTest_;
 
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト

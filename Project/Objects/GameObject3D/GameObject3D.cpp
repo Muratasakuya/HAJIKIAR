@@ -27,6 +27,12 @@ void GameObject3D::SetModel(const std::string name) {
 
 	// 使用するテクスチャを設定
 	modelName_ = identifier;
+	objectName_ = identifier;
+}
+// オブジェクトの名前のセット
+void GameObject3D::SetObjectName(const std::string name) {
+
+	objectName_ = name;
 }
 // 座標のセット
 void GameObject3D::SetPos(Vector3 pos) {
@@ -43,6 +49,11 @@ Vector3 GameObject3D::GetCenterPos() const {
 GameObjectType GameObject3D::GetType() const {
 
 	return type_;
+}
+// objectName_ getter
+std::string GameObject3D::GetObjectName() const {
+
+	return objectName_;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

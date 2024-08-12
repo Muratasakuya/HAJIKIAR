@@ -39,12 +39,14 @@ public:
 
 	void SetTexture(const std::string name);
 	void SetModel(const std::string name);
+	void SetObjectName(const std::string name);
 	void SetPos(Vector3 pos);
 
 	// getter
 
 	Vector3 GetCenterPos() const override;
 	GameObjectType GetType() const;
+	std::string GetObjectName() const;
 
 private:
 	/*-----------------------------*/
@@ -74,6 +76,8 @@ private:
 
 	// オブジェクトのタイプ
 	GameObjectType type_;
+	// オブジェクトの名前
+	std::string objectName_;
 
 	// 使用するテクスチャの名前
 	std::string textureName_ = "Un";

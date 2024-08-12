@@ -30,6 +30,8 @@ private:
 	///			メンバ変数
 	/*-----------------------------*/
 
+	ImGuiRenderer imgui_;
+
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
 
@@ -37,7 +39,7 @@ private:
 	std::unique_ptr<GameObject2D> playerHajiki_;
 	// Line
 	static const uint32_t lineHajikiNum = 2;
-	std::array<std::unique_ptr<GameObject3D>, lineHajikiNum> lineHajikies_;
+	std::array<std::unique_ptr<GameObject2D>, lineHajikiNum> lineHajikies_;
 	// Target
 	std::unique_ptr<GameObject2D> targetHajiki_;
 

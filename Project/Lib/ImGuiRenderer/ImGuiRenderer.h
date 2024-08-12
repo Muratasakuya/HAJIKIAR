@@ -1,12 +1,16 @@
 #pragma once
 
 // GameObject
+#include "GameObject2D.h"
 #include "GameObject3D.h"
 
 // c++
 #include <memory>
 #include <list>
+#include <map>
+#include <variant>
 #include <string>
+#include <iostream>
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								ImGuiRenderer Class
@@ -21,14 +25,29 @@ public:
 	ImGuiRenderer() = default;
 	~ImGuiRenderer() = default;
 
-	void Render(std::list<std::unique_ptr<GameObject3D>>& objects);
+	void Render();
+
+	// setter
+
+	void Set(GameObject2D* object);
+	void Set(GameObject3D* object);
 
 private:
 	/*-----------------------------*/
 	///			メンバ変数
 	/*-----------------------------*/
 
-	int currentObjectIndex_ = 0;
+	using GameObjectVariant = std::variant<GameObject2D*, GameObject3D*>;
+	std::map<GameObjectType, std::list<GameObjectVariant>> objectsByType_;
+	std::map<GameObjectType, std::map<std::string, int>> nameCounts_;
 
-	std::string GetGameObjectName(GameObjectType type, int index);
+	GameObjectVariant* selectedObject_ = nullptr;
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
+
+	std::string GetTypeName(GameObjectType type);
+	std::string GenerateUniqueName(GameObjectType type, const std::string& baseName);
 };
