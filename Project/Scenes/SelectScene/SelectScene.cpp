@@ -59,14 +59,14 @@ void SelectScene::Update() {
 	// Select -> Game(Solo)
 	if (NewMoon::TriggerKey(DIK_1)) {
 
-		SceneManager::GetInstance()->ChangeScene(GAME);
 		gameMode_ = GameMode::SOLO;
+		SceneManager::GetInstance()->ChangeScene(GAME);
 	}
 	// Select -> Game(Match)
 	if (NewMoon::TriggerKey(DIK_2)) {
 
-		SceneManager::GetInstance()->ChangeScene(GAME);
 		gameMode_ = GameMode::MATCH;
+		SceneManager::GetInstance()->ChangeScene(GAME);
 	}
 
 	/*======================================================*/

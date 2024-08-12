@@ -76,7 +76,7 @@ private:
 	GameObjectType type_;
 
 	// 使用するテクスチャの名前
-	std::string textureName_;
+	std::string textureName_ = "Un";
 	// 使用するモデルの名前
 	std::string modelName_;
 
