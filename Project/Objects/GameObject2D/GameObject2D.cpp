@@ -14,6 +14,11 @@ void GameObject2D::SetTexture(const std::string name) {
 
 	// 使用するテクスチャ名を設定
 	textureName_ = identifier;
+	objectName_ = identifier;
+}
+// オブジェクトの名前のセット
+void GameObject2D::SetObjectName(const std::string name){
+	objectName_ = name;
 }
 // 座標のセット
 void GameObject2D::SetPos(Vector2 pos) {
@@ -26,7 +31,7 @@ void GameObject2D::SetSize(Vector2 size) {
 }
 
 // 色のセット
-void GameObject2D::SetColor(Vector4 color){
+void GameObject2D::SetColor(Vector4 color) {
 	color_ = color;
 }
 
@@ -39,6 +44,11 @@ Vector2 GameObject2D::GetCenterPos() const {
 GameObjectType GameObject2D::GetType() const {
 
 	return type_;
+}
+// objectName_ getter
+std::string GameObject2D::GetObjectName() const {
+
+	return objectName_;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -98,4 +108,25 @@ void GameObject2D::OnCollision() {
 
 	// 当たっているときは赤くする
 	color_ = { 1.0f,0.0f,0.0f,1.0f };
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									ImGuiの操作
+////////////////////////////////////////////////////////////////////////////////*/
+void GameObject2D::ImGui() {
+
+	ImGui::Begin("NewMoon");
+
+	ImGui::Separator();
+	ImGui::ColorEdit4("color", &color_.x);
+	ImGui::DragFloat2("translate", &transform2D_.pos.x, 1.0f);
+	ImGui::DragFloat("rotate", &transform2D_.rotate, 0.01f);
+	ImGui::DragFloat2("size", &transform2D_.size.x, 1.0f);
+	ImGui::DragFloat2("anchorPoint", &transform2D_.anchorPoint.x, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat2("textureLeftTop", &transform2D_.textureLeftTop.x, 1.0f, 0.0f, 1000.0f);
+	ImGui::DragFloat2("textureSize", &transform2D_.textureSize.x, 1.0f, 0.0f, 1000.0f);
+	ImGui::Checkbox("isFlipX", &transform2D_.isFlipX);
+	ImGui::Checkbox("isFlipY", &transform2D_.isFlipY);
+
+	ImGui::End();
 }

@@ -3,46 +3,49 @@
 #include "ImGuiManager.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
-*								ImGui表示
+*									ImGui描画
 ////////////////////////////////////////////////////////////////////////////////*/
-void ImGuiRenderer::Render(std::list<std::unique_ptr<GameObject3D>>& objects) {
+void ImGuiRenderer::Render() {
 
-	std::vector<std::string> names;
-	int index = 0;
+	ImGui::Begin("NewMoon");
 
-	for (const auto& object : objects) {
+	// ノードの開閉状態を管理するためのマップ
+	std::map<GameObjectType, bool> treeNodeOpenStates;
 
-		names.push_back(GetGameObjectName(object->GetType(), index));
-		index++;
-	}
+	for (auto& [type, objects] : objectsByType_) {
+		
+		bool isOpen = ImGui::TreeNodeEx(GetTypeName(type).c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+		treeNodeOpenStates[type] = isOpen;
 
-	ImGui::Begin("Engine");
+		if (isOpen) {
+			for (auto& objectVariant : objects) {
+				std::visit([&](auto* object) {
+					bool isSelected = selectedObject_ && std::visit([&](auto* selected) {
+						using T = std::decay_t<decltype(selected)>;
+						if constexpr (std::is_same_v<T, std::decay_t<decltype(object)>>) {
+							return selected == object;
+						}
+						return false;
+						}, *selectedObject_);
 
-	const char* comboPreviewValue = "Select";
-	if (ImGui::BeginCombo("GameObject", comboPreviewValue)) {
-		index = 0;
-
-		for (const auto& name : names) {
-			bool isSelected = (currentObjectIndex_ == index);
-			if (ImGui::Selectable(name.c_str(), isSelected)) {
-
-				currentObjectIndex_ = index;
+					if (ImGui::Selectable(object->GetObjectName().c_str(), isSelected)) {
+						selectedObject_ = &objectVariant;
+					}
+					}, objectVariant);
 			}
-			if (isSelected) {
-
-				ImGui::SetItemDefaultFocus();
-			}
-			index++;
+			ImGui::TreePop();
 		}
-		ImGui::EndCombo();
 	}
 
-	auto it = objects.begin();
-	std::advance(it, currentObjectIndex_);
-	if (it != objects.end()) {
-
-		ImGui::Text("%s", names[currentObjectIndex_].c_str());
-		(*it)->ImGui();
+	// 選択されたオブジェクトの詳細表示
+	if (selectedObject_) {
+		std::visit([this, &treeNodeOpenStates](auto* object) {
+			auto type = object->GetType();
+			if (treeNodeOpenStates[type]) {
+				
+				object->ImGui();
+			}
+			}, *selectedObject_);
 	}
 
 	ImGui::End();
@@ -51,26 +54,55 @@ void ImGuiRenderer::Render(std::list<std::unique_ptr<GameObject3D>>& objects) {
 /*////////////////////////////////////////////////////////////////////////////////
 *									名前変換
 ////////////////////////////////////////////////////////////////////////////////*/
-std::string ImGuiRenderer::GetGameObjectName(GameObjectType type, int index) {
-
+std::string ImGuiRenderer::GetTypeName(GameObjectType type) {
 	switch (type) {
 	case GameObjectType::Object2D:
-
-		return "Object2D " + std::to_string(index);
+		return "Object2D";
 	case GameObjectType::PrimitiveTriangle:
-
-		return "PrimitiveTriangle " + std::to_string(index);
+		return "PrimitiveTriangle";
 	case GameObjectType::Triangle:
-
-		return "Triangle " + std::to_string(index);
+		return "Triangle";
 	case GameObjectType::Sphere:
-
-		return "Sphere " + std::to_string(index);
+		return "Sphere";
 	case GameObjectType::Model:
-
-		return "Model " + std::to_string(index);
+		return "Model";
 	default:
-
-		return "Unknown " + std::to_string(index);
+		return "Unknown";
 	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								名前の一意化
+////////////////////////////////////////////////////////////////////////////////*/
+std::string ImGuiRenderer::GenerateUniqueName(GameObjectType type, const std::string& baseName) {
+
+	auto& nameCount = nameCounts_[type];
+	std::string uniqueName = baseName;
+
+	// 名前が既に存在する場合、番号を付ける
+	if (nameCount[baseName] > 0) {
+		uniqueName += std::to_string(nameCount[baseName] + 1);
+	}
+
+	nameCount[baseName]++;
+
+	return uniqueName;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									setter
+////////////////////////////////////////////////////////////////////////////////*/
+void ImGuiRenderer::Set(GameObject2D* object) {
+
+	std::string uniqueName = GenerateUniqueName(object->GetType(), object->GetObjectName());
+	object->SetObjectName(uniqueName);
+
+	objectsByType_[object->GetType()].emplace_back(object);
+}
+void ImGuiRenderer::Set(GameObject3D* object) {
+
+	std::string uniqueName = GenerateUniqueName(object->GetType(), object->GetObjectName());
+	object->SetObjectName(uniqueName);
+
+	objectsByType_[object->GetType()].emplace_back(object);
 }

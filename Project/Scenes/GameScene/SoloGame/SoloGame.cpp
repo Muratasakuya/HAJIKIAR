@@ -16,8 +16,6 @@ void SoloGame::Initialize() {
 	// Line
 	const std::string lineHajikiTexName = "lineHAJIKIActive.png";
 	NewMoon::LoadTexture("./Resources/Images/Common/Objects/" + lineHajikiTexName);
-	const std::string lineHajkiModelName = "lineHajiki.obj";
-	NewMoon::LoadModel("./Resources/Obj", lineHajkiModelName);
 	// Target
 	const std::string targetTexName = "targetHAJIKIActive.png";
 	NewMoon::LoadTexture("./Resources/Images/Common/Objects/" + targetTexName);
@@ -28,17 +26,16 @@ void SoloGame::Initialize() {
 	// Player
 	playerHajiki_ = std::make_unique<GameObject2D>();
 	playerHajiki_->Initialize();
-	playerHajiki_->SetPos({ 256.0f,256.0f });
+	playerHajiki_->SetPos({ 512.0f,320.0f });
 	playerHajiki_->SetTexture(playerTexName);
 
 	// Line
 	for (uint32_t i = 0; i < lineHajikies_.size(); i++) {
 
-		lineHajikies_[i] = std::make_unique<GameObject3D>(GameObjectType::Model);
+		lineHajikies_[i] = std::make_unique<GameObject2D>();
 		lineHajikies_[i]->Initialize();
-		lineHajikies_[i]->SetPos({ 0.0f,0.0f });
+		lineHajikies_[i]->SetPos({ 568.0f,568.0f + i * 256.0f });
 		lineHajikies_[i]->SetTexture(lineHajikiTexName);
-		lineHajikies_[i]->SetModel(lineHajkiModelName);
 	}
 
 	// target
@@ -46,6 +43,13 @@ void SoloGame::Initialize() {
 	targetHajiki_->Initialize();
 	targetHajiki_->SetPos({ 720.0f,720.0f });
 	targetHajiki_->SetTexture(targetTexName);
+
+	// ImGuiセット
+	imgui_.Set(playerHajiki_.get());
+	imgui_.Set(targetHajiki_.get());
+	for (const auto& lineHajiki : lineHajikies_) {
+		imgui_.Set(lineHajiki.get());
+	}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -57,10 +61,8 @@ void SoloGame::Update() {
 	ImGui::Text("SoloMode");
 	ImGui::End();
 
-	for (const auto& lineHajiki : lineHajikies_) {
-
-		lineHajiki->ImGui();
-	}
+	// セットしたオブジェクトのImGui
+	imgui_.Render();
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

@@ -32,6 +32,12 @@ GameScene::~GameScene() {}
 void GameScene::Initialize() {
 
 	/*======================================================*/
+	// テクスチャ読み込み
+
+	const std::string debugTestTextureName = "debugBlack.png";
+	NewMoon::LoadTexture("./Resources/Images/" + debugTestTextureName);
+
+	/*======================================================*/
 	// 2Dオブジェクト
 
 	// 背景画像
@@ -39,6 +45,10 @@ void GameScene::Initialize() {
 	background_ = std::make_unique<GameObject2D>();
 	background_->Initialize();
 	background_->SetTexture(bgTextureName);
+	// debugTest
+	debugTest_ = std::make_unique<GameObject2D>();
+	debugTest_->Initialize();
+	debugTest_->SetTexture(debugTestTextureName);
 
 	/*======================================================*/
 	// 3Dオブジェクト
@@ -90,6 +100,7 @@ void GameScene::Draw() {
 	// 背景
 
 	// 背景画像
+	debugTest_->Draw();
 	background_->Draw();
 
 	/*======================================================*/

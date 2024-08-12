@@ -31,12 +31,15 @@ public:
 	void Update();
 	void Draw();
 
+	void ImGui();
+
 	// 衝突コールバック関数
 	void OnCollision() override;
 
 	// setter
 
 	void SetTexture(const std::string name);
+	void SetObjectName(const std::string name);
 	void SetPos(Vector2 pos);
 	void SetSize(Vector2 size);
 	void SetColor(Vector4 color);
@@ -45,6 +48,7 @@ public:
 
 	Vector2 GetCenterPos() const override;
 	GameObjectType GetType() const;
+	std::string GetObjectName() const;
 
 private:
 	/*-----------------------------*/
@@ -65,6 +69,8 @@ private:
 
 	// オブジェクトのタイプ
 	const GameObjectType type_ = GameObjectType::Object2D;
+	// オブジェクトの名前
+	std::string objectName_;
 
 	// 使用するテクスチャの名前
 	std::string textureName_;
