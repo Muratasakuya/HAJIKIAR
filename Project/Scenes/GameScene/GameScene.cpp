@@ -34,7 +34,11 @@ void GameScene::Initialize() {
 	/*======================================================*/
 	// 2Dオブジェクト
 
-
+	// 背景画像
+	const std::string bgTextureName = "bg.png";
+	background_ = std::make_unique<GameObject2D>();
+	background_->Initialize();
+	background_->SetTexture(bgTextureName);
 
 	/*======================================================*/
 	// 3Dオブジェクト
@@ -85,7 +89,8 @@ void GameScene::Draw() {
 	/*======================================================*/
 	// 背景
 
-
+	// 背景画像
+	background_->Draw();
 
 	/*======================================================*/
 	// ゲームモード

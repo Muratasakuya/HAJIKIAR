@@ -1,5 +1,13 @@
 #pragma once
 
+// 2D
+#include "GameObject2D.h"
+// 3D
+#include "GameObject3D.h"
+
+// ImGui
+#include "ImGuiRenderer.h"
+
 /*////////////////////////////////////////////////////////////////////////////////
 *								SoloGame Class
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -21,5 +29,16 @@ private:
 	/*-----------------------------*/
 	///			メンバ変数
 	/*-----------------------------*/
+
+	/*----------------------------------------------------------------------*/
+	// 2Dオブジェクト
+
+	// Player
+	std::unique_ptr<GameObject2D> playerHajiki_;
+	// Line
+	static const uint32_t lineHajikiNum = 2;
+	std::array<std::unique_ptr<GameObject3D>, lineHajikiNum> lineHajikies_;
+	// Target
+	std::unique_ptr<GameObject2D> targetHajiki_;
 
 };

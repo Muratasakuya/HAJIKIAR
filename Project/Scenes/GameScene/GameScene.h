@@ -13,8 +13,6 @@
 // 衝突管理
 #include "CollisionManager.h"
 
-#include "OpenCV.h"
-
 // ImGui
 #include "ImGuiRenderer.h"
 
@@ -50,7 +48,8 @@ private:
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
 
-	
+	// 背景画像
+	std::unique_ptr<GameObject2D> background_;
 
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト
