@@ -35,7 +35,7 @@ private:
 	// 2Dオブジェクト
 
 	// 背景画像
-	const std::string backgroundTextureName_ = "background.jpg";
+	const std::string bgTextureName_ = "background.jpg";
 	std::unique_ptr<GameObject2D> background_;
 
 	/*----------------------------------------------------------------------*/

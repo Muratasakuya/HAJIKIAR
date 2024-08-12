@@ -20,9 +20,22 @@ TutorialScene::~TutorialScene() {}
 void TutorialScene::Initialize() {
 
 	/*======================================================*/
+	// テクスチャ読み込み
+
+	// 背景画像
+	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + bgTextureName_);
+	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + bgGridTextureName_);
+
+	/*======================================================*/
 	// 2Dオブジェクト
 
+	for (uint32_t i = 0; i < backgrounds_.size(); i++) {
 
+		backgrounds_[i] = std::make_unique<GameObject2D>();
+		backgrounds_[i]->Initialize();
+	}
+	backgrounds_[0]->SetTexture(bgTextureName_);
+	backgrounds_[1]->SetTexture(bgGridTextureName_);
 
 	/*======================================================*/
 	// 3Dオブジェクト
@@ -74,7 +87,11 @@ void TutorialScene::Draw() {
 	/*======================================================*/
 	// 2Dオブジェクト
 
+	// 背景画像
+	for (const auto& background : backgrounds_) {
 
+		background->Draw();
+	}
 
 	/*======================================================*/
 	// 3Dオブジェクト
