@@ -34,7 +34,14 @@ void GameScene::Initialize() {
 	/*======================================================*/
 	// 2Dオブジェクト
 
+	// 背景画像
+	for (uint32_t i = 0; i < backgrounds_.size(); i++) {
 
+		backgrounds_[i] = std::make_unique<GameObject2D>();
+		backgrounds_[i]->Initialize();
+	}
+	backgrounds_[0]->SetTexture(bgTextureName_);
+	backgrounds_[1]->SetTexture(bgGridTextureName_);
 
 	/*======================================================*/
 	// 3Dオブジェクト
@@ -81,6 +88,15 @@ void GameScene::Update() {
 *								    描画処理
 ////////////////////////////////////////////////////////////////////////////////*/
 void GameScene::Draw() {
+
+	/*======================================================*/
+	// 背景
+
+	// 背景画像
+	for (const auto& background : backgrounds_) {
+
+		background->Draw();
+	}
 
 	/*======================================================*/
 	// ゲームモード

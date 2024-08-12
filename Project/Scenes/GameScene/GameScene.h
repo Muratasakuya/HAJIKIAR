@@ -50,7 +50,11 @@ private:
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
 
-
+	// 背景画像
+	const std::string bgTextureName_ = "bg.png";
+	const std::string bgGridTextureName_ = "grid.png";
+	static const uint32_t bgNum_ = 2;
+	std::array<std::unique_ptr<GameObject2D>, bgNum_> backgrounds_;
 
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト

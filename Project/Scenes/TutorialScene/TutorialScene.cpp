@@ -29,6 +29,7 @@ void TutorialScene::Initialize() {
 	/*======================================================*/
 	// 2Dオブジェクト
 
+	// 背景画像
 	for (uint32_t i = 0; i < backgrounds_.size(); i++) {
 
 		backgrounds_[i] = std::make_unique<GameObject2D>();
