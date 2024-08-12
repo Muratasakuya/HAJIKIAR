@@ -17,7 +17,7 @@ struct LeakChecker {
 
 // WindowSize
 static const uint32_t windowWidth = 1920;
-static const uint32_t windowHeight = 1080;
+static const uint32_t windowHeight = 1358;
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
