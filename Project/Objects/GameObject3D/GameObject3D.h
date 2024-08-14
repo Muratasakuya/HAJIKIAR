@@ -41,6 +41,7 @@ public:
 	void SetModel(const std::string name);
 	void SetObjectName(const std::string name);
 	void SetPos(Vector3 pos);
+	void SetScale(Vector3 scale);
 
 	// getter
 

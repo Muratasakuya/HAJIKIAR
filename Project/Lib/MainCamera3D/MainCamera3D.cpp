@@ -45,14 +45,14 @@ void MainCamera3D::Initialize() {
 	// アフィン
 	transform_.scale = { 1.0f,1.0f,1.0f };
 	transform_.rotate = { 0.0f,0.0f,0.0f };
-	transform_.translate = { 0.0f,0.0f,-10.0f };
+	transform_.translate = { 0.0f,0.0f,0.0f };
 
 	cameraMatrix_ =
 		Matrix4x4::MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	viewMatrix_ = Matrix4x4::Inverse(cameraMatrix_);
 
 	projectionMatrix_ =
-		Matrix4x4::MakePerspectiveFovMatrix(0.45f, NewMoon::kWindowWidthf / NewMoon::kWindowHeightf, 0.1f, 100.0f);
+		Matrix4x4::MakePerspectiveFovMatrix(0.45f * 2.0f, NewMoon::kWindowWidthf / NewMoon::kWindowHeightf, 0.1f * 2.0f, 100.0f * 2.0f);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

@@ -375,11 +375,15 @@ void NewMoon::CheckTextureAvailability(const std::string textureName) {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
-*									 画像読み込み
+*									 モデル読み込み
 ////////////////////////////////////////////////////////////////////////////////*/
-void NewMoon::LoadModel(const std::string& directoryPath, const std::string& filename){
+void NewMoon::LoadModel(const std::string& directoryPath, const std::string& filename) {
 
 	modelManager_->LoadModel(directoryPath, filename);
+}
+void NewMoon::LoadGltfModel(const std::string& directoryPath, const std::string& filename) {
+
+	modelManager_->LoadGLTFModel(directoryPath, filename);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
