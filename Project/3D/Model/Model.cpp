@@ -163,6 +163,9 @@ void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, UIN
 void Model::Update(const std::string& modelName, const std::vector<VertexData> VertexData,
 	const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
 
+	MainCamera3D::GetInstance()->ImGuiDraw();
+	MainCamera3D::GetInstance()->Update();
+
 	// 頂点バッファへデータ転送
 	std::memcpy(models_[modelName]->vertexData, VertexData.data(), sizeof(VertexData) * VertexData.size());
 

@@ -37,11 +37,6 @@ private:
 	// 2Dオブジェクト
 
 	// Player
-	std::unique_ptr<GameObject2D> playerHajiki_;
-	// Line
-	static const uint32_t lineHajikiNum = 2;
-	std::array<std::unique_ptr<GameObject2D>, lineHajikiNum> lineHajikies_;
-	// Target
-	std::unique_ptr<GameObject2D> targetHajiki_;
+	std::unique_ptr<GameObject3D> playerHajiki_;
 
 };

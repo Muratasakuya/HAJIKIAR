@@ -172,7 +172,7 @@ ModelData ModelManager::LoadObjFile(const std::string& directoryPath, const std:
 ModelData ModelManager::LoadGLTFFile(const std::string& directoryPath, const std::string& filename) {
 
 	ModelData modelData;            // 構築するModelData
-	std::vector<Vector4> positions;       // 位置
+	std::vector<Vector4> positions; // 位置
 	std::vector<Vector3> normals;   // 法線
 	std::vector<Vector2> texcoords; // テクスチャ座標
 	std::string line;               // ファイルから読んだ1行を格納するもの

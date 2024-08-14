@@ -112,6 +112,7 @@ public:
 
 	// モデル読み込み
 	static void LoadModel(const std::string& directoryPath, const std::string& filename);
+	static void LoadGltfModel(const std::string& directoryPath, const std::string& filename);
 	// モデルassert あるかチェック
 	static void CheckModelAvailability(const std::string modelName);
 
