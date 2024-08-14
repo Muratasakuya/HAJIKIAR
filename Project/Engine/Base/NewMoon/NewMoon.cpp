@@ -195,7 +195,7 @@ void NewMoon::Initialize(uint32_t width, uint32_t height) {
 
 	// モデル初期化
 	modelManager_ = std::make_unique<ModelManager>();
-	modelManager_->Initialize(dxCommon_.get());
+	modelManager_->Initialize(dxCommon_.get(), textureManager_.get());
 	/*-----------------------------------------------------------------------*/
 	/// Object3D
 
@@ -323,16 +323,16 @@ void NewMoon::DrawModel(const Transform& transform, const Material& material, co
 	// CommandListをdxCommonClassからもってくる
 	ComPtr<ID3D12GraphicsCommandList> commandList = dxCommon_->GetCommandList();
 
+	std::vector<Material> materials{};
+	materials.push_back(material);
+	materials.push_back(material);
+
 	// 更新
-	modelManager_->Update(modelName, transform, material, punctualLight);
+	modelManager_->Update(modelName, transform, materials, punctualLight);
 	// パイプラインのセット
 	pipelineManager_->SetGraphicsPipeline(commandList.Get(), pipelineType, blendMode);
-	// 頂点バッファのセット
-	modelManager_->SetBufferData(modelName, commandList.Get());
-	// SRVのセット
-	textureManager_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
 	// DrawCall
-	modelManager_->DrawCall(modelName, commandList.Get());
+	modelManager_->Draw(modelName, textureName, commandList.Get());
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

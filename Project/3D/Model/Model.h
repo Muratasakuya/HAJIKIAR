@@ -14,6 +14,7 @@
 ///===============================================================================
 /// クラス前方宣言
 class DXCommon;
+class TextureManager;
 ///===============================================================================
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -33,23 +34,23 @@ public:
 	struct Object3DModelData {
 
 		// 頂点バッファ
-		ComPtr<ID3D12Resource> vertexResource;
+		std::vector<ComPtr<ID3D12Resource>> vertexResources;
 		// 頂点バッファビュー
-		D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+		std::vector<D3D12_VERTEX_BUFFER_VIEW> vertexBufferViews{};
 
 		// 頂点バッファデータ
-		VertexData* vertexData = nullptr;
+		std::vector<VertexData*> vertexDatas;
 
 		// 定数バッファデータ
 		ConstBufferData cBufferData_;
 	};
 
-	void CreateModelMesh(DXCommon* dxCommon, const std::string modelName, UINT vertexCount);
+	void CreateModelMesh(DXCommon* dxCommon, const std::string modelName, const ModelData& modelData);
 
-	void Update(const std::string& modelName, const std::vector<VertexData> VertexData,
-		const Transform& transform, const Material& material, const PunctualLight& punctualLight);
+	void Update(const std::string& modelName, const ModelData& modelData,
+		const Transform& transform, std::vector<Material> materials, const PunctualLight& punctualLight);
 
-	void SetBufferData(const std::string& modelName, ID3D12GraphicsCommandList* commandList);
+	void Draw(const std::string& modelName,const std::string textureName, const ModelData& modelData, TextureManager* textureManager,ID3D12GraphicsCommandList* commandList);
 
 	// getter
 

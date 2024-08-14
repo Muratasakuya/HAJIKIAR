@@ -42,6 +42,7 @@ public:
 	void SetObjectName(const std::string name);
 	void SetPos(Vector3 pos);
 	void SetScale(Vector3 scale);
+	void SetRotate(Vector3 rotate);
 
 	// getter
 
@@ -62,6 +63,7 @@ private:
 
 	// マテリアル
 	Material material_;
+	std::vector<Material> materials_;
 
 	// ライト
 	PunctualLight light_;

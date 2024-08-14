@@ -28,28 +28,32 @@ void ParticleManager::CreateVertexData() {
 
 	HRESULT hr;
 
+	MeshModelData meshModelData{};
+
 	// 頂点データの作成 自作
 	//左上
-	modelData_.vertices.push_back(
+	meshModelData.vertices.push_back(
 		{ .pos = {1.0f,1.0f,0.0f,1.0f},.texcoord = {0.0f,0.0f},.normal = {0.0f,0.0f,1.0f} });
 	// 右上
-	modelData_.vertices.push_back(
+	meshModelData.vertices.push_back(
 		{ .pos = {-1.0f,1.0f,0.0f,1.0f},.texcoord = {1.0f,0.0f},.normal = {0.0f,0.0f,1.0f} });
 	// 左下
-	modelData_.vertices.push_back(
+	meshModelData.vertices.push_back(
 		{ .pos = {1.0f,-1.0f,0.0f,1.0f},.texcoord = {0.0f,1.0f},.normal = {0.0f,0.0f,1.0f} });
 	// 左下
-	modelData_.vertices.push_back(
+	meshModelData.vertices.push_back(
 		{ .pos = {1.0f,-1.0f,0.0f,1.0f},.texcoord = {0.0f,1.0f},.normal = {0.0f,0.0f,1.0f} });
 	// 右上
-	modelData_.vertices.push_back(
+	meshModelData.vertices.push_back(
 		{ .pos = {-1.0f,1.0f,0.0f,1.0f},.texcoord = {1.0f,0.0f},.normal = {0.0f,0.0f,1.0f} });
 	// 右下
-	modelData_.vertices.push_back(
+	meshModelData.vertices.push_back(
 		{ .pos = {-1.0f,-1.0f,0.0f,1.0f},.texcoord = {1.0f,1.0f},.normal = {0.0f,0.0f,1.0f} });
 
+	modelData_.meshes.push_back(meshModelData);
+
 	// 頂点データサイズ
-	UINT sizeVB = static_cast<UINT>(sizeof(VertexData) * modelData_.vertices.size());
+	UINT sizeVB = static_cast<UINT>(sizeof(VertexData) * modelData_.meshes[0].vertices.size());
 
 	// 頂点バッファ生成
 	vertexResource_ = vertexReourceInstance_.CreateBufferResource(dxCommon_->GetDevice(), sizeVB);
@@ -67,7 +71,7 @@ void ParticleManager::CreateVertexData() {
 /*////////////////////////////////////////////////////////////////////////////////
 *									   初期化
 ////////////////////////////////////////////////////////////////////////////////*/
-void ParticleManager::Initialize(DXCommon* dxCommon, SrvManager* srvManager,TextureManager* textureManager) {
+void ParticleManager::Initialize(DXCommon* dxCommon, SrvManager* srvManager, TextureManager* textureManager) {
 
 	assert(dxCommon);
 	assert(srvManager);
@@ -268,9 +272,12 @@ void ParticleManager::Update() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void ParticleManager::SetBufferData(ID3D12GraphicsCommandList* commandList, const std::string& name) {
 
-	// 頂点データ転送
-	std::memcpy(vertexData_,
-		modelData_.vertices.data(), sizeof(VertexData) * modelData_.vertices.size());
+	for (uint32_t i = 0; i < modelData_.meshes.size(); i++) {
+
+		// 頂点データ転送
+		std::memcpy(vertexData_,
+			modelData_.meshes[i].vertices.data(), sizeof(VertexData) * modelData_.meshes[i].vertices.size());
+	}
 
 	// 頂点バッファの設定
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
@@ -293,5 +300,5 @@ void ParticleManager::SetGraphicsRootDescriptorTable(
 ////////////////////////////////////////////////////////////////////////////////*/
 void ParticleManager::DrawCall(ID3D12GraphicsCommandList* commandList, const std::string& name) {
 
-	commandList->DrawInstanced(UINT(modelData_.vertices.size()), particleGroups_[name].numInstance, 0, 0);
+	commandList->DrawInstanced(UINT(modelData_.meshes[0].vertices.size()), particleGroups_[name].numInstance, 0, 0);
 }

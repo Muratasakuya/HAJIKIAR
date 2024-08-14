@@ -198,6 +198,9 @@ struct CameraForGPU {
 struct ModelMaterialData {
 
 	std::string textureFilePath;
+	Vector4 diffuseColor;
+	Vector4 specularColor;
+	Vector4 ambientColor;
 };
 struct Node {
 
@@ -205,11 +208,16 @@ struct Node {
 	std::string name;
 	std::vector<Node> children;
 };
-struct ModelData {
+struct MeshModelData {
 
 	std::vector<VertexData> vertices;
 	ModelMaterialData material;
+};
+struct ModelData {
+
+	std::vector<MeshModelData> meshes;
 	Node rootNode;
+	uint32_t numMaterial;
 };
 /*==========================================================*/
 /// 定数バッファ
@@ -222,6 +230,12 @@ struct ConstBufferData {
 	ComPtr<ID3D12Resource> materialResource;
 	// マテリアルバッファデータ
 	Material* material = nullptr;
+
+	// Multi
+	// マテリアルリソース
+	std::vector<ComPtr<ID3D12Resource>> materialResources;
+	// マテリアルバッファデータ
+	std::vector<Material*> materials = { nullptr };
 
 	/*-------------------------------------------------------*/
 	// TransformationMatrix

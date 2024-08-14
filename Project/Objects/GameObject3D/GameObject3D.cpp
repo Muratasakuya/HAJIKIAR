@@ -44,6 +44,11 @@ void GameObject3D::SetScale(Vector3 scale) {
 
 	transform_.scale = scale;
 }
+// 回転のセット
+void GameObject3D::SetRotate(Vector3 rotate) {
+
+	transform_.rotate = rotate;
+}
 
 // 中心座標取得 transform_.translate getter
 Vector3 GameObject3D::GetCenterPos() const {
@@ -170,7 +175,7 @@ void GameObject3D::ImGui() {
 		ImGui::SliderAngle("RotationX", &transform_.rotate.x);
 		ImGui::SliderAngle("RotationY", &transform_.rotate.y);
 		ImGui::SliderAngle("RotationZ", &transform_.rotate.z);
-		ImGui::DragFloat3("Translation", &transform_.translate.x, 0.005f);
+		ImGui::DragFloat3("Translation", &transform_.translate.x, 0.001f);
 	}
 
 	// Material ボタン

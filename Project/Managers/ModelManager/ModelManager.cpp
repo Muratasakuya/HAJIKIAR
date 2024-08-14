@@ -95,9 +95,6 @@ void ModelManager::CheckAvailability(const std::string name) {
 ModelData ModelManager::LoadObjFile(const std::string& directoryPath, const std::string& filename) {
 
 	ModelData modelData;            // 構築するModelData
-	std::vector<Vector4> positions;       // 位置
-	std::vector<Vector3> normals;   // 法線
-	std::vector<Vector2> texcoords; // テクスチャ座標
 	std::string line;               // ファイルから読んだ1行を格納するもの
 
 	Assimp::Importer impoter;
@@ -117,6 +114,8 @@ ModelData ModelManager::LoadObjFile(const std::string& directoryPath, const std:
 
 		// TexcoordがないMeshは今回は非対応
 		assert(mesh->HasTextureCoords(0));
+
+		MeshModelData meshModelData;
 
 		// face解析
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
@@ -144,24 +143,29 @@ ModelData ModelManager::LoadObjFile(const std::string& directoryPath, const std:
 				vertex.pos.x *= -1.0f;
 				vertex.normal.x *= -1.0f;
 
-				modelData.vertices.push_back(vertex);
+				meshModelData.vertices.push_back(vertex);
 			}
 		}
-	}
 
-	// material解析
-	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
+		// マテリアル解析
+		if (scene->HasMaterials()) {
 
-		aiMaterial* material = scene->mMaterials[materialIndex];
+			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
+			if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
 
-			aiString textureFilePath;
-
-			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			modelData.material.textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
+				aiString textureFilePath;
+				material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
+				meshModelData.material.textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			}
 		}
+
+		// メッシュデータをモデルデータに追加
+		modelData.meshes.push_back(meshModelData);
 	}
+
+	// マテリアルカウントを記憶
+	modelData.numMaterial = scene->mNumMaterials;
 
 	return modelData;
 }
@@ -172,9 +176,6 @@ ModelData ModelManager::LoadObjFile(const std::string& directoryPath, const std:
 ModelData ModelManager::LoadGLTFFile(const std::string& directoryPath, const std::string& filename) {
 
 	ModelData modelData;            // 構築するModelData
-	std::vector<Vector4> positions; // 位置
-	std::vector<Vector3> normals;   // 法線
-	std::vector<Vector2> texcoords; // テクスチャ座標
 	std::string line;               // ファイルから読んだ1行を格納するもの
 
 	Assimp::Importer impoter;
@@ -194,6 +195,8 @@ ModelData ModelManager::LoadGLTFFile(const std::string& directoryPath, const std
 
 		// TexcoordがないMeshは今回は非対応
 		assert(mesh->HasTextureCoords(0));
+
+		MeshModelData meshModelData;
 
 		// face解析
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
@@ -221,27 +224,65 @@ ModelData ModelManager::LoadGLTFFile(const std::string& directoryPath, const std
 				vertex.pos.x *= -1.0f;
 				vertex.normal.x *= -1.0f;
 
-				modelData.vertices.push_back(vertex);
+				meshModelData.vertices.push_back(vertex);
 			}
 		}
-	}
 
-	// material解析
-	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
+		// マテリアル解析
+		if (scene->HasMaterials()) {
 
-		aiMaterial* material = scene->mMaterials[materialIndex];
+			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
+			if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
 
-			aiString textureFilePath;
+				aiString textureFilePath;
+				material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
+				meshModelData.material.textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			}
 
-			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			modelData.material.textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			// Diffuse色の取得
+			aiColor4D diffuseColor;
+			if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor)) {
+				meshModelData.material.diffuseColor = {
+					diffuseColor.r,
+					diffuseColor.g,
+					diffuseColor.b,
+					diffuseColor.a
+				};
+			}
+
+			// 鏡面色
+			aiColor4D specularColor;
+			if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_SPECULAR, specularColor)) {
+				meshModelData.material.specularColor = {
+					specularColor.r,
+					specularColor.g,
+					specularColor.b,
+					specularColor.a
+				};
+			}
+
+			// 環境光の色 (Ambient)
+			aiColor4D ambientColor;
+			if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor)) {
+				meshModelData.material.ambientColor = {
+					ambientColor.r,
+					ambientColor.g,
+					ambientColor.b,
+					ambientColor.a
+				};
+			}
 		}
+
+		// メッシュデータをモデルデータに追加
+		modelData.meshes.push_back(meshModelData);
 	}
 
 	// 階層構造の作成
 	modelData.rootNode = ReadNode(scene->mRootNode);
+
+	// マテリアルカウントを記憶
+	modelData.numMaterial = scene->mNumMaterials;
 
 	return modelData;
 }
@@ -259,7 +300,7 @@ void ModelManager::LoadModel(const std::string& directoryPath, const std::string
 	ModelData modelData = LoadObjFile(directoryPath, filename);
 	models_[identifier] = modelData;
 
-	model_->CreateModelMesh(dxCommon_, identifier, static_cast<UINT>(models_[identifier].vertices.size()));
+	model_->CreateModelMesh(dxCommon_, identifier, models_[identifier]);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -275,7 +316,7 @@ void ModelManager::LoadGLTFModel(const std::string& directoryPath, const std::st
 	ModelData modelData = LoadGLTFFile(directoryPath, filename);
 	models_[identifier] = modelData;
 
-	model_->CreateModelMesh(dxCommon_, identifier, static_cast<UINT>(models_[identifier].vertices.size()));
+	model_->CreateModelMesh(dxCommon_, identifier, models_[identifier]);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -283,7 +324,7 @@ void ModelManager::LoadGLTFModel(const std::string& directoryPath, const std::st
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::MakeModel(ModelData modelData, const std::string& modelName) {
 
-	model_->CreateModelMesh(dxCommon_, modelName, static_cast<UINT>(modelData.vertices.size()));
+	model_->CreateModelMesh(dxCommon_, modelName, modelData);
 
 	models_[modelName] = modelData;
 }
@@ -291,11 +332,13 @@ void ModelManager::MakeModel(ModelData modelData, const std::string& modelName) 
 /*////////////////////////////////////////////////////////////////////////////////
 *							モデルメッシュインスタンスの生成
 ////////////////////////////////////////////////////////////////////////////////*/
-void ModelManager::Initialize(DXCommon* dxCommon) {
+void ModelManager::Initialize(DXCommon* dxCommon, TextureManager* textureManager) {
 
 	assert(dxCommon);
+	assert(textureManager);
 
 	dxCommon_ = dxCommon;
+	textureManager_ = textureManager;
 
 	model_ = std::make_unique<Model>();
 }
@@ -304,23 +347,15 @@ void ModelManager::Initialize(DXCommon* dxCommon) {
 *									更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::Update(
-	const std::string& modelName, const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
+	const std::string& modelName, const Transform& transform, std::vector<Material> materials, const PunctualLight& punctualLight) {
 
-	model_->Update(modelName, models_[modelName].vertices, transform, material, punctualLight);
-}
-
-/*////////////////////////////////////////////////////////////////////////////////
-*							  頂点バッファセット
-////////////////////////////////////////////////////////////////////////////////*/
-void ModelManager::SetBufferData(const std::string& modelName, ID3D12GraphicsCommandList* commandList) {
-
-	model_->SetBufferData(modelName, commandList);
+	model_->Update(modelName, models_[modelName], transform, materials, punctualLight);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								   モデル描画
 ////////////////////////////////////////////////////////////////////////////////*/
-void ModelManager::DrawCall(const std::string& modelName, ID3D12GraphicsCommandList* commandList) {
+void ModelManager::Draw(const std::string& modelName, const std::string textureName, ID3D12GraphicsCommandList* commandList) {
 
-	commandList->DrawInstanced(static_cast<UINT>(models_[modelName].vertices.size()), 1, 0, 0);
+	model_->Draw(modelName, textureName, models_[modelName], textureManager_, commandList);
 }
