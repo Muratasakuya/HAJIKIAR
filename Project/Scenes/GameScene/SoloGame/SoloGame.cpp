@@ -10,15 +10,9 @@ void SoloGame::Initialize() {
 	/*======================================================*/
 	// 読み込み
 
-	//// Player
-	//const std::string playerTexName = "playerHajiki.png";
-	//NewMoon::LoadTexture("./Resources/Images/Common/Objects/" + playerTexName);
-	//// Line
-	//const std::string lineHajikiTexName = "lineHAJIKIActive.png";
-	//NewMoon::LoadTexture("./Resources/Images/Common/Objects/" + lineHajikiTexName);
-	//// Target
-	//const std::string targetTexName = "targetHAJIKIActive.png";
-	//NewMoon::LoadTexture("./Resources/Images/Common/Objects/" + targetTexName);
+	// Target
+	const std::string targetTexName = "white.png";
+	NewMoon::LoadTexture("./Resources/Images/" + targetTexName);
 
 	// 共通モデル
 	const std::string testHajikiModelName = "hajiki.gltf";
@@ -30,8 +24,11 @@ void SoloGame::Initialize() {
 	// Player
 	playerHajiki_ = std::make_unique<GameObject3D>(GameObjectType::Model);
 	playerHajiki_->Initialize();
-	playerHajiki_->SetScale({ 0.01f,0.01f,0.01f });
+	playerHajiki_->SetScale({ 0.05f,0.05f ,0.05f });
+	playerHajiki_->SetRotate({ std::numbers::pi_v<float> / 2.0f,0.0f ,0.0f });
+	playerHajiki_->SetPos({ 0.0f,0.0f,0.025f });
 	playerHajiki_->SetModel(testHajikiModelName);
+	playerHajiki_->SetTexture(targetTexName);
 	playerHajiki_->SetObjectName("playerHajiki");
 
 	// ImGuiセット
@@ -60,6 +57,6 @@ void SoloGame::Draw() {
 	// 2Dオブジェクト
 
 	// Player
-	//playerHajiki_->Draw();
+	playerHajiki_->Draw();
 
 }

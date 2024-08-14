@@ -26,6 +26,7 @@
 ///===============================================================================
 /// クラス前方宣言
 class DXCommon;
+class TextureManager;
 ///===============================================================================
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +42,7 @@ public:
 	ModelManager() = default;
 	~ModelManager() = default;
 
-	void Initialize(DXCommon* dxCommon);
+	void Initialize(DXCommon* dxCommon, TextureManager* textureManager);
 
 	void LoadModel(const std::string& directoryPath, const std::string& filename);
 	void LoadGLTFModel(const std::string& directoryPath, const std::string& filename);
@@ -54,10 +55,9 @@ public:
 
 	void CheckAvailability(const std::string name);
 
-	void Update(const std::string& modelName, const Transform& transform, const Material& material, const PunctualLight& punctualLight);
+	void Update(const std::string& modelName, const Transform& transform, std::vector<Material> materials, const PunctualLight& punctualLight);
 
-	void SetBufferData(const std::string& modelName, ID3D12GraphicsCommandList* commandList);
-	void DrawCall(const std::string& modelName, ID3D12GraphicsCommandList* commandList);
+	void Draw(const std::string& modelName, const std::string textureName, ID3D12GraphicsCommandList* commandList);
 
 	// getter
 
@@ -69,10 +69,11 @@ private:
 	/*-----------------------------*/
 
 	DXCommon* dxCommon_ = nullptr;
+	TextureManager* textureManager_ = nullptr;
 
 	VertexResource vertexResource_;
 
 	std::unordered_map<std::string, ModelData> models_;
 	std::unique_ptr<Model> model_;
-	
+
 };

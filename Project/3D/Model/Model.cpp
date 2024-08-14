@@ -1,6 +1,7 @@
 #include "Model.h"
 
 #include "DXCommon.h"
+#include "TextureManager.h"
 #include "ModelManager.h"
 #include "MainCamera3D.h"
 
@@ -22,7 +23,7 @@ Model::Object3DModelData* Model::GetModel(const std::string& modelName) const {
 /*////////////////////////////////////////////////////////////////////////////////
 *							  モデルメッシュの生成
 ////////////////////////////////////////////////////////////////////////////////*/
-void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, UINT vertexCount) {
+void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, const ModelData& modelData) {
 
 	assert(dxCommon);
 
@@ -34,21 +35,27 @@ void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, UIN
 	HRESULT hr;
 	models_[modelName] = std::make_unique<Object3DModelData>();
 
-	if (vertexCount > 0) {
+	for (uint32_t i = 0; i < modelData.meshes.size(); i++) {
 
 		// 頂点データサイズ
-		UINT sizeVB = static_cast<UINT>(sizeof(VertexData) * vertexCount);
+		UINT sizeVB = static_cast<UINT>(sizeof(VertexData) * modelData.meshes[i].vertices.size());
 
 		// 頂点バッファの生成
-		models_[modelName]->vertexResource = vertexResource_.CreateBufferResource(dxCommon_->GetDevice(), sizeVB);
+		ComPtr<ID3D12Resource> vertexResource = vertexResource_.CreateBufferResource(dxCommon_->GetDevice(), sizeVB);
+		models_[modelName]->vertexResources.push_back(vertexResource);
 
 		// 頂点バッファビューの作成
-		models_[modelName]->vertexBufferView.BufferLocation = models_[modelName]->vertexResource->GetGPUVirtualAddress();
-		models_[modelName]->vertexBufferView.SizeInBytes = sizeVB;
-		models_[modelName]->vertexBufferView.StrideInBytes = sizeof(VertexData);
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+		vertexBufferView.BufferLocation = models_[modelName]->vertexResources[i]->GetGPUVirtualAddress();
+		vertexBufferView.SizeInBytes = sizeVB;
+		vertexBufferView.StrideInBytes = sizeof(VertexData);
+		models_[modelName]->vertexBufferViews.push_back(vertexBufferView);
+
+		VertexData* vertexData = nullptr;
+		models_[modelName]->vertexDatas.push_back(vertexData);
 
 		// 頂点データのマッピング
-		hr = models_[modelName]->vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&models_[modelName]->vertexData));
+		hr = models_[modelName]->vertexResources[i]->Map(0, nullptr, reinterpret_cast<void**>(&models_[modelName]->vertexDatas[i]));
 		assert(SUCCEEDED(hr));
 	}
 
@@ -57,25 +64,35 @@ void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, UIN
 	/*////////////////////////////////////////////////////////////////////////////////*/
 
 #pragma region /// マテリアル ///
-	// マテリアルバッファの生成
-	models_[modelName]->cBufferData_.materialResource
-		= vertexResource_.CreateBufferResource(dxCommon_->GetDevice(), sizeof(Material));
 
-	// マテリアルデータのマッピング
-	hr = models_[modelName]->cBufferData_.materialResource->Map(
-		0, nullptr, reinterpret_cast<void**>(&models_[modelName]->cBufferData_.material));
-	// 作れなければエラー
-	assert(SUCCEEDED(hr));
+	models_[modelName]->cBufferData_.materialResources.clear();
+	models_[modelName]->cBufferData_.materials.clear();
 
-	// マテリアル初期値
-	models_[modelName]->cBufferData_.material->color = { 1.0f,1.0f,1.0f,1.0f };
-	models_[modelName]->cBufferData_.material->enableLighting = false;
-	models_[modelName]->cBufferData_.material->enableHalfLambert = false;
-	models_[modelName]->cBufferData_.material->enablePhongReflection = false;
-	models_[modelName]->cBufferData_.material->enableBlinnPhongReflection = false;
-	models_[modelName]->cBufferData_.material->phongRefShininess = 32.0f;
-	models_[modelName]->cBufferData_.material->specularColor = { 1.0f,1.0f,1.0f };
-	models_[modelName]->cBufferData_.material->uvTransform = Matrix4x4::MakeIdentity4x4();
+	for (uint32_t i = 0; i < modelData.meshes.size(); i++) {
+
+		// マテリアルバッファの生成
+		ComPtr<ID3D12Resource> materialResource = vertexResource_.CreateBufferResource(dxCommon_->GetDevice(), sizeof(Material));
+		models_[modelName]->cBufferData_.materialResources.push_back(materialResource);
+
+		Material* material = nullptr;
+		models_[modelName]->cBufferData_.materials.push_back(material);
+
+		// マテリアルデータのマッピング
+		hr = models_[modelName]->cBufferData_.materialResources[i]->Map(
+			0, nullptr, reinterpret_cast<void**>(&models_[modelName]->cBufferData_.materials[i]));
+		// 作れなければエラー
+		assert(SUCCEEDED(hr));
+
+		// マテリアル初期値
+		models_[modelName]->cBufferData_.materials[i]->color = { 1.0f,1.0f,1.0f,1.0f };
+		models_[modelName]->cBufferData_.materials[i]->enableLighting = false;
+		models_[modelName]->cBufferData_.materials[i]->enableHalfLambert = false;
+		models_[modelName]->cBufferData_.materials[i]->enablePhongReflection = false;
+		models_[modelName]->cBufferData_.materials[i]->enableBlinnPhongReflection = false;
+		models_[modelName]->cBufferData_.materials[i]->phongRefShininess = 32.0f;
+		models_[modelName]->cBufferData_.materials[i]->specularColor = { 1.0f,1.0f,1.0f };
+		models_[modelName]->cBufferData_.materials[i]->uvTransform = Matrix4x4::MakeIdentity4x4();
+	}
 #pragma endregion
 
 	/*////////////////////////////////////////////////////////////////////////////////*/
@@ -160,14 +177,19 @@ void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, UIN
 /*////////////////////////////////////////////////////////////////////////////////
 *								　更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void Model::Update(const std::string& modelName, const std::vector<VertexData> VertexData,
-	const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
+void Model::Update(const std::string& modelName, const ModelData& modelData,
+	const Transform& transform, std::vector<Material> materials, const PunctualLight& punctualLight) {
 
 	MainCamera3D::GetInstance()->ImGuiDraw();
 	MainCamera3D::GetInstance()->Update();
 
-	// 頂点バッファへデータ転送
-	std::memcpy(models_[modelName]->vertexData, VertexData.data(), sizeof(VertexData) * VertexData.size());
+	for (uint32_t i = 0; i < modelData.meshes.size(); i++) {
+
+		// 頂点バッファへデータ転送
+		std::memcpy(models_[modelName]->vertexDatas[i],
+			modelData.meshes[i].vertices.data(),
+			sizeof(VertexData) * modelData.meshes[i].vertices.size());
+	}
 
 #pragma region /// ConstBufferの更新 ///
 
@@ -183,39 +205,45 @@ void Model::Update(const std::string& modelName, const std::vector<VertexData> V
 	models_[modelName]->cBufferData_.transformationMatrix->WVP = wvpMatrix;
 	models_[modelName]->cBufferData_.transformationMatrix->WorldInverseTranspose = worldInverseTranspose;
 
-	// マテリアルの更新
-	models_[modelName]->cBufferData_.material->color = material.color;
-	models_[modelName]->cBufferData_.material->enableLighting = material.enableLighting;
-	models_[modelName]->cBufferData_.material->enableHalfLambert = material.enableHalfLambert;
-	models_[modelName]->cBufferData_.material->enablePhongReflection = material.enablePhongReflection;
-	models_[modelName]->cBufferData_.material->enableBlinnPhongReflection = material.enableBlinnPhongReflection;
-	models_[modelName]->cBufferData_.material->phongRefShininess = material.phongRefShininess;
-	models_[modelName]->cBufferData_.material->specularColor = material.specularColor;
-	models_[modelName]->cBufferData_.material->uvTransform = material.uvTransform;
+	for (uint32_t index = 0; index < models_[modelName]->cBufferData_.materials.size(); index++) {
 
-	// パンクチュアルライトの更新
-	// Lighting時のみ
-	if (models_[modelName]->cBufferData_.material->enableLighting) {
+		Vector4 synthesisColor =
+			modelData.meshes[index].material.diffuseColor *
+			modelData.meshes[index].material.diffuseColor *
+			modelData.meshes[index].material.diffuseColor;
+		models_[modelName]->cBufferData_.materials[index]->color = synthesisColor;
+		models_[modelName]->cBufferData_.materials[index]->enableLighting = materials[index].enableLighting;
+		models_[modelName]->cBufferData_.materials[index]->enableHalfLambert = materials[index].enableHalfLambert;
+		models_[modelName]->cBufferData_.materials[index]->enablePhongReflection = materials[index].enablePhongReflection;
+		models_[modelName]->cBufferData_.materials[index]->enableBlinnPhongReflection = materials[index].enableBlinnPhongReflection;
+		models_[modelName]->cBufferData_.materials[index]->phongRefShininess = materials[index].phongRefShininess;
+		models_[modelName]->cBufferData_.materials[index]->specularColor = materials[index].specularColor;
+		models_[modelName]->cBufferData_.materials[index]->uvTransform = materials[index].uvTransform;
 
-		// 平行光源
-		models_[modelName]->cBufferData_.light->directional.color = punctualLight.directional.color;
-		models_[modelName]->cBufferData_.light->directional.direction = punctualLight.directional.direction;
-		models_[modelName]->cBufferData_.light->directional.intensity = punctualLight.directional.intensity;
-		// ポイントライト
-		models_[modelName]->cBufferData_.light->point.color = punctualLight.point.color;
-		models_[modelName]->cBufferData_.light->point.pos = punctualLight.point.pos;
-		models_[modelName]->cBufferData_.light->point.intensity = punctualLight.point.intensity;
-		models_[modelName]->cBufferData_.light->point.radius = punctualLight.point.radius;
-		models_[modelName]->cBufferData_.light->point.decay = punctualLight.point.decay;
-		// スポットライト
-		models_[modelName]->cBufferData_.light->spot.color = punctualLight.spot.color;
-		models_[modelName]->cBufferData_.light->spot.pos = punctualLight.spot.pos;
-		models_[modelName]->cBufferData_.light->spot.intensity = punctualLight.spot.intensity;
-		models_[modelName]->cBufferData_.light->spot.direction = punctualLight.spot.direction;
-		models_[modelName]->cBufferData_.light->spot.distance = punctualLight.spot.distance;
-		models_[modelName]->cBufferData_.light->spot.decay = punctualLight.spot.decay;
-		models_[modelName]->cBufferData_.light->spot.cosAngle = punctualLight.spot.cosAngle;
-		models_[modelName]->cBufferData_.light->spot.cosFalloffStart = punctualLight.spot.cosFalloffStart;
+		// パンクチュアルライトの更新
+		// Lighting時のみ
+		if (models_[modelName]->cBufferData_.materials[index]->enableLighting) {
+
+			// 平行光源
+			models_[modelName]->cBufferData_.light->directional.color = punctualLight.directional.color;
+			models_[modelName]->cBufferData_.light->directional.direction = punctualLight.directional.direction;
+			models_[modelName]->cBufferData_.light->directional.intensity = punctualLight.directional.intensity;
+			// ポイントライト
+			models_[modelName]->cBufferData_.light->point.color = punctualLight.point.color;
+			models_[modelName]->cBufferData_.light->point.pos = punctualLight.point.pos;
+			models_[modelName]->cBufferData_.light->point.intensity = punctualLight.point.intensity;
+			models_[modelName]->cBufferData_.light->point.radius = punctualLight.point.radius;
+			models_[modelName]->cBufferData_.light->point.decay = punctualLight.point.decay;
+			// スポットライト
+			models_[modelName]->cBufferData_.light->spot.color = punctualLight.spot.color;
+			models_[modelName]->cBufferData_.light->spot.pos = punctualLight.spot.pos;
+			models_[modelName]->cBufferData_.light->spot.intensity = punctualLight.spot.intensity;
+			models_[modelName]->cBufferData_.light->spot.direction = punctualLight.spot.direction;
+			models_[modelName]->cBufferData_.light->spot.distance = punctualLight.spot.distance;
+			models_[modelName]->cBufferData_.light->spot.decay = punctualLight.spot.decay;
+			models_[modelName]->cBufferData_.light->spot.cosAngle = punctualLight.spot.cosAngle;
+			models_[modelName]->cBufferData_.light->spot.cosFalloffStart = punctualLight.spot.cosFalloffStart;
+		}
 	}
 
 	// カメラのワールド座標の更新
@@ -227,16 +255,24 @@ void Model::Update(const std::string& modelName, const std::vector<VertexData> V
 /*////////////////////////////////////////////////////////////////////////////////
 *							  頂点バッファセット
 ////////////////////////////////////////////////////////////////////////////////*/
-void Model::SetBufferData(const std::string& modelName, ID3D12GraphicsCommandList* commandList) {
+void Model::Draw(const std::string& modelName, const std::string textureName, const ModelData& modelData, TextureManager* textureManager, ID3D12GraphicsCommandList* commandList) {
 
-	// 頂点バッファの設定
-	commandList->IASetVertexBuffers(0, 1, &models_[modelName]->vertexBufferView);
-	// マテリアルCBufferの場所を設定
-	commandList->SetGraphicsRootConstantBufferView(0, models_[modelName]->cBufferData_.materialResource.Get()->GetGPUVirtualAddress());
-	// wvp用のCBufferの場所を設定
-	commandList->SetGraphicsRootConstantBufferView(1, models_[modelName]->cBufferData_.matrixResource.Get()->GetGPUVirtualAddress());
-	// ライトCBufferの場所を設定
-	commandList->SetGraphicsRootConstantBufferView(3, models_[modelName]->cBufferData_.lightResource.Get()->GetGPUVirtualAddress());
-	// カメラCBufferの場所を設定
-	commandList->SetGraphicsRootConstantBufferView(4, models_[modelName]->cBufferData_.cameraResource.Get()->GetGPUVirtualAddress());
+	for (uint32_t i = 0; i < modelData.meshes.size(); i++) {
+
+		// 頂点バッファの設定
+		commandList->IASetVertexBuffers(0, 1, &models_[modelName]->vertexBufferViews[i]);
+		// マテリアルCBufferの場所を設定
+		commandList->SetGraphicsRootConstantBufferView(0, models_[modelName]->cBufferData_.materialResources[i].Get()->GetGPUVirtualAddress());
+		// wvp用のCBufferの場所を設定
+		commandList->SetGraphicsRootConstantBufferView(1, models_[modelName]->cBufferData_.matrixResource.Get()->GetGPUVirtualAddress());
+		// ライトCBufferの場所を設定
+		commandList->SetGraphicsRootConstantBufferView(3, models_[modelName]->cBufferData_.lightResource.Get()->GetGPUVirtualAddress());
+		// カメラCBufferの場所を設定
+		commandList->SetGraphicsRootConstantBufferView(4, models_[modelName]->cBufferData_.cameraResource.Get()->GetGPUVirtualAddress());
+		// SRVのセット
+		textureManager->SetGraphicsRootDescriptorTable(commandList, 2, textureName);
+
+		// DrawCall
+		commandList->DrawInstanced(static_cast<UINT>(modelData.meshes[i].vertices.size()), 1, 0, 0);
+	}
 }
