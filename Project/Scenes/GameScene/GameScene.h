@@ -45,6 +45,8 @@ private:
 	std::unique_ptr<SoloGame> soloGame_;
 	std::unique_ptr<MatchGame> matchGame_;
 
+	ImGuiRenderer imgui_;
+
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
 

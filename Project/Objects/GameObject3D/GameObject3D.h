@@ -39,14 +39,20 @@ public:
 
 	void SetTexture(const std::string name);
 	void SetModel(const std::string name);
-	void SetObjectName(const std::string name);
-	void SetPos(Vector3 pos);
+
+	void SetTranslate(Vector3 pos);
 	void SetScale(Vector3 scale);
 	void SetRotate(Vector3 rotate);
+
+	void SetColor(Vector4 color);
+
+	void SetObjectName(const std::string name);
 
 	// getter
 
 	Vector3 GetCenterPos() const override;
+	Vector3 GetScale()const;
+	Vector3 GetRotate() const;
 	GameObjectType GetType() const;
 	std::string GetObjectName() const;
 
@@ -59,20 +65,20 @@ private:
 	// メインオブジェクト
 
 	// SRT
-	Transform transform_;
+	Transform transform_{};
 
 	// マテリアル
-	Material material_;
-	std::vector<Material> materials_;
+	Material material_{};
+	std::vector<Material> materials_{};
 
 	// ライト
-	PunctualLight light_;
+	PunctualLight light_{};
 
 	// ライティングフラグ
-	bool enableLighting_;
-	bool enableHalfLambert_;
-	bool enablePhongReflection_;
-	bool enableBlinnPhongReflection_;
+	bool enableLighting_ = false;
+	bool enableHalfLambert_ = false;
+	bool enablePhongReflection_ = false;
+	bool enableBlinnPhongReflection_ = false;
 
 	/*--------------------------------------------------------------*/
 	// サブオブジェクト

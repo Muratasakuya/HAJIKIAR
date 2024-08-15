@@ -48,9 +48,22 @@ private:
 	// LineHajiki
 	static const uint32_t lineHajikiNum = 4;
 	std::array<std::unique_ptr<GameObject3D>, lineHajikiNum> lineHajikies_;
+
+	// Line
 	std::unique_ptr<GameObject3D> line_;
+	// LineColor
+	float changeAlpha_;
+	float lineColorAlpha_;
 
 	// TargetHajiki (虚 imaginary)
 	std::unique_ptr<GameObject3D> targetHajiki_;
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
+
+	// Line更新
+	void LineUpdate();
 
 };
