@@ -218,6 +218,9 @@ void SoloGame::LineUpdate() {
 	/*======================================================*/
 	// SRTの更新
 
+	// デフォルトサイズ
+	const float kPlaneDefaultSize = 10.0f;
+
 	// カーテンを貼る対象の座標
 	Vector2 posA = { lineHajikies_[0]->GetCenterPos().x,lineHajikies_[0]->GetCenterPos().y };
 	Vector2 posB = { lineHajikies_[2]->GetCenterPos().x,lineHajikies_[2]->GetCenterPos().y };
@@ -229,7 +232,7 @@ void SoloGame::LineUpdate() {
 
 	// scaleの計算
 	float distance = Vector2::Length(posB - posA);
-	distance = 10.0f * distance;
+	distance = distance * kPlaneDefaultSize;
 	Vector3 scale = { distance,line_->GetScale().y,line_->GetScale().z };
 	line_->SetScale(scale);
 
