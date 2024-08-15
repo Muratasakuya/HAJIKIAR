@@ -34,22 +34,29 @@ void GameScene::Initialize() {
 	/*======================================================*/
 	// テクスチャ読み込み
 
+	// DebugTest
 	const std::string debugTestTextureName = "debugBlack.png";
 	NewMoon::LoadTexture("./Resources/Images/" + debugTestTextureName);
 
 	/*======================================================*/
 	// 2Dオブジェクト
 
+	// debugTest
+	debugTest_ = std::make_unique<GameObject2D>();
+	debugTest_->Initialize();
+	debugTest_->SetTexture(debugTestTextureName);
+
 	// 背景画像
 	const std::string bgTextureName = "bg.png";
 	background_ = std::make_unique<GameObject2D>();
 	background_->Initialize();
 	background_->SetTexture(bgTextureName);
-	background_->SetColor({ 1.0f,1.0f,1.0f,0.1f });
-	// debugTest
-	debugTest_ = std::make_unique<GameObject2D>();
-	debugTest_->Initialize();
-	debugTest_->SetTexture(debugTestTextureName);
+
+	// 背景グリッド
+	const std::string gridTextureName = "grid.png";
+	grid_ = std::make_unique<GameObject2D>();
+	grid_->Initialize();
+	grid_->SetTexture(gridTextureName);
 
 	/*======================================================*/
 	// 3Dオブジェクト
@@ -60,6 +67,7 @@ void GameScene::Initialize() {
 	// ImGuiのセット
 
 	imgui_.Set(background_.get());
+	imgui_.Set(grid_.get());
 
 }
 
@@ -78,15 +86,6 @@ void GameScene::Update() {
 	imgui_.Render();
 
 	/*======================================================*/
-	// シーン遷移処理
-
-	// Game -> Result
-	if (NewMoon::TriggerKey(DIK_SPACE)) {
-
-		SceneManager::GetInstance()->ChangeScene(RESULT);
-	}
-
-	/*======================================================*/
 	// ゲームモード
 
 	if (gameMode_ == GameMode::SOLO) {
@@ -96,7 +95,16 @@ void GameScene::Update() {
 
 		matchGame_->Update();
 	}
-	
+
+	/*======================================================*/
+	// シーン遷移処理
+
+	// Game -> Result
+	if (NewMoon::TriggerKey(DIK_SPACE)) {
+
+		SceneManager::GetInstance()->ChangeScene(RESULT);
+	}
+
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -110,6 +118,7 @@ void GameScene::Draw() {
 	// 背景画像
 	debugTest_->Draw();
 	background_->Draw();
+	grid_->Draw();
 
 	/*======================================================*/
 	// ゲームモード

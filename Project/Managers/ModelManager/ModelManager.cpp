@@ -275,6 +275,11 @@ void ModelManager::LoadModel(const std::string& directoryPath, const std::string
 	// 拡張子を除いたモデル名を取得
 	std::string identifier = path.stem().string();
 
+	// モデルがすでにあれば早期リターン
+	if (models_.find(identifier) != models_.end()) {
+		return;
+	}
+
 	ModelData modelData = LoadObjFile(directoryPath, filename);
 	models_[identifier] = modelData;
 
@@ -291,6 +296,11 @@ void ModelManager::LoadGLTFModel(const std::string& directoryPath, const std::st
 	// 拡張子を除いたモデル名を取得
 	std::string identifier = path.stem().string();
 
+	// モデルがすでにあれば早期リターン
+	if (models_.find(identifier) != models_.end()) {
+		return;
+	}
+
 	ModelData modelData = LoadGLTFFile(directoryPath, filename);
 	models_[identifier] = modelData;
 
@@ -301,6 +311,11 @@ void ModelManager::LoadGLTFModel(const std::string& directoryPath, const std::st
 *							自作したモデルを作成する関数
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::MakeModel(ModelData modelData, const std::string& modelName) {
+
+	// モデルがすでにあれば早期リターン
+	if (models_.find(modelName) != models_.end()) {
+		return;
+	}
 
 	model_->CreateModelMesh(dxCommon_, modelName, modelData);
 

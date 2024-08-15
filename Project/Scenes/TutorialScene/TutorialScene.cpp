@@ -26,6 +26,9 @@ void TutorialScene::Initialize() {
 	const std::string bgTextureName = "bg.png";
 	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + bgTextureName);
 
+	const std::string gridTextureName = "grid.png";
+	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + gridTextureName);
+
 	/*======================================================*/
 	// 2Dオブジェクト
 
@@ -33,6 +36,11 @@ void TutorialScene::Initialize() {
 	background_ = std::make_unique<GameObject2D>();
 	background_->Initialize();
 	background_->SetTexture(bgTextureName);
+
+	// 背景グリッド
+	grid_ = std::make_unique<GameObject2D>();
+	grid_->Initialize();
+	grid_->SetTexture(gridTextureName);
 
 	/*======================================================*/
 	// 3Dオブジェクト
@@ -86,6 +94,7 @@ void TutorialScene::Draw() {
 
 	// 背景画像
 	background_->Draw();
+	grid_->Draw();
 
 	/*======================================================*/
 	// 3Dオブジェクト
