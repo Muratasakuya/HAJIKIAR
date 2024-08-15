@@ -21,12 +21,8 @@ void SoloGame::Initialize() {
 	// lineHajiki
 	const std::string lineHajikiModelName = "hajiki.gltf";
 	const std::string lineHajikiModelName2 = "hajiki2.gltf";
-	const std::string lineHajikiModelName3 = "hajiki3.gltf";
-	const std::string lineHajikiModelName4 = "hajiki4.gltf";
 	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName);
 	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName2);
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName3);
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName4);
 	// line
 	const std::string lineModelName = "line.gltf";
 	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineModelName);
@@ -43,15 +39,9 @@ void SoloGame::Initialize() {
 		lineHajikies_[i] = std::make_unique<GameObject3D>(GameObjectType::Model);
 		lineHajikies_[i]->Initialize();
 		lineHajikies_[i]->SetRotate({ std::numbers::pi_v<float> / 2.0f,0.0f ,0.0f });
-		lineHajikies_[i]->SetTranslate({ 0.0f,0.0f,2.0f });
+		lineHajikies_[i]->SetTranslate({ -0.1f + i * 0.1f,0.0f,1.0f });
 		lineHajikies_[i]->SetObjectName("lineHajiki");
 	}
-
-	// 初期座標セット Zをずらす
-	lineHajikies_[0]->SetTranslate({ -0.2f,0.04f,1.0f });
-	lineHajikies_[2]->SetTranslate({ -0.1f,-0.04f,1.0f });
-	lineHajikies_[1]->SetTranslate({ lineHajikies_[0]->GetCenterPos().x,lineHajikies_[0]->GetCenterPos().y,lineHajikies_[1]->GetCenterPos().z });
-	lineHajikies_[3]->SetTranslate({ lineHajikies_[2]->GetCenterPos().x,lineHajikies_[2]->GetCenterPos().y,lineHajikies_[3]->GetCenterPos().z });
 
 	// Line
 	line_ = std::make_unique<GameObject3D>(GameObjectType::Model);
@@ -83,8 +73,6 @@ void SoloGame::Initialize() {
 	// ModelのConstBufferが被るので今はこうしている
 	lineHajikies_[0]->SetModel(lineHajikiModelName);
 	lineHajikies_[1]->SetModel(lineHajikiModelName2);
-	lineHajikies_[2]->SetModel(lineHajikiModelName3);
-	lineHajikies_[3]->SetModel(lineHajikiModelName4);
 
 	// Line
 	line_->SetTexture(whiteTexName);
@@ -119,6 +107,7 @@ void SoloGame::Initialize() {
 	}
 	imgui_.Set(line_.get());
 	imgui_.Set(targetHajiki_.get());
+
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -135,10 +124,6 @@ void SoloGame::Update() {
 
 	/*======================================================*/
 	// 3Dオブジェクト
-
-	// 座標の更新
-	lineHajikies_[1]->SetTranslate({ lineHajikies_[0]->GetCenterPos().x,lineHajikies_[0]->GetCenterPos().y,lineHajikies_[1]->GetCenterPos().z });
-	lineHajikies_[3]->SetTranslate({ lineHajikies_[2]->GetCenterPos().x,lineHajikies_[2]->GetCenterPos().y,lineHajikies_[3]->GetCenterPos().z });
 
 	// LineHajiki
 	for (const auto& lineHajiki : lineHajikies_) {
@@ -223,7 +208,7 @@ void SoloGame::LineUpdate() {
 
 	// カーテンを貼る対象の座標
 	Vector2 posA = { lineHajikies_[0]->GetCenterPos().x,lineHajikies_[0]->GetCenterPos().y };
-	Vector2 posB = { lineHajikies_[2]->GetCenterPos().x,lineHajikies_[2]->GetCenterPos().y };
+	Vector2 posB = { lineHajikies_[1]->GetCenterPos().x,lineHajikies_[1]->GetCenterPos().y };
 
 	// 間の中心座標
 	Vector2 centerPos = posA + posB;

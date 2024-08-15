@@ -46,7 +46,7 @@ private:
 	// 3Dオブジェクト
 
 	// LineHajiki
-	static const uint32_t lineHajikiNum = 4;
+	static const uint32_t lineHajikiNum = 2;
 	std::array<std::unique_ptr<GameObject3D>, lineHajikiNum> lineHajikies_;
 
 	// Line

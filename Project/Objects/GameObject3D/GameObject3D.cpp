@@ -196,6 +196,27 @@ void GameObject3D::ImGui() {
 			ImGui::Checkbox("HalfLambert", &enableHalfLambert_);
 			ImGui::Checkbox("PhongReflection", &enablePhongReflection_);
 			ImGui::Checkbox("BlinnPhongReflection", &enableBlinnPhongReflection_);
+
+			// HalfLambert処理
+			if (enableHalfLambert_) {
+
+				enablePhongReflection_ = false;
+				enableBlinnPhongReflection_ = false;
+			}
+
+			// PhongReflectionの処理
+			if (enablePhongReflection_) {
+
+				enableHalfLambert_ = false;
+				enableBlinnPhongReflection_ = false;
+			}
+
+			// BlinnPhongReflectionの処理
+			if (enableBlinnPhongReflection_) {
+
+				enableHalfLambert_ = false;
+				enablePhongReflection_ = false;
+			}
 		}
 
 		material_.enableLighting = enableLighting_;
@@ -203,15 +224,6 @@ void GameObject3D::ImGui() {
 		material_.enablePhongReflection = enablePhongReflection_;
 		material_.enableBlinnPhongReflection = enableBlinnPhongReflection_;
 	}
-
-	// 一回やめ、あしたからはALの評価課題やってください。それまでNewMoon制作はお預け
-	// やりたいことリスト
-	// 1. Lightingを柔軟に入れ替える、HalfLambertにpointとspotもいれる
-	// 2. Googleスライドみたいなグリッド線表示
-	// 3. OpenCVカメラの高速化、NPPとか色々試したい
-	// 4. フィルム越しの色の複数読み取り
-
-	// 優先順位はHAJIKIがあるので下から順にかなって思う
 
 	ImGui::End();
 }

@@ -36,6 +36,7 @@ private:
 
 	// 背景画像
 	std::unique_ptr<GameObject2D> background_;
+	std::unique_ptr<GameObject2D> grid_;
 
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト
