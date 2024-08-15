@@ -252,7 +252,7 @@ void PipelineManager::CreatePipelineStateObject(DXCommon* dxCommon) {
 			rasterizerState_->Create(pipelineType);
 
 			// depthStencil
-			depthStencil_->Create(true);
+			depthStencil_->Create(pipelineType);
 
 			// PipelineState
 			CreatePipelineState(

@@ -250,28 +250,6 @@ ModelData ModelManager::LoadGLTFFile(const std::string& directoryPath, const std
 					diffuseColor.a
 				};
 			}
-
-			// 鏡面色
-			aiColor4D specularColor;
-			if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_SPECULAR, specularColor)) {
-				meshModelData.material.specularColor = {
-					specularColor.r,
-					specularColor.g,
-					specularColor.b,
-					specularColor.a
-				};
-			}
-
-			// 環境光の色 (Ambient)
-			aiColor4D ambientColor;
-			if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor)) {
-				meshModelData.material.ambientColor = {
-					ambientColor.r,
-					ambientColor.g,
-					ambientColor.b,
-					ambientColor.a
-				};
-			}
 		}
 
 		// メッシュデータをモデルデータに追加
