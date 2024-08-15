@@ -37,6 +37,9 @@ void GameObject3D::SetScale(Vector3 scale) { transform_.scale = scale; }
 // 回転のセット
 void GameObject3D::SetRotate(Vector3 rotate) { transform_.rotate = rotate; }
 
+// 三角形頂点のセット
+void GameObject3D::SetTriangleVertices(const std::array<Vector3, kTriangleVertexNum_>& vertices) { triangleVertices_ = vertices; }
+
 // 色のセット
 void GameObject3D::SetColor(Vector4 color) { material_.color = color; }
 
@@ -111,12 +114,12 @@ void GameObject3D::Draw() {
 		// テクスチャなし三角形
 	case GameObjectType::PrimitiveTriangle:
 
-		NewMoon::DrawTriangle(transform_, material_, light_, textureName_, Primitive, kBlendModeNormal);
+		NewMoon::DrawTriangle(triangleVertices_, transform_, material_, light_, textureName_, Primitive, kBlendModeNormal);
 		break;
 		// テクスチャあり三角形
 	case GameObjectType::Triangle:
 
-		NewMoon::DrawTriangle(transform_, material_, light_, textureName_, Normal, kBlendModeNormal);
+		NewMoon::DrawTriangle(triangleVertices_, transform_, material_, light_, textureName_, Normal, kBlendModeNormal);
 		break;
 		// 球
 	case GameObjectType::Sphere:

@@ -232,7 +232,7 @@ void NewMoon::Initialize(uint32_t width, uint32_t height) {
 /*////////////////////////////////////////////////////////////////////////////////
 *									三角形
 ////////////////////////////////////////////////////////////////////////////////*/
-void NewMoon::DrawTriangle(
+void NewMoon::DrawTriangle(const std::array<Vector3, kTriangleVertexNum_>& vertices,
 	const Transform& transform, const Material& material, const PunctualLight& punctualLight,
 	const std::string textureName, PipelineType pipelineType, BlendMode blendMode) {
 
@@ -240,6 +240,8 @@ void NewMoon::DrawTriangle(
 	ComPtr<ID3D12GraphicsCommandList> commandList = dxCommon_->GetCommandList();
 
 	auto& object3D = objects3D_[indexObject3D_];
+
+	object3D->SetTriangleVertices(vertices);
 
 	// 更新
 	object3D->Update(ObjectTriangle, transform, material, punctualLight);
@@ -384,6 +386,13 @@ void NewMoon::LoadModel(const std::string& directoryPath, const std::string& fil
 void NewMoon::LoadGltfModel(const std::string& directoryPath, const std::string& filename) {
 
 	modelManager_->LoadGLTFModel(directoryPath, filename);
+}
+/*////////////////////////////////////////////////////////////////////////////////
+*									  モデルの自作
+////////////////////////////////////////////////////////////////////////////////*/
+void NewMoon::MakeModel(ModelData modelData, const std::string& modelName) {
+
+	modelManager_->MakeModel(modelData, modelName);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

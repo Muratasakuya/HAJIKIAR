@@ -44,6 +44,8 @@ public:
 	void SetScale(Vector3 scale);
 	void SetRotate(Vector3 rotate);
 
+	void SetTriangleVertices(const std::array<Vector3, kTriangleVertexNum_>& vertices);
+
 	void SetColor(Vector4 color);
 
 	void SetObjectName(const std::string name);
@@ -82,6 +84,9 @@ private:
 
 	/*--------------------------------------------------------------*/
 	// サブオブジェクト
+
+	// 三角形頂点
+	std::array<Vector3, kTriangleVertexNum_> triangleVertices_;
 
 	// オブジェクトのタイプ
 	GameObjectType type_;

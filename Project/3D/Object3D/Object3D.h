@@ -12,6 +12,7 @@
 
 // c++
 #include <memory>
+#include <array>
 #include <numbers>
 #include <cassert>
 
@@ -102,6 +103,10 @@ public:
 	void SetBufferData(ID3D12GraphicsCommandList* commandList, const Object3DType& objectType);
 	void DrawCall(ID3D12GraphicsCommandList* commandList, const Object3DType& objectType);
 
+	// setter
+
+	void SetTriangleVertices(const std::array<Vector3, kTriangleVertexNum_>& vertices);
+
 private:
 	/*-----------------------------*/
 	///			メンバ変数
@@ -121,6 +126,8 @@ private:
 
 	// 三角形データ
 	std::unique_ptr<TriangleData> triangle_;
+	// 三角形頂点
+	std::array<Vector3, kTriangleVertexNum_> triangleVertices_;
 	// 三角形生成
 	std::unique_ptr<TriangleData> CreateTriangleData(UINT vertexCount);
 
