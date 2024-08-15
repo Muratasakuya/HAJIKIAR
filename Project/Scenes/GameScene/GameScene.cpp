@@ -45,6 +45,7 @@ void GameScene::Initialize() {
 	background_ = std::make_unique<GameObject2D>();
 	background_->Initialize();
 	background_->SetTexture(bgTextureName);
+	background_->SetColor({ 1.0f,1.0f,1.0f,0.1f });
 	// debugTest
 	debugTest_ = std::make_unique<GameObject2D>();
 	debugTest_->Initialize();
@@ -54,6 +55,11 @@ void GameScene::Initialize() {
 	// 3Dオブジェクト
 
 
+
+	/*======================================================*/
+	// ImGuiのセット
+
+	imgui_.Set(background_.get());
 
 }
 
@@ -68,6 +74,8 @@ void GameScene::Update() {
 	ImGui::Begin("GameScene");
 	ImGui::Text("SpaceKey: Game -> Result");
 	ImGui::End();
+
+	imgui_.Render();
 
 	/*======================================================*/
 	// シーン遷移処理

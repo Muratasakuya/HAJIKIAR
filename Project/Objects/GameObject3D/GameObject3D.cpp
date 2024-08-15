@@ -29,42 +29,30 @@ void GameObject3D::SetModel(const std::string name) {
 	modelName_ = identifier;
 	objectName_ = identifier;
 }
-// オブジェクトの名前のセット
-void GameObject3D::SetObjectName(const std::string name) {
 
-	objectName_ = name;
-}
 // 座標のセット
-void GameObject3D::SetPos(Vector3 pos) {
-
-	transform_.translate = pos;
-}
+void GameObject3D::SetTranslate(Vector3 pos) { transform_.translate = pos; }
 // スケールのセット
-void GameObject3D::SetScale(Vector3 scale) {
-
-	transform_.scale = scale;
-}
+void GameObject3D::SetScale(Vector3 scale) { transform_.scale = scale; }
 // 回転のセット
-void GameObject3D::SetRotate(Vector3 rotate) {
+void GameObject3D::SetRotate(Vector3 rotate) { transform_.rotate = rotate; }
 
-	transform_.rotate = rotate;
-}
+// 色のセット
+void GameObject3D::SetColor(Vector4 color) { material_.color = color; }
+
+// オブジェクトの名前のセット
+void GameObject3D::SetObjectName(const std::string name) { objectName_ = name; }
 
 // 中心座標取得 transform_.translate getter
-Vector3 GameObject3D::GetCenterPos() const {
-
-	return transform_.translate;
-}
+Vector3 GameObject3D::GetCenterPos() const { return transform_.translate; }
+// スケールの取得
+Vector3 GameObject3D::GetScale() const { return transform_.scale; }
+// 回転の取得
+Vector3 GameObject3D::GetRotate() const { return transform_.rotate; }
 // type_ getter
-GameObjectType GameObject3D::GetType() const {
-
-	return type_;
-}
+GameObjectType GameObject3D::GetType() const { return type_; }
 // objectName_ getter
-std::string GameObject3D::GetObjectName() const {
-
-	return objectName_;
-}
+std::string GameObject3D::GetObjectName() const { return objectName_; }
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								コンストラクタ
