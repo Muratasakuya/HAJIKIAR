@@ -50,12 +50,14 @@ void SoloGame::Initialize() {
 	// 初期座標セット Zをずらす
 	lineHajikies_[0]->SetTranslate({ -0.2f,0.04f,1.0f });
 	lineHajikies_[2]->SetTranslate({ -0.1f,-0.04f,1.0f });
+	lineHajikies_[1]->SetTranslate({ lineHajikies_[0]->GetCenterPos().x,lineHajikies_[0]->GetCenterPos().y,lineHajikies_[1]->GetCenterPos().z });
+	lineHajikies_[3]->SetTranslate({ lineHajikies_[2]->GetCenterPos().x,lineHajikies_[2]->GetCenterPos().y,lineHajikies_[3]->GetCenterPos().z });
 
 	// Line
 	line_ = std::make_unique<GameObject3D>(GameObjectType::Model);
 	line_->Initialize();
 	line_->SetRotate({ std::numbers::pi_v<float> / 2.0f,0.0f,0.0f });
-	line_->SetScale({ 1.0f,5.0f,1.0f });
+	line_->SetScale({ 1.0f,5.0f,0.1f });
 	line_->SetTranslate({ 0.0f,0.0f,1.5f });
 	line_->SetObjectName("line");
 	// LineColor
@@ -217,23 +219,23 @@ void SoloGame::LineUpdate() {
 	// SRTの更新
 
 	// カーテンを貼る対象の座標
-	Vector3 posA = lineHajikies_[0]->GetCenterPos();
-	Vector3 posB = lineHajikies_[2]->GetCenterPos();
+	Vector2 posA = { lineHajikies_[0]->GetCenterPos().x,lineHajikies_[0]->GetCenterPos().y };
+	Vector2 posB = { lineHajikies_[2]->GetCenterPos().x,lineHajikies_[2]->GetCenterPos().y };
 
 	// 間の中心座標
-	Vector3 centerPosition = posA + posB;
-	centerPosition = { centerPosition.x / 2.0f,centerPosition.y / 2.0f,line_->GetCenterPos().z };
-	line_->SetTranslate(centerPosition);
+	Vector2 centerPos = posA + posB;
+	centerPos = { centerPos.x / 2.0f,centerPos.y / 2.0f };
+	line_->SetTranslate({ centerPos.x, centerPos.y,line_->GetCenterPos().z });
 
 	// scaleの計算
-	float distance = Vector3::Length(posB - posA);
-	distance = distance;
+	float distance = Vector2::Length(posB - posA);
+	distance = 10.0f * distance;
 	Vector3 scale = { distance,line_->GetScale().y,line_->GetScale().z };
 	line_->SetScale(scale);
 
 	// rotateの計算
-	Vector3 direction = posB - posA;
-	direction = Vector3::Normalize(direction);
+	Vector2 direction = posB - posA;
+	direction = Vector2::Normalize(direction);
 	float zAngle = std::atan2(direction.y, direction.x);
 	Vector3 rotate = { line_->GetRotate().x,line_->GetRotate().y,zAngle };
 	line_->SetRotate(rotate);

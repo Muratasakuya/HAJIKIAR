@@ -86,7 +86,7 @@ public:
 	static void DrawSprite(const Transform2D& transform2D, Vector4 color, const std::string textureName, BlendMode blendMode);
 
 	// 三角形
-	static void DrawTriangle(
+	static void DrawTriangle(const std::array<Vector3, kTriangleVertexNum_>& vertices,
 		const Transform& transform, const Material& material, const PunctualLight& punctualLight,
 		const std::string textureName, PipelineType pipelineType, BlendMode blendMode);
 
@@ -113,6 +113,7 @@ public:
 	// モデル読み込み
 	static void LoadModel(const std::string& directoryPath, const std::string& filename);
 	static void LoadGltfModel(const std::string& directoryPath, const std::string& filename);
+	static void MakeModel(ModelData modelData, const std::string& modelName);
 	// モデルassert あるかチェック
 	static void CheckModelAvailability(const std::string modelName);
 

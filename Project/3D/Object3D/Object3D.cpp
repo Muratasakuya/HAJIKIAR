@@ -2,6 +2,9 @@
 
 #include "DXCommon.h"
 
+// triangleVertices_ = vertices setter
+void Object3D::SetTriangleVertices(const std::array<Vector3, kTriangleVertexNum_>& vertices) { triangleVertices_ = vertices; }
+
 /*////////////////////////////////////////////////////////////////////////////////
 *								  初期化
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -319,17 +322,19 @@ void Object3D::Update(const Object3DType& objectType, const Transform& transform
 		Vector3 normal =
 			Vector3::CalculateTriangleNormal(
 				// 各頂点座標
-				{ -1.0f,-1.0f,0.0f,1.0f }, { 0.0f,1.0f,0.0f,1.0f }, { 1.0f,-1.0f,0.0f,1.0f });
+				{ triangleVertices_[0].x,triangleVertices_[0].y,triangleVertices_[0].z,1.0f },
+				{ triangleVertices_[1].x,triangleVertices_[1].y,triangleVertices_[1].z,1.0f },
+				{ triangleVertices_[2].x,triangleVertices_[2].y,triangleVertices_[2].z,1.0f });
 
-		triangle_->vertexData[0].pos = { -1.0f,-1.0f,0.0f,1.0f };
+		triangle_->vertexData[0].pos = { triangleVertices_[0].x,triangleVertices_[0].y,triangleVertices_[0].z,1.0f };
 		triangle_->vertexData[0].texcoord = { 0.0f,1.0f };
 		triangle_->vertexData[0].normal = normal;
 
-		triangle_->vertexData[1].pos = { 0.0f,1.0f,0.0f,1.0f };
+		triangle_->vertexData[1].pos = { triangleVertices_[1].x,triangleVertices_[1].y,triangleVertices_[1].z,1.0f };
 		triangle_->vertexData[1].texcoord = { 0.5f,0.0f };
 		triangle_->vertexData[1].normal = normal;
 
-		triangle_->vertexData[2].pos = { 1.0f,-1.0f,0.0f,1.0f };
+		triangle_->vertexData[2].pos = { triangleVertices_[2].x,triangleVertices_[2].y,triangleVertices_[2].z,1.0f };
 		triangle_->vertexData[2].texcoord = { 1.0f,1.0f };
 		triangle_->vertexData[2].normal = normal;
 #pragma endregion
