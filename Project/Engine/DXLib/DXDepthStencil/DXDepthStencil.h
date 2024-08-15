@@ -18,7 +18,7 @@ public:
 	DXDepthStencil() = default;
 	~DXDepthStencil() = default;
 
-	void Create(bool depthEnable);
+	void Create(PipelineType pipelineType);
 
 	// getter
 

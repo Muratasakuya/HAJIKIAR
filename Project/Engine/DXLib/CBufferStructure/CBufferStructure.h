@@ -199,8 +199,6 @@ struct ModelMaterialData {
 
 	std::string textureFilePath;
 	Vector4 diffuseColor;
-	Vector4 specularColor;
-	Vector4 ambientColor;
 };
 struct Node {
 

@@ -75,5 +75,7 @@ private:
 
 	std::unordered_map<std::string, ModelData> models_;
 	std::unique_ptr<Model> model_;
+	
 
+	static uint32_t indexModel_;
 };

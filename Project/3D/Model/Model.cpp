@@ -207,11 +207,7 @@ void Model::Update(const std::string& modelName, const ModelData& modelData,
 
 	for (uint32_t index = 0; index < models_[modelName]->cBufferData_.materials.size(); index++) {
 
-		Vector4 synthesisColor =
-			modelData.meshes[index].material.diffuseColor *
-			modelData.meshes[index].material.diffuseColor *
-			modelData.meshes[index].material.diffuseColor;
-		models_[modelName]->cBufferData_.materials[index]->color = synthesisColor;
+		models_[modelName]->cBufferData_.materials[index]->color = materials[index].color;
 		models_[modelName]->cBufferData_.materials[index]->enableLighting = materials[index].enableLighting;
 		models_[modelName]->cBufferData_.materials[index]->enableHalfLambert = materials[index].enableHalfLambert;
 		models_[modelName]->cBufferData_.materials[index]->enablePhongReflection = materials[index].enablePhongReflection;
