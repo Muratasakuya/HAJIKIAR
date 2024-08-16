@@ -249,7 +249,7 @@ void NewMoon::DrawTriangle(const std::array<Vector3, kTriangleVertexNum_>& verti
 	pipelineManager_->SetGraphicsPipeline(commandList.Get(), pipelineType, blendMode);
 	// 頂点バッファのセット
 	object3D->SetBufferData(commandList.Get(), ObjectTriangle);
-	if (pipelineType == Normal) {
+	if (pipelineType == pObject3D) {
 		// SRVのセット
 		textureManager_->SetGraphicsRootDescriptorTable(commandList.Get(), 2, textureName);
 	}
@@ -277,7 +277,7 @@ void NewMoon::DrawSprite(const Transform2D& transform2D, Vector4 color, const st
 	// 更新
 	sprite->Update(textureName);
 	// パイプラインのセット
-	pipelineManager_->SetGraphicsPipeline(commandList.Get(), Sprite2D, blendMode);
+	pipelineManager_->SetGraphicsPipeline(commandList.Get(), Object2D, blendMode);
 	// 頂点バッファのセット
 	sprite->SetBufferData(commandList.Get());
 	// SRVのセット

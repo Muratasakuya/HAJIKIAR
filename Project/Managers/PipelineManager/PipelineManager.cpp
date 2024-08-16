@@ -124,7 +124,7 @@ void PipelineManager::ShaderCompile(
 		psBlob_[pipelineType] = CompileShader(L"./Resources/Shaders/Primitive.PS.hlsl", L"ps_6_0",
 			dxCommon->GetDxcUtils(), dxCommon->GetDxcCompiler(), dxCommon->GetIncludeHandler());
 		assert(psBlob_[pipelineType] != nullptr);
-	} else if (pipelineType == Sprite2D) {
+	} else if (pipelineType == Object2D) {
 
 		/*------------------------------------------------------------------------------------------------------------------------*/
 
@@ -141,7 +141,7 @@ void PipelineManager::ShaderCompile(
 		psBlob_[pipelineType] = CompileShader(L"./Resources/Shaders/Object2D.PS.hlsl", L"ps_6_0",
 			dxCommon->GetDxcUtils(), dxCommon->GetDxcCompiler(), dxCommon->GetIncludeHandler());
 		assert(psBlob_[pipelineType] != nullptr);
-	} else if (pipelineType == Normal) {
+	} else if (pipelineType == pObject3D) {
 
 		/*------------------------------------------------------------------------------------------------------------------------*/
 
@@ -156,6 +156,23 @@ void PipelineManager::ShaderCompile(
 
 		// ピクセルシェーダ
 		psBlob_[pipelineType] = CompileShader(L"./Resources/Shaders/Object3D.PS.hlsl", L"ps_6_0",
+			dxCommon->GetDxcUtils(), dxCommon->GetDxcCompiler(), dxCommon->GetIncludeHandler());
+		assert(psBlob_[pipelineType] != nullptr);
+	} else if (pipelineType == Object3DUnTex) {
+
+		/*------------------------------------------------------------------------------------------------------------------------*/
+
+		//												Object3DUnTex Shader
+
+		/*------------------------------------------------------------------------------------------------------------------------*/
+
+		// 頂点シェーダ
+		vsBlob_[pipelineType] = CompileShader(L"./Resources/Shaders/Object3D.VS.hlsl", L"vs_6_0",
+			dxCommon->GetDxcUtils(), dxCommon->GetDxcCompiler(), dxCommon->GetIncludeHandler());
+		assert(vsBlob_[pipelineType] != nullptr);
+
+		// ピクセルシェーダ
+		psBlob_[pipelineType] = CompileShader(L"./Resources/Shaders/Object3DUnTex.PS.hlsl", L"ps_6_0",
 			dxCommon->GetDxcUtils(), dxCommon->GetDxcCompiler(), dxCommon->GetIncludeHandler());
 		assert(psBlob_[pipelineType] != nullptr);
 	} else if (pipelineType == pParticle) {
@@ -226,7 +243,7 @@ void PipelineManager::CreatePipelineStateObject(DXCommon* dxCommon) {
 	depthStencil_ = std::make_unique<DXDepthStencil>();
 
 	// パイプラインの名前
-	pipelineTypes_ = { Primitive,Sprite2D, Normal, pParticle };
+	pipelineTypes_ = { Primitive, Object2D, pObject3D, Object3DUnTex, pParticle };
 	// ブレンドモードの名前
 	blendModeTypes = { kBlendModeNone ,kBlendModeNormal ,kBlendModeAdd ,kBlendModeSubtract ,kBlendModeMultiply ,kBlendModeScreen };
 

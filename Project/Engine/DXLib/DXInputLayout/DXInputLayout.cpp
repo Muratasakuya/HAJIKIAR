@@ -23,7 +23,7 @@ void DXInputLayout::Create(PipelineType pipelineType) {
 		inputLayoutDesc_[pipelineType] = {};
 		inputLayoutDesc_[pipelineType].pInputElementDescs = inputElementDescs;
 		inputLayoutDesc_[pipelineType].NumElements = _countof(inputElementDescs);
-	} else if (pipelineType == Sprite2D) {
+	} else if (pipelineType == Object2D) {
 
 		static D3D12_INPUT_ELEMENT_DESC inputElementDescs[2]{};
 
@@ -40,7 +40,7 @@ void DXInputLayout::Create(PipelineType pipelineType) {
 		inputLayoutDesc_[pipelineType] = {};
 		inputLayoutDesc_[pipelineType].pInputElementDescs = inputElementDescs;
 		inputLayoutDesc_[pipelineType].NumElements = _countof(inputElementDescs);
-	} else if (pipelineType == Normal) {
+	} else if (pipelineType == pObject3D || pipelineType == Object3DUnTex) {
 
 		static D3D12_INPUT_ELEMENT_DESC inputElementDescs[3]{};
 
