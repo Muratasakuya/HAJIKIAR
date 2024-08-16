@@ -25,7 +25,7 @@ public:
 	template<typename VectorType>
 	void AddCollider(Collider<VectorType>* collider);
 
-	void CheckCollision();
+	void CheckAllHitCollisions();
 
 private:
 	/*-----------------------------*/

@@ -169,7 +169,7 @@ void SoloGame::Update() {
 	}
 	collisionManager_->AddCollider(targetHajiki_.get());
 
-	collisionManager_->CheckCollision();
+	collisionManager_->CheckAllHitCollisions();
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
