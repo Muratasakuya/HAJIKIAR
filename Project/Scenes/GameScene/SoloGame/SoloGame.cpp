@@ -41,6 +41,7 @@ void SoloGame::Initialize() {
 		lineHajikies_[i]->SetRotate({ std::numbers::pi_v<float> / 2.0f,0.0f ,0.0f });
 		lineHajikies_[i]->SetTranslate({ 0.0f,0.0f,1.0f });
 		lineHajikies_[i]->SetMaterialNum(2);
+		lineHajikies_[i]->SetColors(Vector4(1.0f, 1.0f, 1.0f, 1.0f), Vector4(0.698f, 0.992f, 1.0f, 1.0f));
 		lineHajikies_[i]->SetObjectName("lineHajiki");
 	}
 	// 座標の初期化

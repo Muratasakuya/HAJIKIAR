@@ -197,7 +197,8 @@ void GameObject3D::ImGui() {
 
 				if (ImGui::CollapsingHeader(label.c_str())) {
 
-					ImGui::ColorEdit4("Color", &materials_[i].color.x);
+					std::string colorLabel = "Color##" + std::to_string(i + 1);
+					ImGui::ColorEdit4(colorLabel.c_str(), &materials_[i].color.x);
 				}
 			}
 		}

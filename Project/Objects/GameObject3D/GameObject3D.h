@@ -47,6 +47,9 @@ public:
 	void SetTriangleVertices(const std::array<Vector3, kTriangleVertexNum_>& vertices);
 
 	void SetColor(Vector4 color);
+	template<typename... Args>
+	void SetColors(Args&&... args);
+
 	void SetMaterialNum(uint32_t materialNum);
 
 	void SetObjectName(const std::string name);
@@ -100,3 +103,18 @@ private:
 	std::string modelName_;
 
 };
+
+///===============================================================================
+/// template関数定義
+
+// 複数色のセット
+template<typename ...Args>
+void GameObject3D::SetColors(Args && ...args) {
+
+	Vector4 colors[] = { std::forward<Args>(args)... };
+
+	for (size_t i = 0; i < sizeof...(args); ++i) {
+		materials_[i].color = colors[i];
+	}
+}
+///===============================================================================
