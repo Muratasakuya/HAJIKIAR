@@ -27,6 +27,8 @@ public:
 
 	void CheckAllHitCollisions();
 
+	bool PassLineCheckCollision(Collider<Vector3>* linePointA, Collider<Vector3>* linePointB, Collider<Vector3>* collider);
+
 private:
 	/*-----------------------------*/
 	///			メンバ変数

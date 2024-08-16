@@ -67,8 +67,13 @@ void SoloGame::Initialize() {
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// Line
 
+	// Lineの初期スケール
+	const Vector3 lineInitScale = { 2.7f,0.5f,0.1f };
+
 	line_ = std::make_unique<GameObject3D>(GameObjectType::Model);
 	line_->Initialize();
+	line_->SetScale(lineInitScale);
+	line_->SetRotate({ initRotateX,0.0f,0.0f });
 	line_->SetObjectName("line");
 	// LineColor
 	changeAlpha_ = 0.005f;
@@ -80,7 +85,7 @@ void SoloGame::Initialize() {
 	// TargetHajiki
 
 	//　TargetHajikiの初期座標
-	const Vector3 targetHajikiInitPos = { 0.1f,0.0f,2.0f };
+	const Vector3 targetHajikiInitPos = { 0.1f,0.0f,1.0f };
 
 	targetHajiki_ = std::make_unique<GameObject3D>(GameObjectType::Model);
 	targetHajiki_->Initialize();
@@ -154,6 +159,13 @@ void SoloGame::Update() {
 	}
 	// TargetHajiki
 	targetHajiki_->Update();
+	if (targetHajiki_->GetIsPass()) {
+
+		targetHajiki_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
+	} else {
+
+		targetHajiki_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+	}
 
 	// Line更新
 	LineUpdate();
@@ -169,7 +181,18 @@ void SoloGame::Update() {
 	}
 	collisionManager_->AddCollider(targetHajiki_.get());
 
+	// セットしたコライダー全ての接触判定
 	collisionManager_->CheckAllHitCollisions();
+
+	// Lineの間を通ったか判定
+	if (collisionManager_->PassLineCheckCollision(
+		lineHajikies_[0].get(), lineHajikies_[1].get(), targetHajiki_.get())) {
+
+		targetHajiki_->SetIsPass(true);
+	} else {
+
+		targetHajiki_->SetIsPass(false);
+	}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -235,7 +258,7 @@ void SoloGame::LineUpdate() {
 	// 間の中心座標
 	Vector2 centerPos = posA + posB;
 	centerPos = { centerPos.x / 2.0f,centerPos.y / 2.0f };
-	line_->SetTranslate({ centerPos.x, centerPos.y,line_->GetCenterPos().z });
+	line_->SetTranslate({ centerPos.x, centerPos.y,1.0f });
 
 	// scaleの計算
 	float distance = Vector2::Length(posB - posA);

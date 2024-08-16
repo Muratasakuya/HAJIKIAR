@@ -187,7 +187,7 @@ void GameObject3D::ImGui() {
 	}
 	if (showMaterial) {
 
-		if (materials_.size() == 1) {
+		if (materials_.size() == 0) {
 		
 			ImGui::ColorEdit4("Color", &material_.color.x);
 		} else {

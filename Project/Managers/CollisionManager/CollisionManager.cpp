@@ -35,8 +35,8 @@ void CollisionManager::CheckAllHitCollisions() {
 					if (SphereToSphereCheckCollision(colliderA, colliderB)) {
 
 						// 衝突コールバック
-						colliderA->OnCollision();
-						colliderB->OnCollision();
+						colliderA->SetIsHit(true);
+						colliderB->SetIsHit(true);
 					} else {
 
 						colliderA->SetIsHit(false);
@@ -55,8 +55,8 @@ void CollisionManager::CheckAllHitCollisions() {
 					if (CircleToCircleCheckCollision(colliderA, colliderB)) {
 
 						// 衝突コールバック
-						colliderA->OnCollision();
-						colliderB->OnCollision();
+						colliderA->SetIsHit(true);
+						colliderB->SetIsHit(true);
 					} else {
 
 						colliderA->SetIsHit(false);
@@ -66,6 +66,28 @@ void CollisionManager::CheckAllHitCollisions() {
 			}
 		}
 	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*							 線の上を通過したかの判定
+////////////////////////////////////////////////////////////////////////////////*/
+bool CollisionManager::PassLineCheckCollision(Collider<Vector3>* linePointA, Collider<Vector3>* linePointB, Collider<Vector3>* collider) {
+
+	float dot =
+		(linePointB->GetCenterPos().x - linePointA->GetCenterPos().x) * (collider->GetCenterPos().y - linePointA->GetCenterPos().y) -
+		(linePointB->GetCenterPos().y - linePointA->GetCenterPos().y) * (collider->GetCenterPos().x - linePointA->GetCenterPos().x);
+
+	if (dot < 0) {
+		if (linePointA->GetCenterPos().x <= collider->GetCenterPos().x && collider->GetCenterPos().x <= linePointB->GetCenterPos().x ||
+			linePointB->GetCenterPos().x <= collider->GetCenterPos().x && collider->GetCenterPos().x <= linePointA->GetCenterPos().x ||
+			linePointA->GetCenterPos().y <= collider->GetCenterPos().y && collider->GetCenterPos().y <= linePointB->GetCenterPos().y ||
+			linePointB->GetCenterPos().y <= collider->GetCenterPos().y && collider->GetCenterPos().y <= linePointA->GetCenterPos().y){ 
+
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

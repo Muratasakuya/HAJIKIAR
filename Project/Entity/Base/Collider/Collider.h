@@ -48,6 +48,7 @@ public:
 
 	void SetHalfSize(float halfSize);
 	void SetIsHit(bool isHit);
+	void SetIsPass(bool isPass);
 	void SetColliderType(ColliderType colliderType);
 
 	// getter
@@ -55,6 +56,7 @@ public:
 	virtual VectorType GetCenterPos() const = 0;
 	float GetHalfSize() const;
 	bool GetIsHit() const;
+	bool GetIsPass() const;
 	ColliderType GetColliderType() const;
 
 private:
@@ -64,6 +66,7 @@ private:
 
 	float halhSize_;
 	bool isHit_;
+	bool isPass_;
 	ColliderType colliderType_;
 
 };
@@ -85,6 +88,13 @@ void Collider<VectorType>::SetIsHit(bool isHit) {
 	isHit_ = isHit;
 }
 
+// isPass_ = isPass setter
+template<typename VectorType>
+void Collider<VectorType>::SetIsPass(bool isPass){
+
+	isPass_ = isPass;
+}
+
 // colliderType_ = colliderType setter
 template<typename VectorType>
 void Collider<VectorType>::SetColliderType(ColliderType colliderType) {
@@ -104,6 +114,13 @@ template<typename VectorType>
 bool Collider<VectorType>::GetIsHit() const {
 
 	return isHit_;
+}
+
+// isPass_ getter
+template<typename VectorType>
+bool Collider<VectorType>::GetIsPass() const{
+
+	return isPass_;
 }
 
 // colliderType_ getter
