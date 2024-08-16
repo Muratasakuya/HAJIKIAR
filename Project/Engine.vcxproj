@@ -124,7 +124,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Audio\Audio.cpp" />
     <ClCompile Include="Engine\Base\DXCommon\DXCommon.cpp" />
     <ClCompile Include="Engine\Base\NewMoon\NewMoon.cpp" />
-    <ClCompile Include="2D\Object2D\Object2D.cpp" />
     <ClCompile Include="Objects\GameObject3D\GameObject3D.cpp" />
     <ClCompile Include="Lib\Hash\Hash.cpp" />
     <ClCompile Include="Engine\Input\Input.cpp" />
@@ -184,7 +183,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Base\DXCommon\DXCommon.h" />
     <ClInclude Include="Engine\Base\WinApp\WinApp.h" />
     <ClInclude Include="Engine\Base\NewMoon\NewMoon.h" />
-    <ClInclude Include="2D\Object2D\Object2D.h" />
     <ClInclude Include="Engine\DXLib\PipelineStateStructure\PipelineStateStructure.h" />
     <ClInclude Include="Objects\GameObject3D\GameObject3D.h" />
     <ClInclude Include="Lib\Hash\Hash.h" />
@@ -261,6 +259,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <FxCompile Include="Resources\Shaders\Object3D.VS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Object3DUnTex.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Particle.PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

@@ -117,9 +117,6 @@
     <ClCompile Include="2D\Sprite\Sprite.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="2D\Object2D\Object2D.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Lib\MainCamera2D\MainCamera2D.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -296,9 +293,6 @@
     <ClInclude Include="2D\Sprite\Sprite.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="2D\Object2D\Object2D.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Lib\MainCamera2D\MainCamera2D.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -389,6 +383,7 @@
     <FxCompile Include="Resources\Shaders\PhongReflection.PS.hlsl" />
     <FxCompile Include="Resources\Shaders\Object2D.VS.hlsl" />
     <FxCompile Include="Resources\Shaders\Object2D.PS.hlsl" />
+    <FxCompile Include="Resources\Shaders\Object3DUnTex.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\Object3D.hlsli" />

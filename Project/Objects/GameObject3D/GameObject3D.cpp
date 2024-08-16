@@ -119,17 +119,17 @@ void GameObject3D::Draw() {
 		// テクスチャあり三角形
 	case GameObjectType::Triangle:
 
-		NewMoon::DrawTriangle(triangleVertices_, transform_, material_, light_, textureName_, Normal, kBlendModeNormal);
+		NewMoon::DrawTriangle(triangleVertices_, transform_, material_, light_, textureName_, pObject3D, kBlendModeNormal);
 		break;
 		// 球
 	case GameObjectType::Sphere:
 
-		NewMoon::DrawSphere(transform_, material_, light_, textureName_, Normal, kBlendModeNormal);
+		NewMoon::DrawSphere(transform_, material_, light_, textureName_, pObject3D, kBlendModeNormal);
 		break;
 		// モデル
 	case GameObjectType::Model:
 
-		NewMoon::DrawModel(transform_, material_, light_, modelName_, textureName_, Normal, kBlendModeNormal);
+		NewMoon::DrawModel(transform_, material_, light_, modelName_, textureName_, pObject3D, kBlendModeNormal);
 		break;
 	}
 }
