@@ -33,49 +33,65 @@ void SoloGame::Initialize() {
 	/*======================================================*/
 	// 3Dオブジェクト
 
-	// LineHajikiのMaterialColor
-	std::array<Vector4, lineHajikiNum> lineHajikiMaterialColors = {
-		Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-		Vector4(0.698f, 0.992f, 1.0f, 1.0f)
+	/*-------------------------------------------------------------------------------------------------------------------*/
+	// 共通
+
+	// 初期回転角
+	float initRotateX = std::numbers::pi_v<float> / 2.0f;
+
+	/*-------------------------------------------------------------------------------------------------------------------*/
+	// LineHajiki
+
+	// LineHajikiBodyの色
+	const Vector4 lineHajikiBodyColor = { 1.0f,1.0f,1.0f,1.0f };
+	// LineHajikiEmmisiveの色 (仮)
+	const Vector4 lineHajikiEmmisiveColor = { 0.698f, 0.992f, 1.0f, 1.0f };
+
+	// LineHajikiの初期座標
+	const Vector3 lineHajikiInitPos[lineHajikiNum] = {
+		Vector3(-0.215f,0.087f,1.0f),
+		Vector3(-0.008f,-0.093f,1.0f)
 	};
 
-	// LineHajiki
 	for (uint32_t i = 0; i < lineHajikies_.size(); i++) {
 
 		lineHajikies_[i] = std::make_unique<GameObject3D>(GameObjectType::Model);
 		lineHajikies_[i]->Initialize();
-		lineHajikies_[i]->SetRotate({ std::numbers::pi_v<float> / 2.0f,0.0f ,0.0f });
-		lineHajikies_[i]->SetTranslate({ 0.0f,0.0f,1.0f });
-		lineHajikies_[i]->SetMaterialNum(lineHajikies_.size());
-		lineHajikies_[i]->SetColors(lineHajikiMaterialColors);
+		lineHajikies_[i]->SetRotate({ initRotateX,0.0f ,0.0f });
+		lineHajikies_[i]->SetTranslate(lineHajikiInitPos[i]);
+		lineHajikies_[i]->SetMaterialNum(static_cast<uint32_t>(lineHajikies_.size()));
+		lineHajikies_[i]->SetColors(lineHajikiBodyColor, lineHajikiEmmisiveColor);
 		lineHajikies_[i]->SetObjectName("lineHajiki");
 	}
-	// 座標の初期化
-	lineHajikies_[0]->SetTranslate({ -0.215f,0.087f,1.0f });
-	lineHajikies_[1]->SetTranslate({ -0.008f,-0.093f,1.0f });
 
+	/*-------------------------------------------------------------------------------------------------------------------*/
 	// Line
+
 	line_ = std::make_unique<GameObject3D>(GameObjectType::Model);
 	line_->Initialize();
-	line_->SetRotate({ std::numbers::pi_v<float> / 2.0f,0.0f,0.0f });
-	line_->SetScale({ 2.7f,0.5f,0.1f });
-	line_->SetTranslate({ 0.0f,0.0f,1.0f });
 	line_->SetObjectName("line");
 	// LineColor
 	changeAlpha_ = 0.005f;
 	lineColorAlpha_ = 1.0f;
+	// SRT更新
 	LineUpdate();
 
+	/*-------------------------------------------------------------------------------------------------------------------*/
 	// TargetHajiki
+
+	//　TargetHajikiの初期座標
+	const Vector3 targetHajikiInitPos = { 0.1f,0.0f,2.0f };
+
 	targetHajiki_ = std::make_unique<GameObject3D>(GameObjectType::Model);
 	targetHajiki_->Initialize();
-	targetHajiki_->SetRotate({ std::numbers::pi_v<float> / 2.0f,0.0f ,0.0f });
-	targetHajiki_->SetTranslate({ 0.1f,0.0f,2.0f });
+	targetHajiki_->SetRotate({ initRotateX,0.0f ,0.0f });
+	targetHajiki_->SetTranslate(targetHajikiInitPos);
 	targetHajiki_->SetObjectName("targetHajiki");
 
 	/*======================================================*/
 	// Texture Modelのセット
-	// 
+	
+	// LineHajiki
 	// ModelのConstBufferが被るので今はこうしている
 	lineHajikies_[0]->SetModel(lineHajikiModelName);
 	lineHajikies_[1]->SetModel(lineHajikiModelName2);
