@@ -39,16 +39,19 @@ void SoloGame::Initialize() {
 		lineHajikies_[i] = std::make_unique<GameObject3D>(GameObjectType::Model);
 		lineHajikies_[i]->Initialize();
 		lineHajikies_[i]->SetRotate({ std::numbers::pi_v<float> / 2.0f,0.0f ,0.0f });
-		lineHajikies_[i]->SetTranslate({ -0.1f + i * 0.1f,0.0f,1.0f });
+		lineHajikies_[i]->SetTranslate({ 0.0f,0.0f,1.0f });
 		lineHajikies_[i]->SetObjectName("lineHajiki");
 	}
+	// 座標の初期化
+	lineHajikies_[0]->SetTranslate({ -0.215f,0.087f,1.0f });
+	lineHajikies_[1]->SetTranslate({ -0.008f,-0.093f,1.0f });
 
 	// Line
 	line_ = std::make_unique<GameObject3D>(GameObjectType::Model);
 	line_->Initialize();
 	line_->SetRotate({ std::numbers::pi_v<float> / 2.0f,0.0f,0.0f });
-	line_->SetScale({ 1.0f,5.0f,0.1f });
-	line_->SetTranslate({ 0.0f,0.0f,1.5f });
+	line_->SetScale({ 2.7f,0.5f,0.1f });
+	line_->SetTranslate({ 0.0f,0.0f,1.0f });
 	line_->SetObjectName("line");
 	// LineColor
 	changeAlpha_ = 0.005f;
