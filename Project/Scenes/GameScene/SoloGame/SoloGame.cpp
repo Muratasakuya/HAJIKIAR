@@ -173,8 +173,10 @@ void SoloGame::Update() {
 	/*======================================================*/
 	// 衝突判定
 
+	// コライダーリセット
 	collisionManager_->Reset();
 
+	// コライダー追加
 	for (const auto& lineHajiki : lineHajikies_) {
 
 		collisionManager_->AddCollider(lineHajiki.get());
