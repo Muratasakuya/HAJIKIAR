@@ -47,6 +47,7 @@ public:
 	void SetTriangleVertices(const std::array<Vector3, kTriangleVertexNum_>& vertices);
 
 	void SetColor(Vector4 color);
+	void SetMaterialNum(uint32_t materialNum);
 
 	void SetObjectName(const std::string name);
 

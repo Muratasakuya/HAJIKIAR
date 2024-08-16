@@ -55,7 +55,8 @@ public:
 
 	void CheckAvailability(const std::string name);
 
-	void Update(const std::string& modelName, const Transform& transform, std::vector<Material> materials, const PunctualLight& punctualLight);
+	void Update(const std::string& modelName, const Transform& transform, const Material& material, const PunctualLight& punctualLight);
+	void MultiMaterialUpdate(const std::string& modelName, const Transform& transform, const std::vector<Material>& materials, const PunctualLight& punctualLight);
 
 	void Draw(const std::string& modelName, const std::string textureName, ID3D12GraphicsCommandList* commandList);
 
@@ -75,7 +76,7 @@ private:
 
 	std::unordered_map<std::string, ModelData> models_;
 	std::unique_ptr<Model> model_;
-	
+
 
 	static uint32_t indexModel_;
 };

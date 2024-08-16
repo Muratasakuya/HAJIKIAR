@@ -340,9 +340,18 @@ void ModelManager::Initialize(DXCommon* dxCommon, TextureManager* textureManager
 *									更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
 void ModelManager::Update(
-	const std::string& modelName, const Transform& transform, std::vector<Material> materials, const PunctualLight& punctualLight) {
+	const std::string& modelName, const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
 
-	model_->Update(modelName, models_[modelName], transform, materials, punctualLight);
+	model_->Update(modelName, models_[modelName], transform, material, punctualLight);
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								更新処理 マルチマテリアル
+////////////////////////////////////////////////////////////////////////////////*/
+void ModelManager::MultiMaterialUpdate(
+	const std::string& modelName, const Transform& transform, const std::vector<Material>& materials, const PunctualLight& punctualLight) {
+
+	model_->MultiMaterialUpdate(modelName, models_[modelName], transform, materials, punctualLight);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

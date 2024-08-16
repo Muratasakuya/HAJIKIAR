@@ -48,7 +48,9 @@ public:
 	void CreateModelMesh(DXCommon* dxCommon, const std::string modelName, const ModelData& modelData);
 
 	void Update(const std::string& modelName, const ModelData& modelData,
-		const Transform& transform, std::vector<Material> materials, const PunctualLight& punctualLight);
+		const Transform& transform, const Material& material, const PunctualLight& punctualLight);
+	void MultiMaterialUpdate(const std::string& modelName, const ModelData& modelData,
+		const Transform& transform,const std::vector<Material>& materials, const PunctualLight& punctualLight);
 
 	void Draw(const std::string& modelName,const std::string textureName, const ModelData& modelData, TextureManager* textureManager,ID3D12GraphicsCommandList* commandList);
 

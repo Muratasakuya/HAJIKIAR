@@ -325,12 +325,25 @@ void NewMoon::DrawModel(const Transform& transform, const Material& material, co
 	// CommandListをdxCommonClassからもってくる
 	ComPtr<ID3D12GraphicsCommandList> commandList = dxCommon_->GetCommandList();
 
-	std::vector<Material> materials{};
-	materials.push_back(material);
-	materials.push_back(material);
+	// 更新
+	modelManager_->Update(modelName, transform, material, punctualLight);
+	// パイプラインのセット
+	pipelineManager_->SetGraphicsPipeline(commandList.Get(), pipelineType, blendMode);
+	// DrawCall
+	modelManager_->Draw(modelName, textureName, commandList.Get());
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								    マルチモデル
+////////////////////////////////////////////////////////////////////////////////*/
+void NewMoon::DrawMultiModel(const Transform& transform, const std::vector<Material>& materials, const PunctualLight& punctualLight,
+	const std::string modelName, const std::string textureName, PipelineType pipelineType, BlendMode blendMode) {
+
+	// CommandListをdxCommonClassからもってくる
+	ComPtr<ID3D12GraphicsCommandList> commandList = dxCommon_->GetCommandList();
 
 	// 更新
-	modelManager_->Update(modelName, transform, materials, punctualLight);
+	modelManager_->MultiMaterialUpdate(modelName, transform, materials, punctualLight);
 	// パイプラインのセット
 	pipelineManager_->SetGraphicsPipeline(commandList.Get(), pipelineType, blendMode);
 	// DrawCall

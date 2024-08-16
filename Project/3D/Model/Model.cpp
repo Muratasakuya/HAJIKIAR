@@ -178,7 +178,81 @@ void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, con
 *								　更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
 void Model::Update(const std::string& modelName, const ModelData& modelData,
-	const Transform& transform, std::vector<Material> materials, const PunctualLight& punctualLight) {
+	const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
+
+	MainCamera3D::GetInstance()->ImGuiDraw();
+	MainCamera3D::GetInstance()->Update();
+
+	for (uint32_t i = 0; i < modelData.meshes.size(); i++) {
+
+		// 頂点バッファへデータ転送
+		std::memcpy(models_[modelName]->vertexDatas[i],
+			modelData.meshes[i].vertices.data(),
+			sizeof(VertexData) * modelData.meshes[i].vertices.size());
+	}
+
+#pragma region /// ConstBufferの更新 ///
+
+	//Affine
+	Matrix4x4 worldMatrix =
+		Matrix4x4::MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+	Matrix4x4 wvpMatrix =
+		Matrix4x4::Multiply(worldMatrix, Matrix4x4::Multiply(MainCamera3D::GetInstance()->GetViewMatrix(), MainCamera3D::GetInstance()->GetProjectionMatrix()));
+	Matrix4x4 worldInverseTranspose = Matrix4x4::Transpose(Matrix4x4::Inverse(worldMatrix));
+
+	// 行列の更新
+	models_[modelName]->cBufferData_.transformationMatrix->World = worldMatrix;
+	models_[modelName]->cBufferData_.transformationMatrix->WVP = wvpMatrix;
+	models_[modelName]->cBufferData_.transformationMatrix->WorldInverseTranspose = worldInverseTranspose;
+
+	for (uint32_t index = 0; index < models_[modelName]->cBufferData_.materials.size(); index++) {
+
+		models_[modelName]->cBufferData_.materials[index]->color = material.color;
+		models_[modelName]->cBufferData_.materials[index]->enableLighting = material.enableLighting;
+		models_[modelName]->cBufferData_.materials[index]->enableHalfLambert = material.enableHalfLambert;
+		models_[modelName]->cBufferData_.materials[index]->enablePhongReflection = material.enablePhongReflection;
+		models_[modelName]->cBufferData_.materials[index]->enableBlinnPhongReflection = material.enableBlinnPhongReflection;
+		models_[modelName]->cBufferData_.materials[index]->phongRefShininess = material.phongRefShininess;
+		models_[modelName]->cBufferData_.materials[index]->specularColor = material.specularColor;
+		models_[modelName]->cBufferData_.materials[index]->uvTransform = material.uvTransform;
+
+		// パンクチュアルライトの更新
+		// Lighting時のみ
+		if (models_[modelName]->cBufferData_.materials[index]->enableLighting) {
+
+			// 平行光源
+			models_[modelName]->cBufferData_.light->directional.color = punctualLight.directional.color;
+			models_[modelName]->cBufferData_.light->directional.direction = punctualLight.directional.direction;
+			models_[modelName]->cBufferData_.light->directional.intensity = punctualLight.directional.intensity;
+			// ポイントライト
+			models_[modelName]->cBufferData_.light->point.color = punctualLight.point.color;
+			models_[modelName]->cBufferData_.light->point.pos = punctualLight.point.pos;
+			models_[modelName]->cBufferData_.light->point.intensity = punctualLight.point.intensity;
+			models_[modelName]->cBufferData_.light->point.radius = punctualLight.point.radius;
+			models_[modelName]->cBufferData_.light->point.decay = punctualLight.point.decay;
+			// スポットライト
+			models_[modelName]->cBufferData_.light->spot.color = punctualLight.spot.color;
+			models_[modelName]->cBufferData_.light->spot.pos = punctualLight.spot.pos;
+			models_[modelName]->cBufferData_.light->spot.intensity = punctualLight.spot.intensity;
+			models_[modelName]->cBufferData_.light->spot.direction = punctualLight.spot.direction;
+			models_[modelName]->cBufferData_.light->spot.distance = punctualLight.spot.distance;
+			models_[modelName]->cBufferData_.light->spot.decay = punctualLight.spot.decay;
+			models_[modelName]->cBufferData_.light->spot.cosAngle = punctualLight.spot.cosAngle;
+			models_[modelName]->cBufferData_.light->spot.cosFalloffStart = punctualLight.spot.cosFalloffStart;
+		}
+	}
+
+	// カメラのワールド座標の更新
+	models_[modelName]->cBufferData_.cameraForGPU->worldPosition = MainCamera3D::GetInstance()->GetWorldPos();
+#pragma endregion
+
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*							更新処理 マルチマテリアル
+////////////////////////////////////////////////////////////////////////////////*/
+void Model::MultiMaterialUpdate(const std::string& modelName, const ModelData& modelData,
+	const Transform& transform, const std::vector<Material>& materials, const PunctualLight& punctualLight){
 
 	MainCamera3D::GetInstance()->ImGuiDraw();
 	MainCamera3D::GetInstance()->Update();
@@ -245,7 +319,6 @@ void Model::Update(const std::string& modelName, const ModelData& modelData,
 	// カメラのワールド座標の更新
 	models_[modelName]->cBufferData_.cameraForGPU->worldPosition = MainCamera3D::GetInstance()->GetWorldPos();
 #pragma endregion
-
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -257,14 +330,29 @@ void Model::Draw(const std::string& modelName, const std::string textureName, co
 
 		// 頂点バッファの設定
 		commandList->IASetVertexBuffers(0, 1, &models_[modelName]->vertexBufferViews[i]);
-		// マテリアルCBufferの場所を設定
-		commandList->SetGraphicsRootConstantBufferView(0, models_[modelName]->cBufferData_.materialResources[i].Get()->GetGPUVirtualAddress());
-		// wvp用のCBufferの場所を設定
-		commandList->SetGraphicsRootConstantBufferView(1, models_[modelName]->cBufferData_.matrixResource.Get()->GetGPUVirtualAddress());
-		// ライトCBufferの場所を設定
-		commandList->SetGraphicsRootConstantBufferView(3, models_[modelName]->cBufferData_.lightResource.Get()->GetGPUVirtualAddress());
-		// カメラCBufferの場所を設定
-		commandList->SetGraphicsRootConstantBufferView(4, models_[modelName]->cBufferData_.cameraResource.Get()->GetGPUVirtualAddress());
+
+		if (textureName != "Un") {
+
+			// マテリアルCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(0, models_[modelName]->cBufferData_.materialResources[i].Get()->GetGPUVirtualAddress());
+			// wvp用のCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(1, models_[modelName]->cBufferData_.matrixResource.Get()->GetGPUVirtualAddress());
+			// ライトCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(3, models_[modelName]->cBufferData_.lightResource.Get()->GetGPUVirtualAddress());
+			// カメラCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(4, models_[modelName]->cBufferData_.cameraResource.Get()->GetGPUVirtualAddress());
+		} else {
+
+			// マテリアルCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(0, models_[modelName]->cBufferData_.materialResources[i].Get()->GetGPUVirtualAddress());
+			// wvp用のCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(1, models_[modelName]->cBufferData_.matrixResource.Get()->GetGPUVirtualAddress());
+			// ライトCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(2, models_[modelName]->cBufferData_.lightResource.Get()->GetGPUVirtualAddress());
+			// カメラCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(3, models_[modelName]->cBufferData_.cameraResource.Get()->GetGPUVirtualAddress());
+		}
+
 		// SRVのセット
 		textureManager->SetGraphicsRootDescriptorTable(commandList, 2, textureName);
 

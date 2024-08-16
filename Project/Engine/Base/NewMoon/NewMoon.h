@@ -99,6 +99,10 @@ public:
 	static void DrawModel(const Transform& transform, const Material& material, const PunctualLight& punctualLight,
 		const std::string modelName, const std::string textureName, PipelineType pipelineType, BlendMode blendMode);
 
+	// マルチモデル
+	static void DrawMultiModel(const Transform& transform, const std::vector<Material>& materials, const PunctualLight& punctualLight,
+		const std::string modelName, const std::string textureName, PipelineType pipelineType, BlendMode blendMode);
+
 	// パーティクル
 	static void DrawParticle(const std::string name, const std::string textureName, BlendMode blendMode);
 

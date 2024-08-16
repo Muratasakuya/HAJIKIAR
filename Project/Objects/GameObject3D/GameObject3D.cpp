@@ -43,6 +43,15 @@ void GameObject3D::SetTriangleVertices(const std::array<Vector3, kTriangleVertex
 // 色のセット
 void GameObject3D::SetColor(Vector4 color) { material_.color = color; }
 
+// マテリアルの数のセット
+void GameObject3D::SetMaterialNum(uint32_t materialNum){
+
+	for (uint32_t i = 0; i < materialNum; i++) {
+
+		materials_.push_back(material_);
+	}
+}
+
 // オブジェクトの名前のセット
 void GameObject3D::SetObjectName(const std::string name) { objectName_ = name; }
 
@@ -97,13 +106,7 @@ void GameObject3D::Initialize() {
 /*////////////////////////////////////////////////////////////////////////////////
 *								   更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void GameObject3D::Update() {
-
-	if (!GetIsHit()) {
-
-		material_.color = { 1.0f,1.0f,1.0f,1.0f };
-	}
-}
+void GameObject3D::Update() {}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								   描画処理
@@ -129,7 +132,13 @@ void GameObject3D::Draw() {
 		// モデル
 	case GameObjectType::Model:
 
-		NewMoon::DrawModel(transform_, material_, light_, modelName_, textureName_, pObject3D, kBlendModeNormal);
+		if (textureName_ != "Un") {
+
+			NewMoon::DrawModel(transform_, material_, light_, modelName_, textureName_, pObject3D, kBlendModeNormal);
+		} else {
+
+			NewMoon::DrawMultiModel(transform_, materials_, light_, modelName_, textureName_, Object3DUnTex, kBlendModeNormal);
+		}
 		break;
 	}
 }
@@ -178,7 +187,20 @@ void GameObject3D::ImGui() {
 	}
 	if (showMaterial) {
 
-		ImGui::ColorEdit4("Color", &material_.color.x);
+		if (materials_.size() == 1) {
+		
+			ImGui::ColorEdit4("Color", &material_.color.x);
+		} else {
+			// Material が複数ある場合
+			for (size_t i = 0; i < materials_.size(); i++) {
+				std::string label = "Material " + std::to_string(i + 1);
+
+				if (ImGui::CollapsingHeader(label.c_str())) {
+
+					ImGui::ColorEdit4("Color", &materials_[i].color.x);
+				}
+			}
+		}
 	}
 
 	// Light ボタン
@@ -223,6 +245,12 @@ void GameObject3D::ImGui() {
 		material_.enableHalfLambert = enableHalfLambert_;
 		material_.enablePhongReflection = enablePhongReflection_;
 		material_.enableBlinnPhongReflection = enableBlinnPhongReflection_;
+	}
+
+	for (uint32_t i = 0; i < materials_.size(); i++) {
+
+		materials_[i].enableLighting = material_.enableLighting;
+		materials_[i].enableHalfLambert = material_.enableHalfLambert;
 	}
 
 	ImGui::End();

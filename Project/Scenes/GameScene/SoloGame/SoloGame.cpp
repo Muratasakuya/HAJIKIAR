@@ -40,6 +40,7 @@ void SoloGame::Initialize() {
 		lineHajikies_[i]->Initialize();
 		lineHajikies_[i]->SetRotate({ std::numbers::pi_v<float> / 2.0f,0.0f ,0.0f });
 		lineHajikies_[i]->SetTranslate({ 0.0f,0.0f,1.0f });
+		lineHajikies_[i]->SetMaterialNum(2);
 		lineHajikies_[i]->SetObjectName("lineHajiki");
 	}
 	// 座標の初期化
@@ -67,12 +68,7 @@ void SoloGame::Initialize() {
 
 	/*======================================================*/
 	// Texture Modelのセット
-
-	// LineHajiki
-	for (const auto& lineHajiki : lineHajikies_) {
-
-		lineHajiki->SetTexture(whiteTexName);
-	}
+	// 
 	// ModelのConstBufferが被るので今はこうしている
 	lineHajikies_[0]->SetModel(lineHajikiModelName);
 	lineHajikies_[1]->SetModel(lineHajikiModelName2);
