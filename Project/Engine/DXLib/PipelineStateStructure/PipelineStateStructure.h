@@ -20,7 +20,7 @@ enum BlendMode {
 	kBlendModeNormal,   // 通常αブレンド
 	kBlendModeAdd,      // 加算
 	kBlendModeSubtract, // 減算
-	kBlendModeMultiply,  // 乗算
+	kBlendModeMultiply, // 乗算
 	kBlendModeScreen,   // スクリーン
 };
 
