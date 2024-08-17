@@ -62,6 +62,8 @@ public:
 	void Initialize(WinApp* winApp);
 	void Update();
 
+	void ImGui();
+
 	/*--------------------------------------------------------------------*/
 	/// 入力関数
 
@@ -78,8 +80,8 @@ public:
 	bool TriggerGamepadButton(InputGamePadButtons button);
 
 	// マウスの入力判定
-	bool PushMouseLeft();
-	bool PushMouseRight();
+	bool PushMouseLeft() const;
+	bool PushMouseRight() const;
 
 	// getter
 
@@ -88,6 +90,7 @@ public:
 	Vector2 GetLeftStickVal() const;
 	Vector2 GetRightStickVal() const;
 	Vector2 GetMousePos() const;
+	Vector2 GetMouseMoveValue() const;
 
 	// setter
 
@@ -97,6 +100,8 @@ private:
 	/*-----------------------------*/
 	///			メンバ変数
 	/*-----------------------------*/
+
+	WinApp* winApp_ = nullptr;
 
 	///-------------------------------------------------------------------------------
 	// Keyboard
@@ -127,12 +132,13 @@ private:
 	///-------------------------------------------------------------------------------
 	// Mouse
 
-	DIMOUSESTATE mouseState_{};
-	DIMOUSESTATE mouseStatePre_{};
+	// マウスの状態を保存
+	DIMOUSESTATE mouseState_;
 
-	ComPtr<IDirectInputDevice8> mouse_;
+	ComPtr<IDirectInputDevice8> mouse_;  // マウスデバイス
 
-	Vector2 mousePos_{};
+	std::array<bool, 2> mouseButtons_;   // マウスボタンの状態
+	Vector2 mousePos_;                   // マウスの移動量
 
 	/*-----------------------------*/
 	///			private関数

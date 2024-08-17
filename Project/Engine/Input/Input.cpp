@@ -78,27 +78,35 @@ Vector2 Input::GetMousePos() const {
 
 	return mousePos_;
 }
+// マウス移動量の
+Vector2 Input::GetMouseMoveValue() const {
+
+	return {static_cast<float>(mouseState_.lX),static_cast<float>(mouseState_.lY) };
+}
 // マウスの入力判定
-bool Input::PushMouseLeft() {
+bool Input::PushMouseLeft() const {
 
-	return (mouseState_.rgbButtons[0] & 0x80) != 0;
+	return mouseButtons_[0];
 }
-bool Input::PushMouseRight() {
+bool Input::PushMouseRight() const {
 
-	return (mouseState_.rgbButtons[1] & 0x80) != 0;
+	return mouseButtons_[1];
 }
-
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								Inputの初期化
 ////////////////////////////////////////////////////////////////////////////////*/
 void Input::Initialize(WinApp* winApp) {
 
+	assert(winApp);
+
+	winApp_ = winApp;
+
 	HRESULT hr;
 
 	// DirectInputの初期化
 	dInput_ = nullptr;
-	hr = DirectInput8Create(winApp->GetWindowClass().hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&dInput_, nullptr);
+	hr = DirectInput8Create(winApp_->GetWindowClass().hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&dInput_, nullptr);
 	assert(SUCCEEDED(hr));
 
 	// キーボードデバイスの初期化
@@ -111,18 +119,24 @@ void Input::Initialize(WinApp* winApp) {
 	assert(SUCCEEDED(hr));
 
 	// 排他制御レベルのリセット
-	hr = keyboard_->SetCooperativeLevel(winApp->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+	hr = keyboard_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(hr));
 
-	//// マウスデバイスの初期化
-	//hr = dInput_->CreateDevice(GUID_SysMouse, &mouse_, NULL);
-	//assert(SUCCEEDED(hr));
+	// マウスデバイスの初期化
+	hr = dInput_->CreateDevice(GUID_SysMouse, &mouse_, NULL);
+	assert(SUCCEEDED(hr));
 
-	//hr = mouse_->SetDataFormat(&c_dfDIMouse);
-	//assert(SUCCEEDED(hr));
+	// 入力データ形式のセット
+	hr = mouse_->SetDataFormat(&c_dfDIMouse);
+	assert(SUCCEEDED(hr));
 
-	//hr = mouse_->SetCooperativeLevel(winApp->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-	//assert(SUCCEEDED(hr));
+	// 排他制御レベルのリセット
+	hr = mouse_->SetCooperativeLevel(winApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	assert(SUCCEEDED(hr));
+
+	// マウスの取得開始
+	hr = mouse_->Acquire();
+	assert(SUCCEEDED(hr));
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -184,15 +198,43 @@ void Input::Update() {
 		rightThumbY_ = 0.0f;
 	}
 
-	//// 前回のマウス状態を保存
-	//mouseStatePre_ = mouseState_;
+	hr = mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_);
+	if (FAILED(hr)) {
 
-	//// マウス情報の取得開始
-	//hr = mouse_->Acquire();
-	//hr = mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_);
-	//assert(SUCCEEDED(hr));
+		// 取得失敗時の処理
+		std::fill(mouseButtons_.begin(), mouseButtons_.end(), false);
+		mousePos_ = { 0.0f, 0.0f };
+	} else {
 
-	//// マウスの相対移動量を加算して絶対座標を更新
-	//mousePos_.x += mouseState_.lX;
-	//mousePos_.y += mouseState_.lY;
+		// マウスボタンの状態を保存
+		mouseButtons_[0] = (mouseState_.rgbButtons[0] & 0x80) != 0;
+		mouseButtons_[1] = (mouseState_.rgbButtons[1] & 0x80) != 0;
+
+		POINT point;
+		GetCursorPos(&point);
+
+		ScreenToClient(winApp_->GetHwnd(), &point);
+
+		// マウスの移動量を保存
+		mousePos_.x = static_cast<float>(point.x);
+		mousePos_.y = static_cast<float>(point.y);
+	}
+}
+
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								ImGui表示
+////////////////////////////////////////////////////////////////////////////////*/
+void Input::ImGui() {
+
+	Vector2 mouseMoveValue = GetMouseMoveValue();
+
+	ImGui::Begin("NewMoon");
+
+	ImGui::Text("mousePos: { %4.1f, %4.1f", mousePos_.x, mousePos_.y);
+	ImGui::Text("mouseMoveValue: { %4.1f, %4.1f", mouseMoveValue.x, mouseMoveValue.y);
+	ImGui::Text("leftMouseButton: %d", mouseButtons_[0]);
+	ImGui::Text("rightMouseButton: %d", mouseButtons_[1]);
+
+	ImGui::End();
 }

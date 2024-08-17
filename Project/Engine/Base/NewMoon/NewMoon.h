@@ -147,6 +147,9 @@ public:
 	// マウスカーソル座標の取得
 	static Vector2 GetMousePos();
 
+	// Input情報表示
+	static void InputImGui();
+
 	///-------------------------------------------------------------------------------
 	// Screen
 

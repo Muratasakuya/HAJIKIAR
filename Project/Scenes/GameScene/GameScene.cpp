@@ -83,6 +83,8 @@ void GameScene::Update() {
 	ImGui::Text("SpaceKey: Game -> Result");
 	ImGui::End();
 
+	NewMoon::InputImGui();
+
 	imgui_.Render();
 
 	/*======================================================*/
