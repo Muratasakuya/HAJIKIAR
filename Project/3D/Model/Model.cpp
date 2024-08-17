@@ -180,7 +180,6 @@ void Model::CreateModelMesh(DXCommon* dxCommon, const std::string modelName, con
 void Model::Update(const std::string& modelName, const ModelData& modelData,
 	const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
 
-	MainCamera3D::GetInstance()->ImGuiDraw();
 	MainCamera3D::GetInstance()->Update();
 
 	for (uint32_t i = 0; i < modelData.meshes.size(); i++) {
@@ -254,7 +253,6 @@ void Model::Update(const std::string& modelName, const ModelData& modelData,
 void Model::MultiMaterialUpdate(const std::string& modelName, const ModelData& modelData,
 	const Transform& transform, const std::vector<Material>& materials, const PunctualLight& punctualLight){
 
-	MainCamera3D::GetInstance()->ImGuiDraw();
 	MainCamera3D::GetInstance()->Update();
 
 	for (uint32_t i = 0; i < modelData.meshes.size(); i++) {

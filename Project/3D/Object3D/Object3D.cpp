@@ -311,7 +311,6 @@ std::unique_ptr<Object3D::SphereData> Object3D::CreateSphereData(UINT vertexCoun
 void Object3D::Update(const Object3DType& objectType, const Transform& transform, const Material& material, const PunctualLight& punctualLight) {
 
 	// 3DCameraの更新
-	camera3D_->ImGuiDraw();
 	camera3D_->Update();
 
 	// 各オブジェクトの更新処理
