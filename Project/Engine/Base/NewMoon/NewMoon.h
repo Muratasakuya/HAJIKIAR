@@ -109,6 +109,9 @@ public:
 	///===============================================================================
 	/// ライブラリ関数
 
+	///-------------------------------------------------------------------------------
+	// Load
+
 	// 画像読み込み
 	static void LoadTexture(const std::string filePath);
 	// テクスチャassert あるかチェック
@@ -120,11 +123,24 @@ public:
 	static void MakeModel(ModelData modelData, const std::string& modelName);
 	// モデルassert あるかチェック
 	static void CheckModelAvailability(const std::string modelName);
+	///-------------------------------------------------------------------------------
+	// Input
 
 	// キーの押下判定
 	static bool PushKey(BYTE keyNumber);
 	// キーのトリガー判定
 	static bool TriggerKey(BYTE keyNumber);
+	// ゲームパッドのボタンの押下判定
+	static bool PushGamepadButton(InputGamePadButtons button);
+	// ゲームパッドのボタンのトリガー判定
+	static bool TriggerGamepadButton(InputGamePadButtons button);
+	// Vector2型 左スティックと右スティックの状態を取得
+	static Vector2 GetLeftStickVal();
+	static Vector2 GetRightStickVal();
+	// デッドゾーンの設定
+	static void SetDeadZone(float deadZone);
+	///-------------------------------------------------------------------------------
+	// Screen
 
 	// フルスクリーン設定
 	static void SetFullScreenMode(bool fullScreen);

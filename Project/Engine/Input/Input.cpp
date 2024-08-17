@@ -12,6 +12,12 @@ const std::array<BYTE, inputKeyMaxNum>& Input::GetAllKey() const {
 	return key_;
 }
 
+// deadZone_ = deadZone setter
+void Input::SetDeadZone(float deadZone) {
+
+	deadZone_ = deadZone;
+}
+
 // キーの押下判定
 bool Input::PushKey(BYTE keyNumber) {
 
@@ -34,6 +40,35 @@ bool Input::TriggerKey(BYTE keyNumber) {
 	}
 
 	return false;
+}
+
+// ゲームパッドのボタンの押下判定
+bool Input::PushGamepadButton(InputGamePadButtons button) {
+
+	return gamepadButtons_[static_cast<size_t>(button)];
+}
+
+// ゲームパッドのボタンのトリガー判定
+bool Input::TriggerGamepadButton(InputGamePadButtons button) {
+
+	return gamepadButtons_[static_cast<size_t>(button)] && !gamepadButtonsPre_[static_cast<size_t>(button)];
+}
+
+// Vector2型 左スティックと右スティックの状態を取得
+Vector2 Input::GetLeftStickVal() const {
+	return { leftThumbX_,leftThumbY_ };
+}
+Vector2 Input::GetRightStickVal() const {
+	return { rightThumbX_,rightThumbY_ };
+}
+
+// デッドゾーンの適応
+float Input::ApplyDeadZone(float value) {
+
+	if (std::fabs(value) < deadZone_) {
+		return 0.0f;
+	}
+	return value;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -78,4 +113,46 @@ void Input::Update() {
 	// 全キーの入力状態を取得する
 	hr = keyboard_->GetDeviceState(static_cast<DWORD>(key_.size()), key_.data());
 
+	// 前回のゲームパッドの状態を保存
+	gamepadStatePre_ = gamepadState_;
+	std::memcpy(gamepadButtonsPre_.data(), gamepadButtons_.data(), gamepadButtons_.size());
+
+	// ゲームパッドの現在の状態を取得
+	ZeroMemory(&gamepadState_, sizeof(XINPUT_STATE));
+	DWORD dwResult = XInputGetState(0, &gamepadState_);
+
+	if (dwResult == ERROR_SUCCESS) {
+
+#pragma region ///ゲームパッドが接続されている場合の処理 ///
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::ARROW_UP)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::ARROW_DOWN)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::ARROW_LEFT)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::ARROW_RIGHT)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::START)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_START) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::BACK)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_BACK) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::LEFT_THUMB)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::RIGHT_THUMB)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::LEFT_SHOULDER)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::RIGHT_SHOULDER)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::A)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::B)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::X)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_X) != 0;
+		gamepadButtons_[static_cast<size_t>(InputGamePadButtons::Y)] = (gamepadState_.Gamepad.wButtons & XINPUT_GAMEPAD_Y) != 0;
+
+		// スティックの状態を更新
+		leftThumbX_ = ApplyDeadZone(gamepadState_.Gamepad.sThumbLX);
+		leftThumbY_ = ApplyDeadZone(gamepadState_.Gamepad.sThumbLY);
+		rightThumbX_ = ApplyDeadZone(gamepadState_.Gamepad.sThumbRX);
+		rightThumbY_ = ApplyDeadZone(gamepadState_.Gamepad.sThumbRY);
+#pragma endregion
+	} else {
+
+		// ゲームパッドが接続されていない場合の処理
+		std::fill(gamepadButtons_.begin(), gamepadButtons_.end(), false);
+
+		leftThumbX_ = 0.0f;
+		leftThumbY_ = 0.0f;
+		rightThumbX_ = 0.0f;
+		rightThumbY_ = 0.0f;
+	}
 }
