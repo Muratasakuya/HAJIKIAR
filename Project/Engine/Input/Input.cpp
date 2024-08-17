@@ -3,7 +3,10 @@
 // DirectInput
 #pragma comment(lib,"dInput8.lib")
 #pragma comment(lib,"dxguid.lib")
+#pragma comment(lib, "xinput.lib")
 
+#include "NewMoon.h"
+#include "ImGuiManager.h"
 #include "WinApp.h"
 
 // key_<array> getter
@@ -111,15 +114,15 @@ void Input::Initialize(WinApp* winApp) {
 	hr = keyboard_->SetCooperativeLevel(winApp->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(hr));
 
-	// マウスデバイスの初期化
-	hr = dInput_->CreateDevice(GUID_SysMouse, &mouse_, NULL);
-	assert(SUCCEEDED(hr));
+	//// マウスデバイスの初期化
+	//hr = dInput_->CreateDevice(GUID_SysMouse, &mouse_, NULL);
+	//assert(SUCCEEDED(hr));
 
-	hr = mouse_->SetDataFormat(&c_dfDIMouse);
-	assert(SUCCEEDED(hr));
+	//hr = mouse_->SetDataFormat(&c_dfDIMouse);
+	//assert(SUCCEEDED(hr));
 
-	hr = mouse_->SetCooperativeLevel(winApp->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-	assert(SUCCEEDED(hr));
+	//hr = mouse_->SetCooperativeLevel(winApp->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+	//assert(SUCCEEDED(hr));
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -181,15 +184,15 @@ void Input::Update() {
 		rightThumbY_ = 0.0f;
 	}
 
-	// 前回のマウス状態を保存
-	mouseStatePre_ = mouseState_;
+	//// 前回のマウス状態を保存
+	//mouseStatePre_ = mouseState_;
 
-	// マウス情報の取得開始
-	hr = mouse_->Acquire();
-	hr = mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_);
-	assert(SUCCEEDED(hr));
+	//// マウス情報の取得開始
+	//hr = mouse_->Acquire();
+	//hr = mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_);
+	//assert(SUCCEEDED(hr));
 
-	// マウスの相対移動量を加算して絶対座標を更新
-	mousePos_.x += mouseState_.lX;
-	mousePos_.y += mouseState_.lY;
+	//// マウスの相対移動量を加算して絶対座標を更新
+	//mousePos_.x += mouseState_.lX;
+	//mousePos_.y += mouseState_.lY;
 }
