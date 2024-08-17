@@ -73,15 +73,19 @@ void CollisionManager::CheckAllHitCollisions() {
 ////////////////////////////////////////////////////////////////////////////////*/
 bool CollisionManager::PassLineCheckCollision(Collider<Vector3>* linePointA, Collider<Vector3>* linePointB, Collider<Vector3>* collider) {
 
-	float dot =
-		(linePointB->GetCenterPos().x - linePointA->GetCenterPos().x) * (collider->GetCenterPos().y - linePointA->GetCenterPos().y) -
-		(linePointB->GetCenterPos().y - linePointA->GetCenterPos().y) * (collider->GetCenterPos().x - linePointA->GetCenterPos().x);
+	Vector3 posA= linePointB->GetCenterPos() - linePointA->GetCenterPos();
+	Vector3 posB = collider->GetCenterPos() - linePointA->GetCenterPos();
 
-	if (dot < 0) {
-		if (linePointA->GetCenterPos().x <= collider->GetCenterPos().x && collider->GetCenterPos().x <= linePointB->GetCenterPos().x ||
-			linePointB->GetCenterPos().x <= collider->GetCenterPos().x && collider->GetCenterPos().x <= linePointA->GetCenterPos().x ||
-			linePointA->GetCenterPos().y <= collider->GetCenterPos().y && collider->GetCenterPos().y <= linePointB->GetCenterPos().y ||
-			linePointB->GetCenterPos().y <= collider->GetCenterPos().y && collider->GetCenterPos().y <= linePointA->GetCenterPos().y){ 
+	float cross = posA.x * posB.y - posA.y * posB.x;
+
+	// 線分を越えているかどうかチェック
+	float tolerance = 0.001f;
+	if (std::fabs(cross) < tolerance) {
+		
+		float dot1 = posA.x * posB.x + posA.y * posB.y;
+		float dot2 = posA.x * posA.x + posA.y * posA.y;
+
+		if (dot1 >= 0 && dot1 <= dot2) {
 
 			return true;
 		}
