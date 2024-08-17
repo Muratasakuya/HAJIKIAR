@@ -81,7 +81,7 @@ Vector2 Input::GetMousePos() const {
 // マウス移動量の
 Vector2 Input::GetMouseMoveValue() const {
 
-	return {static_cast<float>(mouseState_.lX),static_cast<float>(mouseState_.lY) };
+	return { static_cast<float>(mouseState_.lX),static_cast<float>(mouseState_.lY) };
 }
 // マウスの入力判定
 bool Input::PushMouseLeft() const {
@@ -228,13 +228,27 @@ void Input::Update() {
 void Input::ImGui() {
 
 	Vector2 mouseMoveValue = GetMouseMoveValue();
+	static bool showMouseInfo = false;
 
 	ImGui::Begin("NewMoon");
 
-	ImGui::Text("mousePos: { %4.1f, %4.1f", mousePos_.x, mousePos_.y);
-	ImGui::Text("mouseMoveValue: { %4.1f, %4.1f", mouseMoveValue.x, mouseMoveValue.y);
-	ImGui::Text("leftMouseButton: %d", mouseButtons_[0]);
-	ImGui::Text("rightMouseButton: %d", mouseButtons_[1]);
+	// Inputドロップダウンメニューを作成
+	if (ImGui::TreeNode("Input")) {
+		if (ImGui::Selectable("Mouse", showMouseInfo)) {
+
+			showMouseInfo = !showMouseInfo;
+		}
+
+		// Mouse情報を表示
+		if (showMouseInfo) {
+			ImGui::Text("mousePos: { %4.1f, %4.1f", mousePos_.x, mousePos_.y);
+			ImGui::Text("mouseMoveValue: { %4.1f, %4.1f", mouseMoveValue.x, mouseMoveValue.y);
+			ImGui::Text("leftMouseButton: %d", mouseButtons_[0]);
+			ImGui::Text("rightMouseButton: %d", mouseButtons_[1]);
+		}
+
+		ImGui::TreePop();
+	}
 
 	ImGui::End();
 }
