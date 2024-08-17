@@ -77,13 +77,17 @@ public:
 	// ゲームパッドのボタンのトリガー判定
 	bool TriggerGamepadButton(InputGamePadButtons button);
 
-	// Vector2型 左スティックと右スティックの状態を取得
-	Vector2 GetLeftStickVal() const;
-	Vector2 GetRightStickVal() const;
+	// マウスの入力判定
+	bool PushMouseLeft();
+	bool PushMouseRight();
 
 	// getter
 
 	const std::array<BYTE, inputKeyMaxNum>& GetAllKey() const;
+	// Vector2型 左スティックと右スティックの状態を取得
+	Vector2 GetLeftStickVal() const;
+	Vector2 GetRightStickVal() const;
+	Vector2 GetMousePos() const;
 
 	// setter
 
@@ -94,11 +98,17 @@ private:
 	///			メンバ変数
 	/*-----------------------------*/
 
+	///-------------------------------------------------------------------------------
+	// Keyboard
+
 	std::array<BYTE, inputKeyMaxNum> key_{};
 	std::array<BYTE, inputKeyMaxNum> keyPre_{};
 
 	ComPtr<IDirectInput8> dInput_;
 	ComPtr<IDirectInputDevice8> keyboard_;
+
+	///-------------------------------------------------------------------------------
+	// Gamepad
 
 	XINPUT_STATE gamepadState_{};
 	XINPUT_STATE gamepadStatePre_{};
@@ -113,6 +123,16 @@ private:
 
 	// デッドゾーンの閾値
 	float deadZone_ = 2000.0f;
+
+	///-------------------------------------------------------------------------------
+	// Mouse
+
+	DIMOUSESTATE mouseState_{};
+	DIMOUSESTATE mouseStatePre_{};
+
+	ComPtr<IDirectInputDevice8> mouse_;
+
+	Vector2 mousePos_{};
 
 	/*-----------------------------*/
 	///			private関数

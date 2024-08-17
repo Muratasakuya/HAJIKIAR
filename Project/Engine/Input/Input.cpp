@@ -61,7 +61,6 @@ Vector2 Input::GetLeftStickVal() const {
 Vector2 Input::GetRightStickVal() const {
 	return { rightThumbX_,rightThumbY_ };
 }
-
 // デッドゾーンの適応
 float Input::ApplyDeadZone(float value) {
 
@@ -70,6 +69,22 @@ float Input::ApplyDeadZone(float value) {
 	}
 	return value;
 }
+
+// マウスカーソル座標の取得
+Vector2 Input::GetMousePos() const {
+
+	return mousePos_;
+}
+// マウスの入力判定
+bool Input::PushMouseLeft() {
+
+	return (mouseState_.rgbButtons[0] & 0x80) != 0;
+}
+bool Input::PushMouseRight() {
+
+	return (mouseState_.rgbButtons[1] & 0x80) != 0;
+}
+
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								Inputの初期化
@@ -94,6 +109,16 @@ void Input::Initialize(WinApp* winApp) {
 
 	// 排他制御レベルのリセット
 	hr = keyboard_->SetCooperativeLevel(winApp->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+	assert(SUCCEEDED(hr));
+
+	// マウスデバイスの初期化
+	hr = dInput_->CreateDevice(GUID_SysMouse, &mouse_, NULL);
+	assert(SUCCEEDED(hr));
+
+	hr = mouse_->SetDataFormat(&c_dfDIMouse);
+	assert(SUCCEEDED(hr));
+
+	hr = mouse_->SetCooperativeLevel(winApp->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
 	assert(SUCCEEDED(hr));
 }
 
@@ -155,4 +180,16 @@ void Input::Update() {
 		rightThumbX_ = 0.0f;
 		rightThumbY_ = 0.0f;
 	}
+
+	// 前回のマウス状態を保存
+	mouseStatePre_ = mouseState_;
+
+	// マウス情報の取得開始
+	hr = mouse_->Acquire();
+	hr = mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_);
+	assert(SUCCEEDED(hr));
+
+	// マウスの相対移動量を加算して絶対座標を更新
+	mousePos_.x += mouseState_.lX;
+	mousePos_.y += mouseState_.lY;
 }

@@ -130,6 +130,7 @@ public:
 	static bool PushKey(BYTE keyNumber);
 	// キーのトリガー判定
 	static bool TriggerKey(BYTE keyNumber);
+
 	// ゲームパッドのボタンの押下判定
 	static bool PushGamepadButton(InputGamePadButtons button);
 	// ゲームパッドのボタンのトリガー判定
@@ -139,6 +140,13 @@ public:
 	static Vector2 GetRightStickVal();
 	// デッドゾーンの設定
 	static void SetDeadZone(float deadZone);
+
+	// マウスの入力判定
+	static bool PushMouseLeft();
+	static bool PushMouseRight();
+	// マウスカーソル座標の取得
+	static Vector2 GetMousePos();
+
 	///-------------------------------------------------------------------------------
 	// Screen
 
