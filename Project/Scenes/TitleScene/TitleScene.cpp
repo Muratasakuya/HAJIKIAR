@@ -184,9 +184,9 @@ void TitleScene::StartNotionUpdate() {
 
 	startNotionColorAlpha_ += startNotionChangeAlpha_;
 
-	if (startNotionColorAlpha_ >= 0.3f) {
+	if (startNotionColorAlpha_ >= 0.4f) {
 
-		startNotionColorAlpha_ = 0.3f;
+		startNotionColorAlpha_ = 0.4f;
 		// 減少に切り替え
 		startNotionChangeAlpha_ = -startNotionChangeAlpha_;
 	} else if (startNotionColorAlpha_ <= 0.1f) {
