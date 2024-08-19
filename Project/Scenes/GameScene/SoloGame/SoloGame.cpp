@@ -95,7 +95,7 @@ void SoloGame::Initialize() {
 
 	/*======================================================*/
 	// Texture Modelのセット
-	
+
 	// LineHajiki
 	// ModelのConstBufferが被るので今はこうしている
 	lineHajikies_[0]->SetModel(lineHajikiModelName);
@@ -141,6 +141,9 @@ void SoloGame::Initialize() {
 *								    更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
 void SoloGame::Update() {
+
+	/*======================================================*/
+	// ImGui
 
 	ImGui::Begin("GameScene");
 	ImGui::Text("SoloMode");

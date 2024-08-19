@@ -5,111 +5,210 @@
 /*////////////////////////////////////////////////////////////////////////////////
 *								音声データの読み込み
 ////////////////////////////////////////////////////////////////////////////////*/
-SoundData Audio::SoundLoadWave(const char* filename) {
+void Audio::LoadWave(const std::string& filename) {
 
-	// ファイルオープン
-	std::ifstream file;
-	// .wavファイルをバイナリモードで開く
-	file.open(filename, std::ios_base::binary);
-	// ファイルが開けたか
+	// 識別子を除いた名前を取得
+	std::string identifier = GetFileNameWithoutExtension(filename);
+	SoundData soundData = LoadWaveInternal(filename);
+
+	// サウンドデータ追加
+	soundData_.emplace(identifier, soundData);
+}
+SoundData Audio::LoadWaveInternal(const std::string& filename) {
+
+	std::ifstream file(filename, std::ios_base::binary);
 	assert(file.is_open());
 
-	// .wavデータ読み込み
-	// RIFFヘッダーの読み込み
 	RiffHeader riff;
-	file.read((char*)&riff, sizeof(riff));
-	// ファイルがRIFFかチェック
-	if (strncmp(riff.chunk.id, "RIFF", 4) != 0) {
-		assert(0);
-	}
-	// タイプがWAVEかチェック
-	if (strncmp(riff.type, "WAVE", 4) != 0) {
-		assert(0);
-	}
+	file.read(reinterpret_cast<char*>(&riff), sizeof(riff));
+	assert(strncmp(riff.chunk.id, "RIFF", 4) == 0);
+	assert(strncmp(riff.type, "WAVE", 4) == 0);
 
-	// Formatチャンクの読み込み
 	FormatChunk format{};
-	// チャンクヘッダーの確認
-	file.read((char*)&format, sizeof(ChunkHeader));
-	if (strncmp(format.chunk.id, "fmt", 4) == 0) {
-		assert(0);
+	bool formatFound = false;
+	bool dataFound = false;
+	ChunkHeader chunkHeader;
+
+	while (!dataFound && file.read(reinterpret_cast<char*>(&chunkHeader), sizeof(chunkHeader))) {
+		if (strncmp(chunkHeader.id, "fmt ", 4) == 0) {
+
+			file.read(reinterpret_cast<char*>(&format.fmt), chunkHeader.size);
+			formatFound = true;
+		} else if (strncmp(chunkHeader.id, "data", 4) == 0) {
+
+			BYTE* pBuffer = new BYTE[chunkHeader.size];
+			file.read(reinterpret_cast<char*>(pBuffer), chunkHeader.size);
+
+			SoundData soundData{};
+			soundData.wfex = format.fmt;
+			soundData.pBuffer = pBuffer;
+			soundData.bufferSize = chunkHeader.size;
+
+			dataFound = true;
+			file.close();
+			return soundData;
+		} else {
+
+			// 読み込んだチャンクをスキップ
+			file.seekg(chunkHeader.size, std::ios_base::cur);
+		}
 	}
 
-	// チャンク本体の読み込み
-	assert(format.chunk.size <= sizeof(format.fmt));
-	file.read((char*)&format.fmt, format.chunk.size);
-
-	// Dataチャンク読み込み
-	ChunkHeader data;
-	file.read((char*)&data, sizeof(data));
-	// JUNKチャンクを検出した場合
-	if (strncmp(data.id, "JUNK", 4) == 0) {
-
-		// 読み取り位置をJUNKチャンク読み取りまで進める
-		file.seekg(data.size, std::ios_base::cur);
-		// 再読み込み
-		file.read((char*)&data, sizeof(data));
-	}
-
-	if (strncmp(data.id, "data", 4) != 0) {
-		assert(0);
-	}
-
-	// Dataチャンクのデータ部(波形データ)の読み込み
-	char* pBuffer = new char[data.size];
-	file.read(pBuffer, data.size);
-
-	// Waveファイルを閉じる
+	// ファイルを閉じる
 	file.close();
+	// 必要なチャンクが見つからなかった場合はエラー
+	assert(formatFound && dataFound);
 
-	// returnするための音声データ
-	SoundData soundData{};
+	// エラー時にはデフォルトのSoundDataを返す とりあえずreturnしとく
+	return SoundData{};
+}
 
-	soundData.wfex = format.fmt;
-	soundData.pBuffer = reinterpret_cast<BYTE*>(pBuffer);
-	soundData.bufferSize = data.size;
+/*////////////////////////////////////////////////////////////////////////////////
+*						ファイル名から拡張子を除いた名前を取得
+////////////////////////////////////////////////////////////////////////////////*/
+std::string Audio::GetFileNameWithoutExtension(const std::string& filename) {
 
-	return soundData;
+	std::filesystem::path path(filename);
+
+	return path.stem().string();
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
 *									音声データ解放
 ////////////////////////////////////////////////////////////////////////////////*/
-void Audio::SoundUnload(SoundData* soundData) {
+void Audio::Unload() {
 
 	// バッファメモリを解放
-	delete[] soundData->pBuffer;
-
-	soundData->pBuffer = 0;
-	soundData->bufferSize = 0;
-	soundData->wfex = {};
+	for (auto& [name, soundData] : soundData_) {
+		delete[] soundData.pBuffer;
+	}
+	soundData_.clear();
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
-*								サウンドの再生
+*									サウンドの再生
 ////////////////////////////////////////////////////////////////////////////////*/
-void Audio::SoundPlayWave(const SoundData& soundData) {
+void Audio::PlayWave(const std::string& name, bool loop) {
 
-	HRESULT hr;
+	std::string identifier = GetFileNameWithoutExtension(name);
 
-	// 波形フォーマットを基にSoundVoiceの生成
+	auto it = soundData_.find(identifier);
+	if (it == soundData_.end()) return;
+
+	// 再生中の音声があるか確認 あれば早期リターン
+	auto voiceIt = activeVoices_.find(identifier);
+	if (voiceIt != activeVoices_.end()) {
+		return;
+	}
+
+	const SoundData& soundData = it->second;
+
+	// 新しい SourceVoice を作成
 	IXAudio2SourceVoice* pSourceVoice = nullptr;
-	hr = xAudio2_->CreateSourceVoice(&pSourceVoice, &soundData.wfex);
+	HRESULT hr = xAudio2_->CreateSourceVoice(&pSourceVoice, &soundData.wfex);
 	assert(SUCCEEDED(hr));
 
-	// 再生する波形データの設定
 	XAUDIO2_BUFFER buf{};
 	buf.pAudioData = soundData.pBuffer;
 	buf.AudioBytes = soundData.bufferSize;
 	buf.Flags = XAUDIO2_END_OF_STREAM;
 
-	// 波形データの再生
+	if (loop) {
+		buf.LoopCount = XAUDIO2_LOOP_INFINITE;
+	} else {
+		buf.LoopCount = 0;
+	}
+
 	hr = pSourceVoice->SubmitSourceBuffer(&buf);
+	assert(SUCCEEDED(hr));
+
 	hr = pSourceVoice->Start();
+	assert(SUCCEEDED(hr));
+
+	// 再生中の SourceVoice を登録
+	activeVoices_[identifier] = pSourceVoice;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
-*									初期化
+*									サウンドの停止
+////////////////////////////////////////////////////////////////////////////////*/
+void Audio::StopWave(const std::string& name) {
+
+	std::string identifier = GetFileNameWithoutExtension(name);
+
+	auto it = activeVoices_.find(identifier);
+	if (it != activeVoices_.end()) {
+
+		IXAudio2SourceVoice* pSourceVoice = it->second;
+		pSourceVoice->Stop();
+		pSourceVoice->DestroyVoice();
+		activeVoices_.erase(it);
+	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									サウンド一時停止
+////////////////////////////////////////////////////////////////////////////////*/
+void Audio::PauseWave(const std::string& name) {
+
+	std::string identifier = GetFileNameWithoutExtension(name);
+
+	auto it = activeVoices_.find(identifier);
+	if (it != activeVoices_.end()) {
+
+		it->second->Stop(0);
+	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								サウンド一時停止からの再生
+////////////////////////////////////////////////////////////////////////////////*/
+void Audio::ResumeWave(const std::string& name) {
+
+	std::string identifier = GetFileNameWithoutExtension(name);
+
+	auto it = activeVoices_.find(identifier);
+	if (it != activeVoices_.end()) {
+
+		it->second->Start(0);
+	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									サウンド音量の設定
+////////////////////////////////////////////////////////////////////////////////*/
+void Audio::SetVolume(const std::string& name, float volume) {
+
+	std::string identifier = GetFileNameWithoutExtension(name);
+
+	auto it = activeVoices_.find(identifier);
+	if (it != activeVoices_.end()) {
+
+		it->second->SetVolume(volume);
+	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									サウンド再生中かどうか
+////////////////////////////////////////////////////////////////////////////////*/
+bool Audio::IsPlayWave(const std::string& name) {
+
+	std::string identifier = GetFileNameWithoutExtension(name);
+
+	auto it = activeVoices_.find(identifier);
+	if (it != activeVoices_.end()) {
+
+		XAUDIO2_VOICE_STATE state;
+		it->second->GetState(&state);
+
+		return (state.BuffersQueued > 0);
+	}
+
+	return false;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*										初期化
 ////////////////////////////////////////////////////////////////////////////////*/
 void Audio::Initialize() {
 
@@ -123,17 +222,23 @@ void Audio::Initialize() {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
-*									リセット
-////////////////////////////////////////////////////////////////////////////////*/
-void Audio::Reset(SoundData* soundData) {
-
-	SoundUnload(soundData);
-}
-
-/*////////////////////////////////////////////////////////////////////////////////
-*									  解放
+*										  解放
 ////////////////////////////////////////////////////////////////////////////////*/
 void Audio::Finalize() {
 
+	Unload();
+	for (auto& [name, pSourceVoice] : activeVoices_) {
+		if (pSourceVoice) {
+
+			pSourceVoice->Stop();
+			pSourceVoice->DestroyVoice();
+		}
+	}
+	activeVoices_.clear();
+	if (masterVoice_) {
+
+		masterVoice_->DestroyVoice();
+		masterVoice_ = nullptr;
+	}
 	xAudio2_.Reset();
 }

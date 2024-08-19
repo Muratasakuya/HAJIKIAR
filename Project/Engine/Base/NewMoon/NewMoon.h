@@ -35,6 +35,8 @@ class Audio;
 #pragma endregion
 ///===============================================================================
 
+// このクラスに任せすぎてなんかきもいので分けてもよさそう
+
 /*////////////////////////////////////////////////////////////////////////////////
 *									NewMoon Class
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -123,6 +125,24 @@ public:
 	static void MakeModel(ModelData modelData, const std::string& modelName);
 	// モデルassert あるかチェック
 	static void CheckModelAvailability(const std::string modelName);
+	///-------------------------------------------------------------------------------
+	// Sound
+
+	// サウンドデータ読み込み
+	static void LoadWave(const std::string filename);
+	// サウンド再生
+	static void PlayWave(const std::string& name, bool loop = false);
+	// サウンド停止
+	static void StopWave(const std::string& name);
+	// サウンド一時停止
+	static void PauseWave(const std::string& name);
+	// サウンド一時停止からの再生
+	static void ResumeWave(const std::string& name);
+	// サウンド音量の設定
+	static void SetVolume(const std::string& name, float volume);
+	// サウンド再生中かどうか
+	static bool IsPlayWave(const std::string& name);
+
 	///-------------------------------------------------------------------------------
 	// Input
 
