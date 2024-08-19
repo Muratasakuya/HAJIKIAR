@@ -43,6 +43,7 @@ public:
 	void SetPos(Vector2 pos);
 	void SetSize(Vector2 size);
 	void SetColor(Vector4 color);
+	void SetAnchor(Vector2 anchor);
 
 	// getter
 

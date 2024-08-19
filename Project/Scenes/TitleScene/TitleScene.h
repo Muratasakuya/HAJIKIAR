@@ -6,6 +6,9 @@
 // 2D
 #include "GameObject2D.h"
 
+// ImGui
+#include "ImGuiRenderer.h"
+
 // c++
 #include <memory>
 
@@ -31,16 +34,36 @@ private:
 	///			メンバ変数
 	/*-----------------------------*/
 
+	// ImGui
+	ImGuiRenderer imgui_;
+
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
 
 	// 背景画像
-	const std::string bgTextureName_ = "background.jpg";
 	std::unique_ptr<GameObject2D> background_;
+
+	// タイトルロゴ
+	std::unique_ptr<GameObject2D> titleLogo_;
+
+	// スタートの仕方表記文字
+	std::unique_ptr<GameObject2D> startNotation_;
+	// Color
+	float startNotionChangeAlpha_;
+	float startNotionColorAlpha_;
+
+	// クレジット
+	std::unique_ptr<GameObject2D> credit_;
 
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト
 
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
 
+	// スタートの仕方表記文字の色更新
+	void StartNotionUpdate();
 
 };

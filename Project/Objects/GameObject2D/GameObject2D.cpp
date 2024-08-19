@@ -17,7 +17,7 @@ void GameObject2D::SetTexture(const std::string name) {
 	objectName_ = identifier;
 }
 // オブジェクトの名前のセット
-void GameObject2D::SetObjectName(const std::string name){
+void GameObject2D::SetObjectName(const std::string name) {
 	objectName_ = name;
 }
 // 座標のセット
@@ -33,6 +33,12 @@ void GameObject2D::SetSize(Vector2 size) {
 // 色のセット
 void GameObject2D::SetColor(Vector4 color) {
 	color_ = color;
+}
+
+// テクスチャアンカーポイントのセット
+void GameObject2D::SetAnchor(Vector2 anchor) {
+
+	transform2D_.anchorPoint = anchor;
 }
 
 // 中心座標取得 transform_.translate getter
