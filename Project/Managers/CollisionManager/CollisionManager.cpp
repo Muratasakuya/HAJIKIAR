@@ -91,6 +91,85 @@ bool CollisionManager::PassLineCheckCollision(Collider<Vector3>* linePointA, Col
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
+*								ブロックとの衝突判定
+////////////////////////////////////////////////////////////////////////////////*/
+bool CollisionManager::SphereToBlockCheckCollision(Collider<Vector3>* sphere, Collider<Vector3>* block) {
+
+	Vector3 spherePos = sphere->GetCenterPos();
+	Vector3 blockPos = block->GetCenterPos();
+	Vector3 sphereHalfSize = { sphere->GetHalfSize(),sphere->GetHalfSize() ,sphere->GetHalfSize() };
+	Vector3 blockHalfSize = { block->GetHalfSize(),block->GetHalfSize() ,block->GetHalfSize() };
+
+	if (CapsuleCheckCollision(spherePos, { blockPos.x - blockHalfSize.x,blockPos.y - blockHalfSize.y },
+		{ blockPos.x + blockHalfSize.x,blockPos.y - blockHalfSize.y }, sphereHalfSize.x, 0) ||
+		CapsuleCheckCollision(spherePos, { blockPos.x - blockHalfSize.x,blockPos.y + blockHalfSize.y },
+			{ blockPos.x + blockHalfSize.x,blockPos.y + blockHalfSize.y }, sphereHalfSize.x, 0) ||
+		CapsuleCheckCollision(spherePos, { blockPos.x + blockHalfSize.x,blockPos.y + blockHalfSize.y },
+			{ blockPos.x + blockHalfSize.x,blockPos.y - blockHalfSize.y }, sphereHalfSize.x, 0) ||
+		CapsuleCheckCollision(spherePos, { blockPos.x - blockHalfSize.x,blockPos.y + blockHalfSize.y },
+			{ blockPos.x - blockHalfSize.x,blockPos.y - blockHalfSize.y }, sphereHalfSize.x, 0)) {
+
+		return true;
+	}
+	return false;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								   カプセル判定
+////////////////////////////////////////////////////////////////////////////////*/
+bool CollisionManager::CapsuleCheckCollision(const Vector3& pos0, const Vector3& pos1, const Vector3& pos2, float size0, float size1) {
+
+	Vector3 d = pos0 - pos1;
+	Vector3 ab = pos2 - pos1;
+
+	Vector3 e = { MyMath::Normalize(ab.x,MyMath::Length(ab.x,ab.y)),MyMath::Normalize(ab.y,MyMath::Length(ab.x,ab.y)) };
+
+	float t = (d.x * e.x + d.y * e.y) / MyMath::Length(ab.x, ab.y);
+	t = std::clamp(t, 0.0f, 1.0f);
+
+	Vector3 f = { (1.0f - t) * pos1.x + t * pos2.x,(1.0f - t) * pos1.y + t * pos2.y };
+
+	// 距離計算
+	float distance = Vector3::Length({ pos0.x - f.x, pos0.y - f.y });
+
+	// 衝突判定
+	if (distance < size0 + size1) {
+
+		return true;
+	}
+
+	return false;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*						球同士の当たり判定 Zを合わせる
+////////////////////////////////////////////////////////////////////////////////*/
+bool CollisionManager::SphereToSoulSphereCheckCollision(Collider<Vector3>* colliderA, Collider<Vector3>* colliderB) {
+
+	// Z座標
+	float posZ = (colliderA->GetCenterPos().z + colliderB->GetCenterPos().z) / 2.0f;
+
+	// A座標
+	Vector3 posA = { colliderA->GetCenterPos().x,colliderA->GetCenterPos().y,posZ };
+	// B座標
+	Vector3 posB = { colliderB->GetCenterPos().x,colliderB->GetCenterPos().y,posZ };
+
+	// 差分ベクトル
+	Vector3 sub = posB - posA;
+	// 距離
+	float distance = Vector3::Length(sub);
+
+	if (distance <= colliderA->GetHalfSize() + colliderB->GetHalfSize()) {
+
+		// 衝突
+		return true;
+	}
+
+	// 当たっていない
+	return false;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
 *								壁との当たり判定X
 ////////////////////////////////////////////////////////////////////////////////*/
 bool CollisionManager::EdgeCheckCollisionX(Collider<Vector3>* collider, float sizeX) {

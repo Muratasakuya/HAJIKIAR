@@ -36,6 +36,9 @@ private:
 	///			メンバ変数
 	/*-----------------------------*/
 
+	// ImGui
+	ImGuiRenderer imgui_;
+
 	// 衝突判定管理
 	std::unique_ptr<CollisionManager> collisionManager_;
 
@@ -61,6 +64,11 @@ private:
 	// 3Dオブジェクト
 
 	/*----------------------------------------------------------------------*/
+	// PlayerHajiki
+
+	static const uint32_t playerHajikiNum = 2;
+
+	/*----------------------------------------------------------------------*/
 	// LineHajiki
 
 	static const uint32_t lineHajikiNum = 2;
@@ -79,14 +87,17 @@ private:
 	static const uint32_t targetHajikiNum = 2;
 
 	/*----------------------------------------------------------------------*/
-	// Cube
+	// Block
 
-	std::unique_ptr<GameObject3D> cube_;
+	static const uint32_t blockNum = 10;
+	std::array<std::unique_ptr<GameObject3D>, blockNum> blocks_;
 
 	/*----------------------------------------------------------------------*/
 	// Kirai
 
 	std::unique_ptr<GameObject3D> kirai_;
+	// Rotate
+	Vector3 rotate_;
 
 
 	//
@@ -103,6 +114,9 @@ private:
 	/*-----------------------------*/
 	///			private関数
 	/*-----------------------------*/
+
+	// Kirai更新
+	void KiraiUpdate();
 
 	// Line更新
 	void LineUpdate();

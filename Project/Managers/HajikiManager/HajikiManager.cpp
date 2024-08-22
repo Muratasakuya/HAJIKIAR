@@ -7,7 +7,10 @@ HajikiManager::HajikiManager() {
 
 	// 衝突管理
 	// 生成
-	collisionManager_ = std::make_unique<CollisionManager>();
+	for (uint32_t i = 0; i < collisionManagers_.size(); i++) {
+
+		collisionManagers_[i] = std::make_unique<CollisionManager>();
+	}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +66,7 @@ void HajikiManager::AddHajiki(HajikiType type, std::unique_ptr<GameObject3D> obj
 		} else if (type == HajikiType::Line) {
 
 			hajiki.name_ = "HajikiLine";
+			hajiki.object->SetRotate({ initRotateX,std::numbers::pi_v<float>,0.0f });
 		} else if (type == HajikiType::Target) {
 
 			hajiki.name_ = "HajikiTarget";
@@ -71,47 +75,24 @@ void HajikiManager::AddHajiki(HajikiType type, std::unique_ptr<GameObject3D> obj
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
-*									ImGui処理
-////////////////////////////////////////////////////////////////////////////////*/
-void HajikiManager::SetImGui() {
-
-	for (auto& pair : hajikies_) {
-		auto& hajikiList = pair.second;
-		for (auto& hajiki : hajikiList) {
-
-			if (hajiki.object) {
-
-				imgui_.Set(hajiki.object.get());
-			}
-		}
-	}
-}
-void HajikiManager::ImGui() {
-
-	imgui_.Render();
-}
-
-/*////////////////////////////////////////////////////////////////////////////////
 *									衝突更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::CollisionUpdate() {
 
+	// 虚の衝突判定
+	CheckBlockToHajikiCollision();
+
 	// コライダーリセット
-	collisionManager_->Reset();
+	collisionManagers_[Reality]->Reset();
 
 	// コライダー追加
-	for (auto& pair : hajikies_) {
-		auto& hajikiList = pair.second;
-		for (auto& hajiki : hajikiList) {
-			if (hajiki.object) {
-
-				collisionManager_->AddCollider(hajiki.object.get());
-			}
-		}
-	}
+	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Player][Reality].object.get());
+	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Line][0].object.get());
+	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Line][1].object.get());
+	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Target][Reality].object.get());
 
 	// 全てのオブジェクトの衝突判定
-	collisionManager_->CheckAllCollisions();
+	collisionManagers_[Reality]->CheckAllCollisions();
 
 	// 衝突したペアを記録するためのセット
 	std::set<std::pair<HajikiData*, HajikiData*>> collidedPairsSet;
@@ -184,69 +165,68 @@ void HajikiManager::MouseMove(HajikiType type) {
 		moveCount_ = 1;
 	}
 
-	auto& hajikies = hajikies_[type];
+	hajikies_[type][Reality].mouseMove_ = true;
 
-	for (auto& hajiki : hajikies) {
+	// Count1
+	if (moveCount_ == 1) {
+		// 左クリックを離したとき
+		if (!NewMoon::PushMouseLeft()) {
 
-		hajiki.mouseMove_ = true;
+			// Hajikiに足す速度の設定
+			hajikies_[type][Reality].physics.velocity = (mousePressPos_ - mousePos_) * 2.0f;
 
-		// Count1
-		if (moveCount_ == 1) {
-			// 左クリックを離したとき
-			if (!NewMoon::PushMouseLeft()) {
+			// 速度ベクトルの大きさを計算
+			float velocityLength = Vector2::Length(hajikies_[type][Reality].physics.velocity);
 
-				// Hajikiに足す速度の設定
-				hajiki.physics.velocity = (mousePressPos_ - mousePos_) * 2.0f;
+			// 最低限の速度の値を超えていれば
+			if (Vector2::fabs(hajikies_[type][Reality].physics.velocity) > minVelocity_) {
+				if (velocityLength > maxVelocity_.x) {
 
-				// 速度ベクトルの大きさを計算
-				float velocityLength = Vector2::Length(hajiki.physics.velocity);
-
-				// 最低限の速度の値を超えていれば
-				if (Vector2::fabs(hajiki.physics.velocity) > minVelocity_) {
-					if (velocityLength > maxVelocity_.x) {
-
-						// 速度ベクトルを正規化して最大速度を適応
-						hajiki.physics.velocity = Vector2::Normalize(hajiki.physics.velocity) * maxVelocity_;
-						hajiki.physics.velocity.y *= -1.0f;
-					}
-
-					// カウントを進める
-					moveCount_ = 2;
-				} else {
-
-					// 最低限の速度の値を超えていなければ動かない
-					// カウントを0に戻す
-					moveCount_ = 0;
+					// 速度ベクトルを正規化して最大速度を適応
+					hajikies_[type][Reality].physics.velocity = Vector2::Normalize(hajikies_[type][Reality].physics.velocity) * maxVelocity_;
+					hajikies_[type][Reality].physics.velocity.y *= -1.0f;
 				}
-			}
-		}
 
-		// Count2
-		if (moveCount_ == 2) {
+				// カウントを進める
+				moveCount_ = 2;
+			} else {
 
-			// 摩擦計算
-			hajiki.friction.magnitude_ = hajiki.friction.miu_ * std::sqrtf(-hajiki.physics.mass * hajiki.friction.kGravity_.y);
-			hajiki.friction.dirction_ = Vector2::Normalize(hajiki.physics.velocity);
-			hajiki.friction.frictionalForce_ =
-			{ hajiki.friction.magnitude_ * -hajiki.friction.dirction_.x,hajiki.friction.magnitude_ * -hajiki.friction.dirction_.y };
-
-			// 加速度計算
-			hajiki.physics.acceleration =
-			{ hajiki.friction.frictionalForce_.x / hajiki.physics.mass,hajiki.friction.frictionalForce_.y / hajiki.physics.mass };
-
-			// 速度計算
-			hajiki.physics.velocity += hajiki.physics.acceleration / 60.0f;
-
-			// 座標に速度を足す
-			hajiki.pos += hajiki.physics.velocity / 60.0f;
-			hajiki.object->SetTranslate({ hajiki.pos.x,hajiki.pos.y,hajiki.object->GetCenterPos().z });
-
-			// 下限に行けば止まる
-			if (Vector2::fabs({ hajiki.physics.velocity.x, hajiki.physics.velocity.y }) < minVelocity_) {
-
-				hajiki.physics.velocity = { 0.0f,0.0f };
+				// 最低限の速度の値を超えていなければ動かない
+				// カウントを0に戻す
 				moveCount_ = 0;
 			}
+		}
+	}
+
+	// Count2
+	if (moveCount_ == 2) {
+
+		// 摩擦計算
+		hajikies_[type][Reality].friction.magnitude_ =
+			hajikies_[type][Reality].friction.miu_ * std::sqrtf(-hajikies_[type][Reality].physics.mass * hajikies_[type][Reality].friction.kGravity_.y);
+		hajikies_[type][Reality].friction.dirction_ = Vector2::Normalize(hajikies_[type][Reality].physics.velocity);
+		hajikies_[type][Reality].friction.frictionalForce_ =
+		{ hajikies_[type][Reality].friction.magnitude_ * -hajikies_[type][Reality].friction.dirction_.x,hajikies_[type][Reality].friction.magnitude_ * -hajikies_[type][Reality].friction.dirction_.y };
+
+		// 加速度計算
+		hajikies_[type][Reality].physics.acceleration =
+		{ hajikies_[type][Reality].friction.frictionalForce_.x / hajikies_[type][Reality].physics.mass,hajikies_[type][Reality].friction.frictionalForce_.y / hajikies_[type][Reality].physics.mass };
+
+		// 速度計算
+		hajikies_[type][Reality].physics.velocity += hajikies_[type][Reality].physics.acceleration / 60.0f;
+
+		// 座標に速度を足す
+		hajikies_[type][Reality].pos += hajikies_[type][Reality].physics.velocity / 60.0f;
+		hajikies_[type][Reality].object->SetTranslate({ hajikies_[type][Reality].pos.x,hajikies_[type][Reality].pos.y,hajikies_[type][Reality].object->GetCenterPos().z });
+
+		// 下限に行けば止まる
+		if (Vector2::fabs({ hajikies_[type][Reality].physics.velocity.x, hajikies_[type][Reality].physics.velocity.y }) < minVelocity_) {
+
+			hajikies_[type][Reality].physics.velocity = { 0.0f,0.0f };
+			moveCount_ = 0;
+
+			// 強化状態解除
+			hajikies_[type][Reality].isPower_ = false;
 		}
 	}
 }
@@ -256,8 +236,30 @@ void HajikiManager::MouseMove(HajikiType type) {
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::Update() {
 
+	// 魂が離れているときのPlayerの更新
+	LeaveSoulPlayerUpdate();
+
+	// LineHajikiの更新処理
+	LineHajikiUpdate();
+
+	// TargetHajiki1の座標
+	Vector2 targetHajikiPos =
+	{ hajikies_[HajikiType::Target][Reality].object->GetCenterPos().x,hajikies_[HajikiType::Target][Reality].object->GetCenterPos().y };
+
 	// TargetHajiki2のXY座標をTargetHajiki1と合わせる
-	
+	hajikies_[HajikiType::Target][Imaginary].object->SetTranslate(
+		{ targetHajikiPos.x,targetHajikiPos.y,hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().z });
+
+	if (!hajikies_[HajikiType::Player][Imaginary].isLeave) {
+
+		// PlayerHajiki1の座標
+		Vector2 playerHajikiPos =
+		{ hajikies_[HajikiType::Player][Reality].object->GetCenterPos().x,hajikies_[HajikiType::Player][Reality].object->GetCenterPos().y };
+
+		// PlayerHajiki2のXY座標をPlayerHajiki1と合わせる
+		hajikies_[HajikiType::Player][Imaginary].object->SetTranslate(
+			{ playerHajikiPos.x,playerHajikiPos.y,hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z });
+	}
 
 }
 
@@ -292,6 +294,34 @@ HajikiData& HajikiManager::GetHajiki(HajikiType type, size_t index) {
 size_t HajikiManager::GetHajikiCount(HajikiType type) const {
 
 	return hajikies_.at(type).size();
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*							衝突相手のブロックのセット
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::SetBlocks(GameObject3D* block) {
+
+	blocks_.push_back(block);
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*						LineHajikiの回転角の更新処理
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::LineHajikiUpdate() {
+
+	// 初期回転角
+	float initRotateX = std::numbers::pi_v<float> / 2.0f;
+
+	// 差分ベクトル
+	Vector3 directionToA = hajikies_[HajikiType::Line][1].object->GetCenterPos() - hajikies_[HajikiType::Line][0].object->GetCenterPos();
+	Vector3 directionToB = hajikies_[HajikiType::Line][0].object->GetCenterPos() - hajikies_[HajikiType::Line][1].object->GetCenterPos();
+
+	// Z回転角の計算
+	float zRotateA = std::atan2(directionToA.y, directionToA.x);
+	float zRotateB = std::atan2(directionToB.y, directionToB.x);
+
+	hajikies_[HajikiType::Line][0].object->SetRotate({ initRotateX ,std::numbers::pi_v<float>,zRotateA });
+	hajikies_[HajikiType::Line][1].object->SetRotate({ initRotateX ,std::numbers::pi_v<float>,zRotateB });
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -375,11 +405,11 @@ void HajikiManager::WallCollision(HajikiData& hajiki) {
 	const Vector2 edgeSize = { 0.361f, 0.204f };
 
 	// 壁との衝突判定
-	if (collisionManager_->EdgeCheckCollisionX(hajiki.object.get(), edgeSize.x)) {
+	if (collisionManagers_[Reality]->EdgeCheckCollisionX(hajiki.object.get(), edgeSize.x)) {
 
 		hajiki.physics.velocity.x = hajiki.physics.velocity.x * -1.0f;
 	}
-	if (collisionManager_->EdgeCheckCollisionY(hajiki.object.get(), edgeSize.y)) {
+	if (collisionManagers_[Reality]->EdgeCheckCollisionY(hajiki.object.get(), edgeSize.y)) {
 
 		hajiki.physics.velocity.y = hajiki.physics.velocity.y * -1.0f;
 	}
@@ -390,24 +420,85 @@ void HajikiManager::WallCollision(HajikiData& hajiki) {
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::CheckPassLineCollision() {
 
-	if (collisionManager_->PassLineCheckCollision(
+	if (collisionManagers_[Reality]->PassLineCheckCollision(
 		hajikies_[HajikiType::Line][0].object.get(), hajikies_[HajikiType::Line][1].object.get(),
-		hajikies_[HajikiType::Player][0].object.get())) {
+		hajikies_[HajikiType::Player][Reality].object.get())) {
 
-		hajikies_[HajikiType::Player][0].object->SetIsPass(true);
+		hajikies_[HajikiType::Player][Reality].object->SetIsPass(true);
 	} else {
 
-		hajikies_[HajikiType::Player][0].object->SetIsPass(false);
+		hajikies_[HajikiType::Player][Reality].object->SetIsPass(false);
 	}
 
-	// 通っている時に色を変える
-	if (hajikies_[HajikiType::Player][0].object->GetIsPass()) {
+	// 間を通過したとき
+	if (hajikies_[HajikiType::Player][Reality].object->GetIsPass()) {
 
-		// 赤
-		hajikies_[HajikiType::Player][0].object->SetColor({ 1.0f, 0.0f, 0.0f, 1.0f });
-	} else {
+		// 強化する、Imaginaryが離れない、拾える
+		hajikies_[HajikiType::Player][Reality].isPower_ = true;
+	}
+}
 
-		// 黒
-		hajikies_[HajikiType::Player][0].object->SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+/*////////////////////////////////////////////////////////////////////////////////
+*								 ブロックとの衝突処理
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::CheckBlockToHajikiCollision() {
+
+	for (const auto& block : blocks_) {
+		if (!hajikies_[HajikiType::Player][Imaginary].isLeave) {
+			// 衝突したらその場に止める
+			if (collisionManagers_[Imaginary]->SphereToBlockCheckCollision(
+				hajikies_[HajikiType::Player][Imaginary].object.get(), block)) {
+
+				// 強化が入っていなければ
+				if (!hajikies_[HajikiType::Player][Reality].isPower_) {
+
+					// 魂が離れる
+					hajikies_[HajikiType::Player][Imaginary].isLeave = true;
+
+					Vector2 imaginaryPlayerPos =
+					{ hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().x,
+						hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().y };
+
+					hajikies_[HajikiType::Player][Imaginary].prePos = imaginaryPlayerPos;
+				} else {
+
+					// 入っているときは...?
+				}
+			}
+		}
+	}
+
+	// 魂が離れているとき
+	if (hajikies_[HajikiType::Player][Imaginary].isLeave) {
+
+		// 座標はその場に留まる
+		hajikies_[HajikiType::Player][Imaginary].object->SetTranslate(
+			{ hajikies_[HajikiType::Player][Imaginary].prePos.x,hajikies_[HajikiType::Player][Imaginary].prePos.y,
+			hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z });
+
+		// 完全に離れた時
+		if (!collisionManagers_[Imaginary]->SphereToSoulSphereCheckCollision(
+			hajikies_[HajikiType::Player][Reality].object.get(), hajikies_[HajikiType::Player][Imaginary].object.get())) {
+
+			isLeaveWaitPlayerSoul_ = true;
+		}
+	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*							  魂が離れているときのPlayerの更新
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::LeaveSoulPlayerUpdate() {
+
+	// 魂が離れているとき
+	if (isLeaveWaitPlayerSoul_) {
+		// 衝突すれば
+		if (collisionManagers_[Imaginary]->SphereToSoulSphereCheckCollision(
+			hajikies_[HajikiType::Player][Reality].object.get(), hajikies_[HajikiType::Player][Imaginary].object.get())) {
+
+			// 魂がまたついていくようになる
+			hajikies_[HajikiType::Player][Imaginary].isLeave = false;
+			isLeaveWaitPlayerSoul_ = false;
+		}
 	}
 }

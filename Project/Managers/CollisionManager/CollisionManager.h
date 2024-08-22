@@ -4,6 +4,7 @@
 #include "Collider.h"
 
 // c++
+#include <vector>
 #include <algorithm>
 #include <list>
 #include <utility>
@@ -28,22 +29,9 @@ public:
 
 	void CheckAllCollisions();
 
-	bool PassLineCheckCollision(Collider<Vector3>* linePointA, Collider<Vector3>* linePointB, Collider<Vector3>* collider);
+	// 凡庸
 	bool EdgeCheckCollisionX(Collider<Vector3>* collider, float sizeX);
 	bool EdgeCheckCollisionY(Collider<Vector3>* collider, float sizeY);
-
-private:
-	/*-----------------------------*/
-	///			メンバ変数
-	/*-----------------------------*/
-
-	using ColliderVariant = std::variant<Collider<Vector2>*, Collider<Vector3>*>;
-	std::list<std::pair<ColliderVariant, ColliderType>> colliders_;
-
-private:
-	/*-----------------------------*/
-	///			private関数
-	/*-----------------------------*/
 
 	// 3D
 	bool SphereToSphereCheckCollision(Collider<Vector3>* colliderA, Collider<Vector3>* colliderB);
@@ -52,6 +40,20 @@ private:
 	// 2D
 	bool CircleToCircleCheckCollision(Collider<Vector2>* colliderA, Collider<Vector2>* colliderB);
 	bool QuadToQuadCheckCollision(Collider<Vector2>* colliderA, Collider<Vector2>* colliderB);
+
+	// HAJIKI
+	bool PassLineCheckCollision(Collider<Vector3>* linePointA, Collider<Vector3>* linePointB, Collider<Vector3>* collider);
+	bool SphereToBlockCheckCollision(Collider<Vector3>* sphere, Collider<Vector3>* block);
+	bool CapsuleCheckCollision(const Vector3& pos0, const Vector3& pos1, const Vector3& pos2, float size0, float size1);
+	bool SphereToSoulSphereCheckCollision(Collider<Vector3>* colliderA, Collider<Vector3>* colliderB);
+
+private:
+	/*-----------------------------*/
+	///			メンバ変数
+	/*-----------------------------*/
+
+	using ColliderVariant = std::variant<Collider<Vector2>*, Collider<Vector3>*>;
+	std::list<std::pair<ColliderVariant, ColliderType>> colliders_;
 
 };
 

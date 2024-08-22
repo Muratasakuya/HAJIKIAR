@@ -28,22 +28,32 @@ void SoloGame::Initialize() {
 	NewMoon::LoadTexture("./Resources/Images/" + whiteTexName);
 
 	// lineHajiki
-	const std::string lineHajikiModelName[lineHajikiNum] = { "hajiki.gltf" ,"hajiki2.gltf" };
+	const std::string lineHajikiModelName[lineHajikiNum] = { "lineHajiki.gltf" ,"lineHajiki2.gltf" };
 	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName[0]);
 	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName[1]);
 	// line
 	const std::string lineModelName = "line.gltf";
 	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineModelName);
 	// mainHajiki
-	const std::string mainHajikiModelName = "mainHajiki.gltf";
+	const std::string playerHajikiModelName[playerHajikiNum] = { "mainHajiki0.gltf","mainHajiki1.gltf" };
 	const std::string targetHajikiModelName[targetHajikiNum] = { "mainHajiki2.gltf","mainHajiki3.gltf" };
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", mainHajikiModelName);
+	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", playerHajikiModelName[0]);
+	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", playerHajikiModelName[1]);
 	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", targetHajikiModelName[0]);
 	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", targetHajikiModelName[1]);
 
 	// Cube
-	const std::string cubeModelName = "cube.gltf";
-	NewMoon::LoadGltfModel("./Resources/Gltf/Objects/", cubeModelName);
+	std::string cubeModelName[blockNum];
+	cubeModelName[0] = "cube.gltf";
+	for (int i = 1; i < blockNum; ++i) {
+		std::ostringstream oss;
+		oss << "cube" << i + 1 << ".gltf";
+		cubeModelName[i] = oss.str();
+	}
+	for (uint32_t i = 0; i < blockNum; i++) {
+
+		NewMoon::LoadGltfModel("./Resources/Gltf/Objects/", cubeModelName[i]);
+	}
 
 	// Kirai
 	const std::string kiraiModelName = "kirai.gltf";
@@ -56,19 +66,29 @@ void SoloGame::Initialize() {
 	// PlayerHajiki
 
 	// 初期座標
-	const Vector3 playerHajikiInitPos = { 0.0f,0.0f,1.0f };
+	const Vector3 playerHajikiInitPos[playerHajikiNum] = {
+		Vector3(0.0f,0.0f,1.0f),
+		Vector3(0.0f,0.0f,1.5f)
+	};
+	// 色
+	const Vector4 playerHajikiColor = { 0.0f,0.0f ,0.0f ,1.0f };
 
-	auto playerHajiki = std::make_unique<GameObject3D>(GameObjectType::Model);
+	// 2 //
+	for (uint32_t i = 0; i < playerHajikiNum; i++) {
 
-	// 初期化
-	playerHajiki->Initialize();
-	playerHajiki->SetTranslate(playerHajikiInitPos);
-	playerHajiki->SetObjectName("playerHajiki");
-	// 使用するテクスチャとモデル
-	playerHajiki->SetTexture(whiteTexName);
-	playerHajiki->SetModel(mainHajikiModelName);
+		auto playerHajiki = std::make_unique<GameObject3D>(GameObjectType::Model);
 
-	hajikiManager_->AddHajiki(HajikiType::Player, std::move(playerHajiki));
+		// 初期化
+		playerHajiki->Initialize();
+		playerHajiki->SetTranslate(playerHajikiInitPos[i]);
+		playerHajiki->SetColor(playerHajikiColor);
+		playerHajiki->SetObjectName("playerHajiki");
+		// 使用するテクスチャとモデル
+		playerHajiki->SetTexture(whiteTexName);
+		playerHajiki->SetModel(playerHajikiModelName[i]);
+
+		hajikiManager_->AddHajiki(HajikiType::Player, std::move(playerHajiki));
+	}
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// LineHajiki
@@ -107,7 +127,7 @@ void SoloGame::Initialize() {
 	//　TargetHajikiの初期座標
 	const Vector3 targetHajikiInitPos[targetHajikiNum] = {
 	Vector3(0.1f,0.0f,1.0f),
-	Vector3(0.1f,0.0f,2.0f)
+	Vector3(0.1f,0.0f,1.5f)
 	};
 	// 色
 	const Vector4 targetHajikiColor = { 0.16f,0.16f ,0.16f ,1.0f };
@@ -153,26 +173,51 @@ void SoloGame::Initialize() {
 	line_->SetModel(lineModelName);
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
-	// Cube
+	// Block
 
-	cube_ = std::make_unique<GameObject3D>(GameObjectType::Model);
+	// 初期座標
+	const Vector3 blockInitPos = { -0.044f,0.136f,1.5f };
+	// 色
+	const Vector4 blockColor = { 0.0f,0.0f,0.0f,1.0f };
+	// ブロックモデルのハーフサイズ
+	const float kBlockHalfSize = 0.02f;
 
-	// 初期化
-	cube_->Initialize();
-	cube_->SetObjectName("cube");
-	cube_->SetTexture(whiteTexName);
-	cube_->SetModel(cubeModelName);
+	for (uint32_t i = 0; i < blockNum; i++) {
+
+		blocks_[i] = std::make_unique<GameObject3D>(GameObjectType::Model);
+
+		// 初期化
+		blocks_[i]->Initialize();
+		blocks_[i]->SetTranslate(blockInitPos);
+		blocks_[i]->SetColor(blockColor);
+		blocks_[i]->SetHalfSize(kBlockHalfSize);
+		// 使用するテクスチャとモデル
+		blocks_[i]->SetObjectName("block");
+		blocks_[i]->SetTexture(whiteTexName);
+		blocks_[i]->SetModel(cubeModelName[i]);
+	}
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// Kirai
+
+	// 初期座標
+	const Vector3 kiraiInitPos = { 0.043f,0.09f,1.5f };
+	// 色
+	const Vector4 kiraiColor = { 0.0f,0.0f,0.0f,1.0f };
 
 	kirai_ = std::make_unique<GameObject3D>(GameObjectType::Model);
 
 	// 初期化
 	kirai_->Initialize();
+	kirai_->SetTranslate(kiraiInitPos);
+	kirai_->SetColor(kiraiColor);
 	kirai_->SetObjectName("kirai");
 	kirai_->SetTexture(whiteTexName);
 	kirai_->SetModel(kiraiModelName);
+
+	// 回転
+	rotate_.Initialize();
+	rotate_.x = std::numbers::pi_v<float> / 6.0f;
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// Area
@@ -184,9 +229,31 @@ void SoloGame::Initialize() {
 	area_->SetObjectName("area");
 	area_->SetTexture(whiteTexName);
 
+	/*-------------------------------------------------------------------------------------------------------------------*/
+	// HajikiManagerにオブジェクトのセット
 
+	// Block
+	for (const auto& block : blocks_) {
+
+		hajikiManager_->SetBlocks(block.get());
+	}
+
+	/*-------------------------------------------------------------------------------------------------------------------*/
 	// ImGuiセット
-	hajikiManager_->SetImGui();
+	imgui_.Set(hajikiManager_->GetHajiki(HajikiType::Player, 0).object.get());
+	// 2つ
+	for (uint32_t i = 0; i < 2; i++) {
+		imgui_.Set(hajikiManager_->GetHajiki(HajikiType::Line, i).object.get());
+		imgui_.Set(hajikiManager_->GetHajiki(HajikiType::Target, i).object.get());
+	}
+
+	for (const auto& block : blocks_) {
+
+		imgui_.Set(block.get());
+	}
+	imgui_.Set(kirai_.get());
+	imgui_.Set(area_.get());
+
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -201,18 +268,22 @@ void SoloGame::Update() {
 	ImGui::Text("SoloMode");
 	ImGui::End();
 
-	hajikiManager_->ImGui();
+	imgui_.Render();
 
 	/*======================================================*/
 	// 3Dオブジェクト
 
 	// マウス移動
 	hajikiManager_->MouseMove(HajikiType::Player);
+	// 更新
+	hajikiManager_->Update();
+
+	// Kirai更新
+	KiraiUpdate();
 
 	// Line更新
 	LineUpdate();
 
-	/*======================================================*/
 	// エリア更新
 	UpdateArea();
 
@@ -241,8 +312,11 @@ void SoloGame::Draw() {
 	// Line
 	line_->Draw();
 
-	// Cube
-	cube_->Draw();
+	// Block
+	for (const auto& block : blocks_) {
+
+		block->Draw();
+	}
 
 	// Kirai
 	kirai_->Draw();
@@ -251,6 +325,17 @@ void SoloGame::Draw() {
 	// エリアの描画
 
 	DrawArea();
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								  Kirai更新処理
+////////////////////////////////////////////////////////////////////////////////*/
+void SoloGame::KiraiUpdate() {
+
+	// Y軸回転
+	rotate_.y += std::numbers::pi_v<float> / 45.0f;
+
+	kirai_->SetRotate({ kirai_->GetRotate().x,rotate_.y,kirai_->GetRotate().z });
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -349,10 +434,6 @@ void SoloGame::UpdateArea() {
 
 	// 重心を求める
 	Vector3 CenterPos = (posA + posB + posC) / 3.0f;
-
-	ImGui::Begin("area");
-	ImGui::DragFloat("areaZ", &kAreaTranslateZ, 0.001f);
-	ImGui::End();
 
 	// エリアに座標をセット
 	area_->SetTriangleVertices(areaTriangleVertices);
