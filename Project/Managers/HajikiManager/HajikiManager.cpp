@@ -113,19 +113,33 @@ void HajikiManager::CollisionUpdate() {
 	// 全てのオブジェクトの衝突判定
 	collisionManager_->CheckAllCollisions();
 
-	// 衝突したオブジェクトを見つける
-	std::vector<std::pair<HajikiData*, HajikiData*>> collidedPairs;
+	// 衝突したペアを記録するためのセット
+	std::set<std::pair<HajikiData*, HajikiData*>> collidedPairsSet;
 
 	for (auto& pair : hajikies_) {
 		auto& hajikiList = pair.second;
 		for (auto& hajiki : hajikiList) {
+			// 衝突していたら
 			if (hajiki.object->GetIsHit()) {
-				// 衝突相手を特定
 				for (auto& otherPair : hajikies_) {
 					auto& otherHajikiList = otherPair.second;
 					for (auto& otherHajiki : otherHajikiList) {
 						if (hajiki.object != otherHajiki.object && otherHajiki.object->GetIsHit()) {
-							collidedPairs.push_back({ &hajiki, &otherHajiki });
+
+							// ペアを保存
+							auto pair1 = std::make_pair(&hajiki, &otherHajiki);
+							auto pair2 = std::make_pair(&otherHajiki, &hajiki);
+
+							// 既に反射処理されたペアか確認
+							if (collidedPairsSet.find(pair1) == collidedPairsSet.end() &&
+								collidedPairsSet.find(pair2) == collidedPairsSet.end()) {
+
+								// 新しいペアをセットに追加
+								collidedPairsSet.insert(pair1);
+
+								// 衝突したペアの反射速度を計算
+								ReflectVelocity(*pair1.first, *pair1.second);
+							}
 						}
 					}
 				}
@@ -133,121 +147,19 @@ void HajikiManager::CollisionUpdate() {
 		}
 	}
 
-	// 衝突したペアの反射速度を計算
-	for (auto& collidedPair : collidedPairs) {
-
-		auto& hajiki1 = *collidedPair.first;
-		auto& hajiki2 = *collidedPair.second;
-
-		// 速度の取得
-		Vector2 velocity1 = hajiki1.physics.velocity;
-		Vector2 velocity2 = hajiki2.physics.velocity;
-
-		// 位置の取得
-		Vector2 pos1 = { hajiki1.object->GetCenterPos().x,hajiki1.object->GetCenterPos().y };
-		Vector2 pos2 = { hajiki2.object->GetCenterPos().x,hajiki2.object->GetCenterPos().y };
-
-		// 角度計算
-		float angle1 = std::atan2(pos2.y - pos1.y, pos2.x - pos1.x);
-		float angle2 = std::atan2(pos1.y - pos2.y, pos1.x - pos2.x);
-
-		// 反射速度の計算
-		float speed1 = Vector2::Length({ velocity1.x * 0.9f + velocity2.x * 0.6f, velocity1.y * 0.9f + velocity2.y * 0.6f });
-		float speed2 = Vector2::Length({ velocity2.x * 0.9f + velocity1.x * 0.6f, velocity2.y * 0.9f + velocity1.y * 0.6f });
-
-		hajiki1.physics.velocity = { -speed1 * std::cosf(angle1), -speed1 * std::sinf(angle1) };
-		hajiki2.physics.velocity = { -speed2 * std::cosf(angle2), -speed2 * std::sinf(angle2) };
-
-		hajiki1.object->SetIsHit(false);
-		hajiki2.object->SetIsHit(false);
-	}
-
 	for (auto& pair : hajikies_) {
 		auto& hajikiList = pair.second;
 		for (auto& hajiki : hajikiList) {
-			/*-------------------------------------------------------------------------------------------------------------------*/
-			// Hajikiが壁に衝突したとき
 
-			// 壁の端
-			const Vector2 edgeSize = { 0.361f,0.204f };
-
-			// 壁との衝突判定 全てのオブジェクトが行う
-			if (collisionManager_->EdgeCheckCollisionX(hajiki.object.get(), edgeSize.x)) {
-
-				// 反射処理
-				hajiki.physics.velocity.x = hajiki.physics.velocity.x * -1.0f;
-			}
-			if (collisionManager_->EdgeCheckCollisionY(hajiki.object.get(), edgeSize.y)) {
-
-				// 反射処理
-				hajiki.physics.velocity.y = hajiki.physics.velocity.y * -1.0f;
-			}
-
-			/*-------------------------------------------------------------------------------------------------------------------*/
-			// 速度適応
-
-			// 少しでも動いていたら
-			if (Vector2::fabs(hajiki.physics.velocity) != Vector2(0.0f, 0.0f)) {
-
-				hajiki.moveCount = 1;
-			}
-
-			// 動いているときのみ
-			if (hajiki.moveCount == 1) {
-
-				// 摩擦計算
-				hajiki.friction.dirction_ = Vector2::Normalize(hajiki.physics.velocity);
-
-				hajiki.friction.frictionalForce_ =
-				{ hajiki.friction.magnitude_ * -hajiki.friction.dirction_.x,hajiki.friction.magnitude_ * -hajiki.friction.dirction_.y };
-
-				// 加速度計算
-				hajiki.physics.acceleration =
-				{ hajiki.friction.frictionalForce_.x / hajiki.physics.mass,hajiki.friction.frictionalForce_.y / hajiki.physics.mass };
-
-				// 速度計算
-				hajiki.physics.velocity += hajiki.physics.acceleration / 60.0f;
-
-				if (!hajiki.mouseMove_) {
-
-					hajiki.pos += hajiki.physics.velocity;
-					hajiki.object->SetTranslate({ hajiki.pos.x,hajiki.pos.y,hajiki.object->GetCenterPos().z });
-				}
-
-				// 下限に行けば止まる
-				if (Vector2::fabs({ hajiki.physics.velocity.x, hajiki.physics.velocity.y }) < minVelocity_) {
-
-					hajiki.physics.velocity = { 0.0f,0.0f };
-					hajiki.moveCount = 0;
-				}
-			}
+			// 壁との衝突判定
+			HandleWallCollision(hajiki);
+			// 速度の適応
+			ApplyVelocityAndFriction(hajiki);
 		}
 	}
 
-	/*-------------------------------------------------------------------------------------------------------------------*/
 	// PlayerHajikiが間を通ったかの判定
-
-	if (collisionManager_->PassLineCheckCollision(
-		hajikies_[HajikiType::Line][0].object.get(), hajikies_[HajikiType::Line][1].object.get(),
-		hajikies_[HajikiType::Player][0].object.get())) {
-
-		hajikies_[HajikiType::Player][0].object->SetIsPass(true);
-	} else {
-
-		hajikies_[HajikiType::Player][0].object->SetIsPass(false);
-	}
-
-	// 通っているときの処理
-	// とりあえず色を変える
-	if (hajikies_[HajikiType::Player][0].object->GetIsPass()) {
-
-		// 赤
-		hajikies_[HajikiType::Player][0].object->SetColor({ 1.0f,0.0f,0.0f,1.0f });
-	} else {
-
-		// 黒
-		hajikies_[HajikiType::Player][0].object->SetColor({ 0.0f,0.0f,0.0f,1.0f });
-	}
+	CheckPassLineCollision();
 
 }
 
@@ -370,4 +282,105 @@ HajikiData& HajikiManager::GetHajiki(HajikiType type, size_t index) {
 size_t HajikiManager::GetHajikiCount(HajikiType type) const {
 
 	return hajikies_.at(type).size();
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								反射速度の計算
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::ReflectVelocity(HajikiData& hajiki1, HajikiData& hajiki2) {
+
+	// 速度の取得
+	Vector2 velocity1 = hajiki1.physics.velocity;
+	Vector2 velocity2 = hajiki2.physics.velocity;
+
+	// 位置の取得
+	Vector2 pos1 = { hajiki1.object->GetCenterPos().x, hajiki1.object->GetCenterPos().y };
+	Vector2 pos2 = { hajiki2.object->GetCenterPos().x, hajiki2.object->GetCenterPos().y };
+
+	// 角度計算
+	float angle1 = std::atan2(pos2.y - pos1.y, pos2.x - pos1.x);
+	float angle2 = std::atan2(pos1.y - pos2.y, pos1.x - pos2.x);
+
+	// 反射速度の計算
+	float speed1 = Vector2::Length({ velocity1.x * 0.9f + velocity2.x * 0.6f, velocity1.y * 0.9f + velocity2.y * 0.6f });
+	float speed2 = Vector2::Length({ velocity2.x * 0.9f + velocity1.x * 0.6f, velocity2.y * 0.9f + velocity1.y * 0.6f });
+
+	hajiki1.physics.velocity = { -speed1 * std::cosf(angle1), -speed1 * std::sinf(angle1) };
+	hajiki2.physics.velocity = { -speed2 * std::cosf(angle2), -speed2 * std::sinf(angle2) };
+
+	hajiki1.object->SetIsHit(false);
+	hajiki2.object->SetIsHit(false);
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								 速度の適応
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::ApplyVelocityAndFriction(HajikiData& hajiki) {
+
+	if (Vector2::fabs(hajiki.physics.velocity) != Vector2(0.0f, 0.0f)) {
+		hajiki.moveCount = 1;
+	}
+
+	if (hajiki.moveCount == 1) {
+		hajiki.friction.dirction_ = Vector2::Normalize(hajiki.physics.velocity);
+		hajiki.friction.frictionalForce_ = {
+			hajiki.friction.magnitude_ * -hajiki.friction.dirction_.x,
+			hajiki.friction.magnitude_ * -hajiki.friction.dirction_.y
+		};
+
+		hajiki.physics.acceleration = {
+			hajiki.friction.frictionalForce_.x / hajiki.physics.mass,
+			hajiki.friction.frictionalForce_.y / hajiki.physics.mass
+		};
+
+		hajiki.physics.velocity += hajiki.physics.acceleration / 60.0f;
+
+		if (!hajiki.mouseMove_) {
+			hajiki.pos += hajiki.physics.velocity / 60.0f;
+			hajiki.object->SetTranslate({ hajiki.pos.x, hajiki.pos.y, hajiki.object->GetCenterPos().z });
+		}
+
+		if (Vector2::fabs({ hajiki.physics.velocity.x, hajiki.physics.velocity.y }) < minVelocity_) {
+			hajiki.physics.velocity = { 0.0f, 0.0f };
+			hajiki.moveCount = 0;
+		}
+	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								壁との衝突判定
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::HandleWallCollision(HajikiData& hajiki) {
+
+	// 壁の端
+	const Vector2 edgeSize = { 0.361f, 0.204f };
+
+	// 壁との衝突判定
+	if (collisionManager_->EdgeCheckCollisionX(hajiki.object.get(), edgeSize.x)) {
+		hajiki.physics.velocity.x = hajiki.physics.velocity.x * -1.0f;
+	}
+	if (collisionManager_->EdgeCheckCollisionY(hajiki.object.get(), edgeSize.y)) {
+		hajiki.physics.velocity.y = hajiki.physics.velocity.y * -1.0f;
+	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								間を通ったかのチェック
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::CheckPassLineCollision() {
+
+	if (collisionManager_->PassLineCheckCollision(
+		hajikies_[HajikiType::Line][0].object.get(), hajikies_[HajikiType::Line][1].object.get(),
+		hajikies_[HajikiType::Player][0].object.get())) {
+
+		hajikies_[HajikiType::Player][0].object->SetIsPass(true);
+	} else {
+		hajikies_[HajikiType::Player][0].object->SetIsPass(false);
+	}
+
+	if (hajikies_[HajikiType::Player][0].object->GetIsPass()) {
+		hajikies_[HajikiType::Player][0].object->SetColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+	} else {
+		hajikies_[HajikiType::Player][0].object->SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	}
 }

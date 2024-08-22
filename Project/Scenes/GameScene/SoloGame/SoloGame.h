@@ -74,7 +74,7 @@ private:
 	float lineColorAlpha_;
 
 	/*----------------------------------------------------------------------*/
-	// TargetHajiki+
+	// TargetHajiki
 
 	static const uint32_t targetHajikiNum = 2;
 

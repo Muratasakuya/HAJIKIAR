@@ -13,6 +13,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <set>
 #include <unordered_map>
 
 // Hajikiのタイプ
@@ -97,5 +98,22 @@ private:
 	bool isPressMouse_;
 	// 動かすのに使うカウント
 	uint32_t moveCount_;
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
+
+	// 反射速度の計算
+	void ReflectVelocity(HajikiData& hajiki1, HajikiData& hajiki2);
+
+	// 速度の適応
+	void ApplyVelocityAndFriction(HajikiData& hajiki);
+
+	// 壁の反射処理
+	void HandleWallCollision(HajikiData& hajiki);
+
+	// 間を通ったかのチェック
+	void CheckPassLineCollision();
 
 };
