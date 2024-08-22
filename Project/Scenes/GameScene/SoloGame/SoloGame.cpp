@@ -174,6 +174,17 @@ void SoloGame::Initialize() {
 	kirai_->SetTexture(whiteTexName);
 	kirai_->SetModel(kiraiModelName);
 
+	/*-------------------------------------------------------------------------------------------------------------------*/
+	// Area
+
+	area_ = std::make_unique<GameObject3D>(GameObjectType::Triangle);
+
+	// 初期化
+	area_->Initialize();
+	area_->SetObjectName("area");
+	area_->SetTexture(whiteTexName);
+
+
 	// ImGuiセット
 	hajikiManager_->SetImGui();
 }
@@ -231,17 +242,24 @@ void SoloGame::Draw() {
 
 	// Kirai
 	kirai_->Draw();
+
+	///*======================================================*/
+	// エリアの描画
+	DrawArea();
+
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
 *							全てのオブジェクトの移動処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void SoloGame::AllObjectsMove() {}
+void SoloGame::AllObjectsMove() {
+}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *							Player移動処理 マウス
 ////////////////////////////////////////////////////////////////////////////////*/
-void SoloGame::PlayerMove() {}
+void SoloGame::PlayerMove() {
+}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								  Line更新処理
@@ -304,4 +322,45 @@ void SoloGame::LineUpdate() {
 /*////////////////////////////////////////////////////////////////////////////////
 *									衝突判定
 ////////////////////////////////////////////////////////////////////////////////*/
-void SoloGame::CheckCollision() {}
+void SoloGame::CheckCollision() {
+}
+
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									エリア用関数
+////////////////////////////////////////////////////////////////////////////////*/
+void SoloGame::UpdateArea() {
+
+	const float kAreaTranslateZ = 1.0f;
+
+	// ターゲットハジキの座標を取得
+	Vector3 posA =
+	{ hajikiManager_->GetHajiki(HajikiType::Line,0).object->GetCenterPos().x,
+		hajikiManager_->GetHajiki(HajikiType::Line,0).object->GetCenterPos().y,
+		hajikiManager_->GetHajiki(HajikiType::Line,0).object->GetCenterPos().z };
+	Vector3 posB =
+	{ hajikiManager_->GetHajiki(HajikiType::Line,1).object->GetCenterPos().x,
+		hajikiManager_->GetHajiki(HajikiType::Line,1).object->GetCenterPos().y,
+		hajikiManager_->GetHajiki(HajikiType::Line,1).object->GetCenterPos().z };
+
+	// プレイヤーハジキの座標を取得
+	Vector3 posC =
+	{ hajikiManager_->GetHajiki(HajikiType::Player,0).object->GetCenterPos().x,
+		hajikiManager_->GetHajiki(HajikiType::Player,0).object->GetCenterPos().y,
+		hajikiManager_->GetHajiki(HajikiType::Player,0).object->GetCenterPos().z };
+
+	// 配列に座標を挿入
+	std::array<Vector3, kTriangleVertexNum_> areaTriangleVertices =
+	{
+		posA,posB,posC
+	};
+
+	// エリアに座標をセット
+	area_->SetTriangleVertices(areaTriangleVertices);
+	area_->SetTranslate(Vector3(0.0f, 0.0f, kAreaTranslateZ));
+	area_->SetColor(Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+}
+
+void SoloGame::DrawArea() {
+	area_->Draw();
+}
