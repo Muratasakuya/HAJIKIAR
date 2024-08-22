@@ -169,7 +169,7 @@ void HajikiManager::CollisionUpdate() {
 			// Hajikiが壁に衝突したとき
 
 			// 壁の端
-			const Vector2 edgeSize = { 0.41f,0.23f };
+			const Vector2 edgeSize = { 0.361f,0.204f };
 
 			// 壁との衝突判定 全てのオブジェクトが行う
 			if (collisionManager_->EdgeCheckCollisionX(hajiki.object.get(), edgeSize.x)) {
