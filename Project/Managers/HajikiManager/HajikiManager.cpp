@@ -152,7 +152,7 @@ void HajikiManager::CollisionUpdate() {
 		for (auto& hajiki : hajikiList) {
 
 			// 壁との衝突判定
-			HandleWallCollision(hajiki);
+			WallCollision(hajiki);
 			// 速度の適応
 			ApplyVelocityAndFriction(hajiki);
 		}
@@ -317,18 +317,23 @@ void HajikiManager::ReflectVelocity(HajikiData& hajiki1, HajikiData& hajiki2) {
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::ApplyVelocityAndFriction(HajikiData& hajiki) {
 
+	// 速度が0.0f以外ならカウントを進める
 	if (Vector2::fabs(hajiki.physics.velocity) != Vector2(0.0f, 0.0f)) {
+
 		hajiki.moveCount = 1;
 	}
 
+	// Count1
 	if (hajiki.moveCount == 1) {
 		hajiki.friction.dirction_ = Vector2::Normalize(hajiki.physics.velocity);
 		hajiki.friction.frictionalForce_ = {
+
 			hajiki.friction.magnitude_ * -hajiki.friction.dirction_.x,
 			hajiki.friction.magnitude_ * -hajiki.friction.dirction_.y
 		};
 
 		hajiki.physics.acceleration = {
+
 			hajiki.friction.frictionalForce_.x / hajiki.physics.mass,
 			hajiki.friction.frictionalForce_.y / hajiki.physics.mass
 		};
@@ -336,11 +341,15 @@ void HajikiManager::ApplyVelocityAndFriction(HajikiData& hajiki) {
 		hajiki.physics.velocity += hajiki.physics.acceleration / 60.0f;
 
 		if (!hajiki.mouseMove_) {
+
 			hajiki.pos += hajiki.physics.velocity / 60.0f;
 			hajiki.object->SetTranslate({ hajiki.pos.x, hajiki.pos.y, hajiki.object->GetCenterPos().z });
 		}
 
+		// 最低速度を下回ったら
 		if (Vector2::fabs({ hajiki.physics.velocity.x, hajiki.physics.velocity.y }) < minVelocity_) {
+
+			// 動きを止める
 			hajiki.physics.velocity = { 0.0f, 0.0f };
 			hajiki.moveCount = 0;
 		}
@@ -350,16 +359,18 @@ void HajikiManager::ApplyVelocityAndFriction(HajikiData& hajiki) {
 /*////////////////////////////////////////////////////////////////////////////////
 *								壁との衝突判定
 ////////////////////////////////////////////////////////////////////////////////*/
-void HajikiManager::HandleWallCollision(HajikiData& hajiki) {
+void HajikiManager::WallCollision(HajikiData& hajiki) {
 
 	// 壁の端
 	const Vector2 edgeSize = { 0.361f, 0.204f };
 
 	// 壁との衝突判定
 	if (collisionManager_->EdgeCheckCollisionX(hajiki.object.get(), edgeSize.x)) {
+
 		hajiki.physics.velocity.x = hajiki.physics.velocity.x * -1.0f;
 	}
 	if (collisionManager_->EdgeCheckCollisionY(hajiki.object.get(), edgeSize.y)) {
+
 		hajiki.physics.velocity.y = hajiki.physics.velocity.y * -1.0f;
 	}
 }
@@ -375,12 +386,18 @@ void HajikiManager::CheckPassLineCollision() {
 
 		hajikies_[HajikiType::Player][0].object->SetIsPass(true);
 	} else {
+
 		hajikies_[HajikiType::Player][0].object->SetIsPass(false);
 	}
 
+	// 通っている時に色を変える
 	if (hajikies_[HajikiType::Player][0].object->GetIsPass()) {
+
+		// 赤
 		hajikies_[HajikiType::Player][0].object->SetColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 	} else {
+
+		// 黒
 		hajikies_[HajikiType::Player][0].object->SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	}
 }

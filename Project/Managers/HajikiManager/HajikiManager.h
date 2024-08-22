@@ -111,7 +111,7 @@ private:
 	void ApplyVelocityAndFriction(HajikiData& hajiki);
 
 	// 壁の反射処理
-	void HandleWallCollision(HajikiData& hajiki);
+	void WallCollision(HajikiData& hajiki);
 
 	// 間を通ったかのチェック
 	void CheckPassLineCollision();
