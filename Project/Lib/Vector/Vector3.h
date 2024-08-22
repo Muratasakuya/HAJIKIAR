@@ -59,4 +59,7 @@ public:
 	// 正規化
 	static Vector3 Normalize(const Vector3& v);
 
+	// クロス
+	static Vector3 Cross(const Vector3& v0, const Vector3& v1);
+
 };
