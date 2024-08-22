@@ -213,6 +213,10 @@ void SoloGame::Update() {
 	LineUpdate();
 
 	/*======================================================*/
+	// エリア更新
+	UpdateArea();
+
+	/*======================================================*/
 	// 衝突判定
 
 	hajikiManager_->CollisionUpdate();
@@ -331,7 +335,7 @@ void SoloGame::CheckCollision() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void SoloGame::UpdateArea() {
 
-	const float kAreaTranslateZ = 1.0f;
+
 
 	// ターゲットハジキの座標を取得
 	Vector3 posA =
@@ -354,11 +358,17 @@ void SoloGame::UpdateArea() {
 	{
 		posA,posB,posC
 	};
+	// 重心を求める
+	Vector3 CenterPos = (posA + posB + posC) / 3.0f;
+
+	ImGui::Begin("area");
+	ImGui::DragFloat("areaZ", &kAreaTranslateZ, 0.001f);
+	ImGui::End();
 
 	// エリアに座標をセット
 	area_->SetTriangleVertices(areaTriangleVertices);
 	area_->SetTranslate(Vector3(0.0f, 0.0f, kAreaTranslateZ));
-	area_->SetColor(Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+	area_->SetColor(Vector4(0.0f, 0.8f, 1.0f, 0.4f));
 }
 
 void SoloGame::DrawArea() {
