@@ -27,7 +27,6 @@ void GameObject3D::SetModel(const std::string name) {
 
 	// 使用するテクスチャを設定
 	modelName_ = identifier;
-	objectName_ = identifier;
 }
 
 // 座標のセット
@@ -44,7 +43,7 @@ void GameObject3D::SetTriangleVertices(const std::array<Vector3, kTriangleVertex
 void GameObject3D::SetColor(Vector4 color) { material_.color = color; }
 
 // マテリアルの数のセット
-void GameObject3D::SetMaterialNum(uint32_t materialNum){
+void GameObject3D::SetMaterialNum(uint32_t materialNum) {
 
 	for (uint32_t i = 0; i < materialNum; i++) {
 
@@ -142,6 +141,14 @@ void GameObject3D::Draw() {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
+*									座標の移動
+////////////////////////////////////////////////////////////////////////////////*/
+void GameObject3D::MoveTranslate(const Vector3& velocity) {
+
+	transform_.translate += velocity;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
 *								衝突コールバック関数
 ////////////////////////////////////////////////////////////////////////////////*/
 void GameObject3D::OnCollision() {
@@ -186,7 +193,9 @@ void GameObject3D::ImGui() {
 	if (showMaterial) {
 
 		if (materials_.size() == 0) {
-		
+
+			std::string colorLabel = "Color##" + objectName_;
+
 			ImGui::ColorEdit4("Color", &material_.color.x);
 		} else {
 			// Material が複数ある場合

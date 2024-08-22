@@ -11,6 +11,15 @@ void SoloGame::Initialize() {
 	// 生成
 	collisionManager_ = std::make_unique<CollisionManager>();
 
+	// Hajiki管理
+	// 生成
+	hajikiManager_ = std::make_unique<HajikiManager>();
+
+	// クリックしているか
+	isPressMouse_ = false;
+	// Playerを動かすのに使うカウント
+	playerMoveCount_ = 0;
+
 	/*======================================================*/
 	// 読み込み
 
@@ -19,25 +28,47 @@ void SoloGame::Initialize() {
 	NewMoon::LoadTexture("./Resources/Images/" + whiteTexName);
 
 	// lineHajiki
-	const std::string lineHajikiModelName = "hajiki.gltf";
-	const std::string lineHajikiModelName2 = "hajiki2.gltf";
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName);
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName2);
+	const std::string lineHajikiModelName[lineHajikiNum] = { "hajiki.gltf" ,"hajiki2.gltf" };
+	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName[0]);
+	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName[1]);
 	// line
 	const std::string lineModelName = "line.gltf";
 	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineModelName);
-	// targetHajiki Test
-	const std::string targetHajikiModelName = "targetHajiki.gltf";
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", targetHajikiModelName);
+	// mainHajiki
+	const std::string mainHajikiModelName = "mainHajiki.gltf";
+	const std::string targetHajikiModelName[targetHajikiNum] = { "mainHajiki2.gltf","mainHajiki3.gltf" };
+	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", mainHajikiModelName);
+	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", targetHajikiModelName[0]);
+	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", targetHajikiModelName[1]);
+
+	// Cube
+	const std::string cubeModelName = "cube.gltf";
+	NewMoon::LoadGltfModel("./Resources/Gltf/Objects/", cubeModelName);
+
+	// Kirai
+	const std::string kiraiModelName = "kirai.gltf";
+	NewMoon::LoadGltfModel("./Resources/Gltf/Objects/", kiraiModelName);
 
 	/*======================================================*/
 	// 3Dオブジェクト
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
-	// 共通
+	// PlayerHajiki
 
-	// 初期回転角
-	float initRotateX = std::numbers::pi_v<float> / 2.0f;
+	// 初期座標
+	const Vector3 playerHajikiInitPos = { 0.0f,0.0f,1.0f };
+
+	auto playerHajiki = std::make_unique<GameObject3D>(GameObjectType::Model);
+
+	// 初期化
+	playerHajiki->Initialize();
+	playerHajiki->SetTranslate(playerHajikiInitPos);
+	playerHajiki->SetObjectName("playerHajiki");
+	// 使用するテクスチャとモデル
+	playerHajiki->SetTexture(whiteTexName);
+	playerHajiki->SetModel(mainHajikiModelName);
+
+	hajikiManager_->AddHajiki(HajikiType::Player, std::move(playerHajiki));
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// LineHajiki
@@ -53,15 +84,49 @@ void SoloGame::Initialize() {
 		Vector3(-0.008f,-0.093f,1.0f)
 	};
 
-	for (uint32_t i = 0; i < lineHajikies_.size(); i++) {
+	// 2 //
+	for (uint32_t i = 0; i < lineHajikiNum; i++) {
 
-		lineHajikies_[i] = std::make_unique<GameObject3D>(GameObjectType::Model);
-		lineHajikies_[i]->Initialize();
-		lineHajikies_[i]->SetRotate({ initRotateX,0.0f ,0.0f });
-		lineHajikies_[i]->SetTranslate(lineHajikiInitPos[i]);
-		lineHajikies_[i]->SetMaterialNum(static_cast<uint32_t>(lineHajikies_.size()));
-		lineHajikies_[i]->SetColors(lineHajikiBodyColor, lineHajikiEmmisiveColor);
-		lineHajikies_[i]->SetObjectName("lineHajiki");
+		auto lineHajiki = std::make_unique<GameObject3D>(GameObjectType::Model);
+
+		// 初期化
+		lineHajiki->Initialize();
+		lineHajiki->SetTranslate(lineHajikiInitPos[i]);
+		lineHajiki->SetMaterialNum(lineHajikiNum);
+		lineHajiki->SetColors(lineHajikiBodyColor, lineHajikiEmmisiveColor);
+		lineHajiki->SetObjectName("lineHajiki");
+		// 使用するモデル
+		lineHajiki->SetModel(lineHajikiModelName[i]);
+
+		hajikiManager_->AddHajiki(HajikiType::Line, std::move(lineHajiki));
+	}
+
+	/*-------------------------------------------------------------------------------------------------------------------*/
+	// TargetHajiki
+
+	//　TargetHajikiの初期座標
+	const Vector3 targetHajikiInitPos[targetHajikiNum] = {
+	Vector3(0.1f,0.0f,1.0f),
+	Vector3(0.1f,0.0f,2.0f)
+	};
+	// 色
+	const Vector4 targetHajikiColor = { 0.16f,0.16f ,0.16f ,1.0f };
+
+	// 2 //
+	for (uint32_t i = 0; i < targetHajikiNum; i++) {
+
+		auto targetHajiki = std::make_unique<GameObject3D>(GameObjectType::Model);
+
+		// 初期化
+		targetHajiki->Initialize();
+		targetHajiki->SetTranslate(targetHajikiInitPos[i]);
+		targetHajiki->SetColor(targetHajikiColor);
+		targetHajiki->SetObjectName("targetHajiki");
+		// 使用するテクスチャとモデル
+		targetHajiki->SetTexture(whiteTexName);
+		targetHajiki->SetModel(targetHajikiModelName[i]);
+
+		hajikiManager_->AddHajiki(HajikiType::Target, std::move(targetHajiki));
 	}
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
@@ -70,71 +135,47 @@ void SoloGame::Initialize() {
 	// Lineの初期スケール
 	const Vector3 lineInitScale = { 2.7f,0.5f,0.1f };
 
-	line_ = std::make_unique<GameObject3D>(GameObjectType::Model);
-	line_->Initialize();
-	line_->SetScale(lineInitScale);
-	line_->SetRotate({ initRotateX,0.0f,0.0f });
-	line_->SetObjectName("line");
 	// LineColor
 	changeAlpha_ = 0.005f;
 	lineColorAlpha_ = 1.0f;
+
+	line_ = std::make_unique<GameObject3D>(GameObjectType::Model);
+
+	// 初期化
+	line_->Initialize();
+	line_->SetScale(lineInitScale);
+
 	// SRT更新
 	LineUpdate();
-
-	/*-------------------------------------------------------------------------------------------------------------------*/
-	// TargetHajiki
-
-	//　TargetHajikiの初期座標
-	const Vector3 targetHajikiInitPos = { 0.1f,0.0f,1.0f };
-
-	targetHajiki_ = std::make_unique<GameObject3D>(GameObjectType::Model);
-	targetHajiki_->Initialize();
-	targetHajiki_->SetRotate({ initRotateX,0.0f ,0.0f });
-	targetHajiki_->SetTranslate(targetHajikiInitPos);
-	targetHajiki_->SetObjectName("targetHajiki");
-
-	/*======================================================*/
-	// Texture Modelのセット
-
-	// LineHajiki
-	// ModelのConstBufferが被るので今はこうしている
-	lineHajikies_[0]->SetModel(lineHajikiModelName);
-	lineHajikies_[1]->SetModel(lineHajikiModelName2);
-
-	// Line
+	line_->SetObjectName("line");
+	// 使用するテクスチャとモデル
 	line_->SetTexture(whiteTexName);
 	line_->SetModel(lineModelName);
 
-	// Target
-	targetHajiki_->SetTexture(whiteTexName);
-	targetHajiki_->SetModel(targetHajikiModelName);
+	/*-------------------------------------------------------------------------------------------------------------------*/
+	// Cube
 
-	/*======================================================*/
-	// Colliderセット
+	cube_ = std::make_unique<GameObject3D>(GameObjectType::Model);
 
-	// Hajikiモデルのハーフサイズ -> 衝突判定で使用する
-	const float kHajikiHalfSize = 0.015f;
+	// 初期化
+	cube_->Initialize();
+	cube_->SetObjectName("cube");
+	cube_->SetTexture(whiteTexName);
+	cube_->SetModel(cubeModelName);
 
-	// LineHajiki
-	for (const auto& lineHajiki : lineHajikies_) {
+	/*-------------------------------------------------------------------------------------------------------------------*/
+	// Kirai
 
-		lineHajiki->SetColliderType(ColliderType::Sphere);
-		lineHajiki->SetHalfSize(kHajikiHalfSize);
-	}
-	// TargetHajiki
-	targetHajiki_->SetColliderType(ColliderType::Sphere);
-	targetHajiki_->SetHalfSize(kHajikiHalfSize);
+	kirai_ = std::make_unique<GameObject3D>(GameObjectType::Model);
 
-	/*======================================================*/
+	// 初期化
+	kirai_->Initialize();
+	kirai_->SetObjectName("kirai");
+	kirai_->SetTexture(whiteTexName);
+	kirai_->SetModel(kiraiModelName);
+
 	// ImGuiセット
-
-	for (const auto& lineHajiki : lineHajikies_) {
-
-		imgui_.Set(lineHajiki.get());
-	}
-	imgui_.Set(line_.get());
-	imgui_.Set(targetHajiki_.get());
-
+	hajikiManager_->SetImGui();
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -149,26 +190,13 @@ void SoloGame::Update() {
 	ImGui::Text("SoloMode");
 	ImGui::End();
 
-	// セットしたオブジェクトのImGui
-	imgui_.Render();
+	hajikiManager_->ImGui();
 
 	/*======================================================*/
 	// 3Dオブジェクト
 
-	// LineHajiki
-	for (const auto& lineHajiki : lineHajikies_) {
-
-		lineHajiki->Update();
-	}
-	// TargetHajiki
-	targetHajiki_->Update();
-	if (targetHajiki_->GetIsPass()) {
-
-		targetHajiki_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
-	} else {
-
-		targetHajiki_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
-	}
+	// マウス移動
+	hajikiManager_->MouseMove(HajikiType::Player);
 
 	// Line更新
 	LineUpdate();
@@ -176,28 +204,7 @@ void SoloGame::Update() {
 	/*======================================================*/
 	// 衝突判定
 
-	// コライダーリセット
-	collisionManager_->Reset();
-
-	// コライダー追加
-	for (const auto& lineHajiki : lineHajikies_) {
-
-		collisionManager_->AddCollider(lineHajiki.get());
-	}
-	collisionManager_->AddCollider(targetHajiki_.get());
-
-	// セットしたコライダー全ての接触判定
-	collisionManager_->CheckAllHitCollisions();
-
-	// Lineの間を通ったか判定
-	if (collisionManager_->PassLineCheckCollision(
-		lineHajikies_[0].get(), lineHajikies_[1].get(), targetHajiki_.get())) {
-
-		targetHajiki_->SetIsPass(true);
-	} else {
-
-		targetHajiki_->SetIsPass(false);
-	}
+	hajikiManager_->CollisionUpdate();
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -205,25 +212,36 @@ void SoloGame::Update() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void SoloGame::Draw() {
 
-	/*======================================================*/
+	///*======================================================*/
 	// 2Dオブジェクト
 
 
 
-	/*======================================================*/
+	///*======================================================*/
 	// 3Dオブジェクト
 
-	// LineHajiki
-	for (const auto& lineHajiki : lineHajikies_) {
+	// Hajiki
+	hajikiManager_->Draw();
 
-		lineHajiki->Draw();
-	}
 	// Line
 	line_->Draw();
-	// TargetHajiki
-	targetHajiki_->Draw();
 
+	// Cube
+	cube_->Draw();
+
+	// Kirai
+	kirai_->Draw();
 }
+
+/*////////////////////////////////////////////////////////////////////////////////
+*							全てのオブジェクトの移動処理
+////////////////////////////////////////////////////////////////////////////////*/
+void SoloGame::AllObjectsMove() {}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*							Player移動処理 マウス
+////////////////////////////////////////////////////////////////////////////////*/
+void SoloGame::PlayerMove() {}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								  Line更新処理
@@ -248,7 +266,7 @@ void SoloGame::LineUpdate() {
 	}
 
 	// 色のセット
-	line_->SetColor({ 1.0f,1.0f,1.0f,lineColorAlpha_ });
+	line_->SetColor({ 0.0f,0.0f,0.0f,lineColorAlpha_ });
 
 	/*======================================================*/
 	// SRTの更新
@@ -257,8 +275,12 @@ void SoloGame::LineUpdate() {
 	const float kPlaneDefaultSize = 10.0f;
 
 	// カーテンを貼る対象の座標
-	Vector2 posA = { lineHajikies_[0]->GetCenterPos().x,lineHajikies_[0]->GetCenterPos().y };
-	Vector2 posB = { lineHajikies_[1]->GetCenterPos().x,lineHajikies_[1]->GetCenterPos().y };
+	Vector2 posA =
+	{ hajikiManager_->GetHajiki(HajikiType::Line,0).object->GetCenterPos().x,
+		hajikiManager_->GetHajiki(HajikiType::Line,0).object->GetCenterPos().y };
+	Vector2 posB =
+	{ hajikiManager_->GetHajiki(HajikiType::Line,1).object->GetCenterPos().x,
+		hajikiManager_->GetHajiki(HajikiType::Line,1).object->GetCenterPos().y };
 
 	// 間の中心座標
 	Vector2 centerPos = posA + posB;
@@ -275,6 +297,11 @@ void SoloGame::LineUpdate() {
 	Vector2 direction = posB - posA;
 	direction = Vector2::Normalize(direction);
 	float zAngle = std::atan2(direction.y, direction.x);
-	Vector3 rotate = { line_->GetRotate().x,line_->GetRotate().y,zAngle };
+	Vector3 rotate = { std::numbers::pi_v<float> / 2.0f,0.0f,zAngle };
 	line_->SetRotate(rotate);
 }
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									衝突判定
+////////////////////////////////////////////////////////////////////////////////*/
+void SoloGame::CheckCollision() {}

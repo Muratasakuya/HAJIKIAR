@@ -1,5 +1,11 @@
 #pragma once
 
+// 3D
+#include "GameObject2D.h"
+
+// OpenCV
+#include "OpenCV.h"
+
 // Base
 #include "IScene.h"
 
@@ -33,6 +39,7 @@ private:
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト
 
-
+	std::unique_ptr<GameObject2D> player_;
+	std::unique_ptr<GameObject2D> target_;
 
 };

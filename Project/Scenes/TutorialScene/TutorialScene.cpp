@@ -46,6 +46,7 @@ void TutorialScene::Initialize() {
 	// 3Dオブジェクト
 
 
+	imgui_.Set(grid_.get());
 
 }
 
@@ -62,6 +63,8 @@ void TutorialScene::Update() {
 	ImGui::Begin("TutorialScene");
 	ImGui::Text("SpaceKey: Tutorial -> Select");
 	ImGui::End();
+
+	imgui_.Render();
 
 	/*======================================================*/
 	// シーン遷移処理

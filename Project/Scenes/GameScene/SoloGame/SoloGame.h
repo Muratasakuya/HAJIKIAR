@@ -11,6 +11,9 @@
 // 衝突判定
 #include "CollisionManager.h"
 
+// Hajiki管理
+#include "HajikiManager.h"
+
 /*////////////////////////////////////////////////////////////////////////////////
 *								SoloGame Class
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -33,11 +36,23 @@ private:
 	///			メンバ変数
 	/*-----------------------------*/
 
-	// ImGui
-	ImGuiRenderer imgui_;
-
 	// 衝突判定管理
 	std::unique_ptr<CollisionManager> collisionManager_;
+
+	// Hajiki管理
+	std::unique_ptr<HajikiManager> hajikiManager_;
+
+	// マウス座標
+	Vector2 mousePos_;
+	// クリックした座標
+	Vector2 mousePressPos_;
+	// クリックしているか
+	bool isPressMouse_;
+	// Playerを動かすのに使うカウント
+	uint32_t playerMoveCount_;
+
+	// 摩擦
+	Friction friction_;
 
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
@@ -45,25 +60,49 @@ private:
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト
 
+	/*----------------------------------------------------------------------*/
 	// LineHajiki
-	static const uint32_t lineHajikiNum = 2;
-	std::array<std::unique_ptr<GameObject3D>, lineHajikiNum> lineHajikies_;
 
+	static const uint32_t lineHajikiNum = 2;
+
+	/*----------------------------------------------------------------------*/
 	// Line
+
 	std::unique_ptr<GameObject3D> line_;
-	// LineColor
+	// Color
 	float changeAlpha_;
 	float lineColorAlpha_;
 
-	// TargetHajiki (虚 imaginary)
-	std::unique_ptr<GameObject3D> targetHajiki_;
+	/*----------------------------------------------------------------------*/
+	// TargetHajiki+
+
+	static const uint32_t targetHajikiNum = 2;
+
+	/*----------------------------------------------------------------------*/
+	// Cube
+
+	std::unique_ptr<GameObject3D> cube_;
+
+	/*----------------------------------------------------------------------*/
+	// Kirai
+
+	std::unique_ptr<GameObject3D> kirai_;
 
 private:
 	/*-----------------------------*/
 	///			private関数
 	/*-----------------------------*/
 
+	// 全てのオブジェクトの移動
+	void AllObjectsMove();
+
+	// Player移動
+	void PlayerMove();
+
 	// Line更新
 	void LineUpdate();
+
+	// 衝突判定
+	void CheckCollision();
 
 };

@@ -11,7 +11,7 @@ void CollisionManager::Reset() {
 /*////////////////////////////////////////////////////////////////////////////////
 *								コライダーの当たり判定
 ////////////////////////////////////////////////////////////////////////////////*/
-void CollisionManager::CheckAllHitCollisions() {
+void CollisionManager::CheckAllCollisions() {
 
 	// 判定無し
 	if (colliders_.size() <= 1) {
@@ -25,7 +25,6 @@ void CollisionManager::CheckAllHitCollisions() {
 			auto& [variantA, typeA] = *itA;
 			auto& [variantB, typeB] = *itB;
 
-			// 判定対象が両方Sphereのとき
 			if (typeA == ColliderType::Sphere && typeB == ColliderType::Sphere) {
 				if (std::holds_alternative<Collider<Vector3>*>(variantA) && std::holds_alternative<Collider<Vector3>*>(variantB)) {
 
@@ -34,18 +33,16 @@ void CollisionManager::CheckAllHitCollisions() {
 
 					if (SphereToSphereCheckCollision(colliderA, colliderB)) {
 
-						// 衝突コールバック
 						colliderA->SetIsHit(true);
 						colliderB->SetIsHit(true);
-					} else {
 
-						colliderA->SetIsHit(false);
-						colliderB->SetIsHit(false);
+						// 衝突相手をセット
+						colliderA->SetHitCollider(colliderB);
+						colliderB->SetHitCollider(colliderA);
 					}
 				}
 			}
 
-			// 判定対象が両方Circleのとき
 			if (typeA == ColliderType::Circle && typeB == ColliderType::Circle) {
 				if (std::holds_alternative<Collider<Vector2>*>(variantA) && std::holds_alternative<Collider<Vector2>*>(variantB)) {
 
@@ -54,13 +51,12 @@ void CollisionManager::CheckAllHitCollisions() {
 
 					if (CircleToCircleCheckCollision(colliderA, colliderB)) {
 
-						// 衝突コールバック
 						colliderA->SetIsHit(true);
 						colliderB->SetIsHit(true);
-					} else {
 
-						colliderA->SetIsHit(false);
-						colliderB->SetIsHit(false);
+						// 衝突相手をセット
+						colliderA->SetHitCollider(colliderB);
+						colliderB->SetHitCollider(colliderA);
 					}
 				}
 			}
@@ -73,7 +69,7 @@ void CollisionManager::CheckAllHitCollisions() {
 ////////////////////////////////////////////////////////////////////////////////*/
 bool CollisionManager::PassLineCheckCollision(Collider<Vector3>* linePointA, Collider<Vector3>* linePointB, Collider<Vector3>* collider) {
 
-	Vector3 posA= linePointB->GetCenterPos() - linePointA->GetCenterPos();
+	Vector3 posA = linePointB->GetCenterPos() - linePointA->GetCenterPos();
 	Vector3 posB = collider->GetCenterPos() - linePointA->GetCenterPos();
 
 	float cross = posA.x * posB.y - posA.y * posB.x;
@@ -81,7 +77,7 @@ bool CollisionManager::PassLineCheckCollision(Collider<Vector3>* linePointA, Col
 	// 線分を越えているかどうかチェック
 	float tolerance = 0.001f;
 	if (std::fabs(cross) < tolerance) {
-		
+
 		float dot1 = posA.x * posB.x + posA.y * posB.y;
 		float dot2 = posA.x * posA.x + posA.y * posA.y;
 
@@ -91,6 +87,54 @@ bool CollisionManager::PassLineCheckCollision(Collider<Vector3>* linePointA, Col
 		}
 	}
 
+	return false;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								壁との当たり判定X
+////////////////////////////////////////////////////////////////////////////////*/
+bool CollisionManager::EdgeCheckCollisionX(Collider<Vector3>* collider, float sizeX) {
+
+	// Colliderの中心位置とサイズを取得
+	Vector3 pos = collider->GetCenterPos();
+	float halfSize = collider->GetHalfSize();
+
+	// 壁とのX方向の当たり判定
+	if (pos.x - halfSize < -sizeX) {
+
+		// オブジェクトが左の壁を超えた
+		return true;
+	} else if (pos.x + halfSize > sizeX) {
+
+		// オブジェクトが右の壁を超えた
+		return true;
+	}
+
+	// 当たっていない場合
+	return false;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								壁との当たり判定Y
+////////////////////////////////////////////////////////////////////////////////*/
+bool CollisionManager::EdgeCheckCollisionY(Collider<Vector3>* collider, float sizeY) {
+
+	// Colliderの中心位置とサイズを取得
+	Vector3 pos = collider->GetCenterPos();
+	float halfSize = collider->GetHalfSize();
+
+	// 壁とのY方向の当たり判定
+	if (pos.y - halfSize < -sizeY) {
+
+		// オブジェクトが下の壁を超えた
+		return true;
+	} else if (pos.y + halfSize > sizeY) {
+
+		// オブジェクトが上の壁を超えた
+		return true;
+	}
+
+	// 当たっていない場合
 	return false;
 }
 

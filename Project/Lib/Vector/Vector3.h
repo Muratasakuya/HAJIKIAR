@@ -31,6 +31,13 @@ public:
 	// -=
 	Vector3& operator-=(const Vector3& v);
 
+	// float*
+	Vector3 operator*(float scalar) const;
+	friend Vector3 operator*(float scalar, const Vector3& v);
+	// float/
+	Vector3 operator/(float scalar) const;
+	friend Vector3 operator/(float scalar, const Vector3& v);
+
 	// bool
 	// 等価演算子 ==
 	bool operator==(const Vector3& other) const;
@@ -40,6 +47,9 @@ public:
 
 	/*-------------------------------------------------------------*/
 	/// 関数
+
+	// 0.0f初期化
+	void Initialize();
 
 	// 三角形の頂点から法線の取得
 	static Vector3 CalculateTriangleNormal(const Vector4& v0, const Vector4& v1, const Vector4& v2);

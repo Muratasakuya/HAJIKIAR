@@ -202,7 +202,7 @@ void DXCommon::ClearWindow() {
 
 	commandList_->OMSetRenderTargets(1, &rtvHandles[backBufferIndex_], false, &dsvHandle);
 	// 指定した色で画面全体をクリアする
-	float crearColor[] = { 0.1f,0.25f,0.5f,1.0f };
+	float crearColor[] = { 1.0f,1.0f,1.0f,1.0f };
 	// 青っぽい色、RGBAの順
 	commandList_->ClearRenderTargetView(descriptor_->GetRTVHandles(backBufferIndex_), crearColor, 0, nullptr);
 

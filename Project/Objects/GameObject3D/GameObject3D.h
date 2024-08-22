@@ -30,6 +30,8 @@ public:
 	void Update();
 	void Draw();
 
+	void MoveTranslate(const Vector3& velocity);
+
 	void ImGui();
 
 	// 衝突コールバック関数

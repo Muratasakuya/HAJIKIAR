@@ -4,6 +4,7 @@
 #include "Collider.h"
 
 // c++
+#include <algorithm>
 #include <list>
 #include <utility>
 #include <variant>
@@ -25,9 +26,11 @@ public:
 	template<typename VectorType>
 	void AddCollider(Collider<VectorType>* collider);
 
-	void CheckAllHitCollisions();
+	void CheckAllCollisions();
 
 	bool PassLineCheckCollision(Collider<Vector3>* linePointA, Collider<Vector3>* linePointB, Collider<Vector3>* collider);
+	bool EdgeCheckCollisionX(Collider<Vector3>* collider, float sizeX);
+	bool EdgeCheckCollisionY(Collider<Vector3>* collider, float sizeY);
 
 private:
 	/*-----------------------------*/
