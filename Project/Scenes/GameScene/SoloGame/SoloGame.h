@@ -104,18 +104,8 @@ private:
 	///			private関数
 	/*-----------------------------*/
 
-	// 全てのオブジェクトの移動
-	void AllObjectsMove();
-
-	// Player移動
-	void PlayerMove();
-
 	// Line更新
 	void LineUpdate();
-
-	// 衝突判定
-	void CheckCollision();
-
 
 	/*-----------------------------*/
 	///			Area用関数
