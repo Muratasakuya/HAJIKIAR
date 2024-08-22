@@ -62,6 +62,7 @@ public:
 
 	void MouseMove(HajikiType type);
 
+	void Update();
 	void Draw();
 
 	// getter
