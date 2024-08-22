@@ -27,6 +27,9 @@ public:
 
 	void Render();
 
+	// singleton
+	static ImGuiRenderer* GetInstance();
+
 	// setter
 
 	void Set(GameObject2D* object);

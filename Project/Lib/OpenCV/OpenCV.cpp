@@ -1,6 +1,7 @@
 #include "OpenCV.h"
 
 #include "NewMoon.h"
+#include "ImGuiManager.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								singleton
@@ -41,6 +42,22 @@ Vector2 OpenCV::GetBlueCenterPos() const {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
+*								RGBからHSV色空間に変換
+////////////////////////////////////////////////////////////////////////////////*/
+cv::Mat OpenCV::ConvertRGBtoHSV(const Vector3& color) {
+
+	// RGB値をMatに変換（1x1の画像として扱う）
+	cv::Mat rgbMat(1, 1, CV_8UC3, cv::Scalar(color.z, color.y, color.x));
+	cv::Mat hsvMat;
+
+	// RGBからHSVに変換
+	cv::cvtColor(rgbMat, hsvMat, cv::COLOR_BGR2HSV);
+
+	// HSV値を取り出す
+	return hsvMat;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
 *								  カメラ起動
 ////////////////////////////////////////////////////////////////////////////////*/
 void OpenCV::OpenCamera() {
@@ -58,6 +75,11 @@ void OpenCV::OpenCamera() {
 	camera_.set(cv::CAP_PROP_FRAME_WIDTH, 640);  // 横幅
 	camera_.set(cv::CAP_PROP_FRAME_HEIGHT, 360); // 縦幅
 	camera_.set(cv::CAP_PROP_FPS, 60);           // フレームレート (FPS)
+
+	trackColor_ = { 0.0f, 1.0f, 0.0f };
+	trackColor2_ = { 0.0f, 0.0f, 1.0f };
+
+	colorRange_ = 10;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -117,9 +139,22 @@ void OpenCV::QRTracking(const std::vector<std::string>& qrCodeDataList) {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
-*                          色のついたものの複数トラッキング
+*							色のついたものの複数トラッキング
 ////////////////////////////////////////////////////////////////////////////////*/
 void OpenCV::ColorTracking() {
+
+	/*======================================================*/
+	// ImGui
+
+	ImGui::Begin("OpenCV");
+
+	ImGui::ColorEdit3("trackColor", &trackColor_.x);
+	ImGui::ColorEdit3("trackColor2", &trackColor2_.x);
+	ImGui::DragInt("colorRange", &colorRange_, 1, 0, 100);
+
+	ImGui::End();
+
+	/*======================================================*/
 
 #pragma region /// method ///
 
@@ -127,13 +162,21 @@ void OpenCV::ColorTracking() {
 	cv::Mat hsvFrame;
 	cv::cvtColor(frame_, hsvFrame, cv::COLOR_BGR2HSV);
 
+	// RGBからHSV色空間に変換
+	cv::Mat hsvColor = ConvertRGBtoHSV(trackColor_);
+	cv::Mat hsvColor2 = ConvertRGBtoHSV(trackColor2_);
+
+	// HSV値を取得
+	cv::Vec3b hsvValues = hsvColor.at<cv::Vec3b>(0, 0);
+	cv::Vec3b hsvValues2 = hsvColor2.at<cv::Vec3b>(0, 0);
+
 	// 緑色の範囲を定義
 	cv::Mat greenMask;
-	cv::inRange(hsvFrame, cv::Scalar(30, 50, 30), cv::Scalar(90, 255, 255), greenMask);
+	cv::inRange(hsvFrame, cv::Scalar(hsvValues[0] - colorRange_, 100, 100), cv::Scalar(hsvValues[0] + colorRange_, 255, 255), greenMask);
 
 	// 青色の範囲を定義
 	cv::Mat blueMask;
-	cv::inRange(hsvFrame, cv::Scalar(100, 150, 0), cv::Scalar(140, 255, 255), blueMask);
+	cv::inRange(hsvFrame, cv::Scalar(hsvValues2[0] - colorRange_, 100, 100), cv::Scalar(hsvValues2[0] + colorRange_, 255, 255), blueMask);
 
 	// モルフォロジー変換（開閉処理）でノイズ除去
 	cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5));

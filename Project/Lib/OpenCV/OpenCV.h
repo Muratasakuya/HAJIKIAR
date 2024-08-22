@@ -9,6 +9,7 @@
 
 // Lib
 #include "Vector2.h"
+#include "Vector3.h"
 
 // c++
 #include <vector>
@@ -78,5 +79,18 @@ private:
 	Vector2 prevGreenCenter_;
 	Vector2 prevBlueCenter_;
 
+	Vector3 trackColor_;
+	Vector3 trackColor2_;
+
+	int colorRange_;
+
 	bool isFirstFrame_ = true;
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
+
+	cv::Mat ConvertRGBtoHSV(const Vector3& color);
+
 };

@@ -13,21 +13,30 @@ SelectScene::SelectScene() {}
 ////////////////////////////////////////////////////////////////////////////////*/
 SelectScene::~SelectScene() {}
 
-
 /*////////////////////////////////////////////////////////////////////////////////
 *									 初期化
 ////////////////////////////////////////////////////////////////////////////////*/
 void SelectScene::Initialize() {
 
+	// debug用White
+	const std::string playerHajikiTextureName = "playerHajiki.png";
+	NewMoon::LoadTexture("./Resources/Images/Common/Objects/" + playerHajikiTextureName);
+	const std::string targetHAJIKIActiveTextureName = "targetHAJIKIActive.png";
+	NewMoon::LoadTexture("./Resources/Images/Common/Objects/" + targetHAJIKIActiveTextureName);
+
 	/*======================================================*/
 	// 2Dオブジェクト
 
+	player_ = std::make_unique<GameObject2D>();
+	player_->Initialize();
+	player_->SetTexture(playerHajikiTextureName);
 
+	target_ = std::make_unique<GameObject2D>();
+	target_->Initialize();
+	target_->SetTexture(targetHAJIKIActiveTextureName);
 
 	/*======================================================*/
 	// 3Dオブジェクト
-
-
 
 }
 
@@ -73,7 +82,6 @@ void SelectScene::Update() {
 	// 2Dオブジェクト
 
 
-
 	/*======================================================*/
 	// 3Dオブジェクト
 
@@ -94,6 +102,7 @@ void SelectScene::Draw() {
 	/*======================================================*/
 	// 3Dオブジェクト
 
-
+	player_->Draw();
+	target_->Draw();
 
 }

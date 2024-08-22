@@ -36,6 +36,25 @@ Vector3& Vector3::operator-=(const Vector3& v) {
 	return *this;
 }
 
+// float*
+Vector3 Vector3::operator*(float scalar) const {
+
+	return Vector3(x * scalar, y * scalar, z * scalar);
+}
+Vector3 operator*(float scalar, const Vector3& v) {
+
+	return Vector3(v.x * scalar, v.y * scalar, v.z * scalar);
+}
+// float/
+Vector3 Vector3::operator/(float scalar) const {
+
+	return Vector3(x / scalar, y / scalar, z / scalar);
+}
+Vector3 operator/(float scalar, const Vector3& v) {
+
+	return Vector3(v.x / scalar, v.y / scalar, v.z / scalar);
+}
+
 // bool
 // 等価演算子 ==
 bool Vector3::operator==(const Vector3& other) const {
@@ -51,6 +70,14 @@ bool Vector3::operator!=(const Vector3& other) const {
 
 /*-------------------------------------------------------------*/
 /// 関数
+
+// 0.0f初期化
+void Vector3::Initialize() {
+
+	this->x = 0.0f;
+	this->y = 0.0f;
+	this->z = 0.0f;
+}
 
 // 三角形の頂点から法線の取得
 Vector3 Vector3::CalculateTriangleNormal(const Vector4& v0, const Vector4& v1, const Vector4& v2) {
