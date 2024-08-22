@@ -88,6 +88,17 @@ private:
 
 	std::unique_ptr<GameObject3D> kirai_;
 
+
+	//
+	// 追加分
+	//
+
+	/*----------------------------------------------------------------------*/
+	// Area
+
+	std::unique_ptr<GameObject3D> area_;
+	float kAreaTranslateZ = 0.0f;
+
 private:
 	/*-----------------------------*/
 	///			private関数
@@ -104,5 +115,17 @@ private:
 
 	// 衝突判定
 	void CheckCollision();
+
+
+	/*-----------------------------*/
+	///			Area用関数
+	/*-----------------------------*/
+
+	// エリア更新
+	void UpdateArea();
+
+	// エリア描画
+	void DrawArea();
+
 
 };

@@ -174,6 +174,17 @@ void SoloGame::Initialize() {
 	kirai_->SetTexture(whiteTexName);
 	kirai_->SetModel(kiraiModelName);
 
+	/*-------------------------------------------------------------------------------------------------------------------*/
+	// Area
+
+	area_ = std::make_unique<GameObject3D>(GameObjectType::Triangle);
+
+	// 初期化
+	area_->Initialize();
+	area_->SetObjectName("area");
+	area_->SetTexture(whiteTexName);
+
+
 	// ImGuiセット
 	hajikiManager_->SetImGui();
 }
@@ -200,6 +211,10 @@ void SoloGame::Update() {
 
 	// Line更新
 	LineUpdate();
+
+	/*======================================================*/
+	// エリア更新
+	UpdateArea();
 
 	/*======================================================*/
 	// 衝突判定
@@ -231,17 +246,24 @@ void SoloGame::Draw() {
 
 	// Kirai
 	kirai_->Draw();
+
+	///*======================================================*/
+	// エリアの描画
+	DrawArea();
+
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
 *							全てのオブジェクトの移動処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void SoloGame::AllObjectsMove() {}
+void SoloGame::AllObjectsMove() {
+}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *							Player移動処理 マウス
 ////////////////////////////////////////////////////////////////////////////////*/
-void SoloGame::PlayerMove() {}
+void SoloGame::PlayerMove() {
+}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								  Line更新処理
@@ -304,4 +326,59 @@ void SoloGame::LineUpdate() {
 /*////////////////////////////////////////////////////////////////////////////////
 *									衝突判定
 ////////////////////////////////////////////////////////////////////////////////*/
-void SoloGame::CheckCollision() {}
+void SoloGame::CheckCollision() {
+}
+
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									エリア用関数
+////////////////////////////////////////////////////////////////////////////////*/
+void SoloGame::UpdateArea() {
+
+	// カメラの方向ベクトル（例として前方方向を示す）
+	Vector3 cameraDirection = { 0.0f, 0.0f, -1.0f };
+
+	// ターゲットハジキの座標を取得
+	Vector3 posA = { hajikiManager_->GetHajiki(HajikiType::Line,0).object->GetCenterPos().x,
+					 hajikiManager_->GetHajiki(HajikiType::Line,0).object->GetCenterPos().y,
+					 hajikiManager_->GetHajiki(HajikiType::Line,0).object->GetCenterPos().z };
+	Vector3 posB = { hajikiManager_->GetHajiki(HajikiType::Line,1).object->GetCenterPos().x,
+					 hajikiManager_->GetHajiki(HajikiType::Line,1).object->GetCenterPos().y,
+					 hajikiManager_->GetHajiki(HajikiType::Line,1).object->GetCenterPos().z };
+
+	// プレイヤーハジキの座標を取得
+	Vector3 posC = { hajikiManager_->GetHajiki(HajikiType::Player,0).object->GetCenterPos().x,
+					 hajikiManager_->GetHajiki(HajikiType::Player,0).object->GetCenterPos().y,
+					 hajikiManager_->GetHajiki(HajikiType::Player,0).object->GetCenterPos().z };
+
+	// 三角形の法線ベクトルを計算
+	Vector3 edge1 = posB - posA;
+	Vector3 edge2 = posC - posA;
+	Vector3 normal = Vector3::Normalize(Vector3::Cross(edge1, edge2));
+
+	// 法線ベクトルがカメラの方向を向くように調整
+	if (normal.x * cameraDirection.x + normal.y * cameraDirection.y + normal.z * cameraDirection.z < 0) {
+		// 法線ベクトルがカメラの方向を向いていない場合、三角形の頂点を反転
+		std::swap(posA, posB);
+	}
+
+	// 配列に座標を挿入
+	std::array<Vector3, 3> areaTriangleVertices = { posA, posB, posC };
+
+
+	// 重心を求める
+	Vector3 CenterPos = (posA + posB + posC) / 3.0f;
+
+	ImGui::Begin("area");
+	ImGui::DragFloat("areaZ", &kAreaTranslateZ, 0.001f);
+	ImGui::End();
+
+	// エリアに座標をセット
+	area_->SetTriangleVertices(areaTriangleVertices);
+	area_->SetTranslate(Vector3(0.0f, 0.0f, kAreaTranslateZ));
+	area_->SetColor(Vector4(0.0f, 0.8f, 1.0f, 0.4f));
+}
+
+void SoloGame::DrawArea() {
+	area_->Draw();
+}
