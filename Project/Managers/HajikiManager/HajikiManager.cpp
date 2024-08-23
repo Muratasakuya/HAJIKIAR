@@ -3,15 +3,7 @@
 /*////////////////////////////////////////////////////////////////////////////////
 *								コンストラクタ
 ////////////////////////////////////////////////////////////////////////////////*/
-HajikiManager::HajikiManager() {
-
-	// 衝突管理
-	// 生成
-	for (uint32_t i = 0; i < collisionManagers_.size(); i++) {
-
-		collisionManagers_[i] = std::make_unique<CollisionManager>();
-	}
-}
+HajikiManager::HajikiManager() {}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								  デストラクタ
@@ -232,6 +224,52 @@ void HajikiManager::MouseMove(HajikiType type) {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
+*								    初期化
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::Initialize() {
+
+	// 衝突管理
+	// 生成
+	for (uint32_t i = 0; i < collisionManagers_.size(); i++) {
+
+		collisionManagers_[i] = std::make_unique<CollisionManager>();
+	}
+
+	/*-------------------------------------------------------------------------------------------------------------------*/
+	// 魂が抜けた時のオブジェクト
+
+	// 初期回転角
+	float initRotateX = std::numbers::pi_v<float> / 2.0f;
+	// Hajikiモデルのハーフサイズ -> 衝突判定で使用す
+	const float kHajikiHalfSize = 0.018f;
+	// 色 半透明くらい
+	const Vector4 soulColor = { 1.0f,1.0f,1.0f,0.35f };
+
+	// モデル
+	const std::string soulModelName = "mainHajiki4.gltf";
+	NewMoon::LoadModel("./Resources/Gltf/Hajiki/", soulModelName);
+
+	// テクスチャ
+	const std::string soulTextureName = "white.png";
+
+	soulObject_ = std::make_unique<GameObject3D>(GameObjectType::Model);
+
+	// 初期化
+	soulObject_->Initialize();
+	soulObject_->SetTranslate(hajikies_[HajikiType::Player][Reality].object->GetCenterPos());
+	soulObject_->SetRotate({ initRotateX ,0.0f,0.0f });
+	soulObject_->SetColor(soulColor);
+	// 使用するテクスチャとモデル
+	soulObject_->SetTexture(soulTextureName);
+	soulObject_->SetModel(soulModelName);
+
+	// コライダー情報
+	soulObject_->SetColliderType(ColliderType::Sphere);
+	soulObject_->SetHalfSize(kHajikiHalfSize);
+
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
 *								    更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::Update() {
@@ -278,6 +316,13 @@ void HajikiManager::Draw() {
 			}
 		}
 	}
+
+	// 魂が抜けているとき
+	if (hajikies_[HajikiType::Player][Imaginary].isLeave) {
+
+		soulObject_->Draw();
+	}
+
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -460,6 +505,9 @@ void HajikiManager::CheckBlockToHajikiCollision() {
 						hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().y };
 
 					hajikies_[HajikiType::Player][Imaginary].prePos = imaginaryPlayerPos;
+
+					soulObject_->SetTranslate({ imaginaryPlayerPos.x,imaginaryPlayerPos.y,soulObject_->GetCenterPos().z });
+
 				} else {
 
 					// 入っているときは...?
@@ -478,7 +526,7 @@ void HajikiManager::CheckBlockToHajikiCollision() {
 
 		// 完全に離れた時
 		if (!collisionManagers_[Imaginary]->SphereToSoulSphereCheckCollision(
-			hajikies_[HajikiType::Player][Reality].object.get(), hajikies_[HajikiType::Player][Imaginary].object.get())) {
+			hajikies_[HajikiType::Player][Reality].object.get(), soulObject_.get())) {
 
 			isLeaveWaitPlayerSoul_ = true;
 		}
@@ -494,7 +542,7 @@ void HajikiManager::LeaveSoulPlayerUpdate() {
 	if (isLeaveWaitPlayerSoul_) {
 		// 衝突すれば
 		if (collisionManagers_[Imaginary]->SphereToSoulSphereCheckCollision(
-			hajikies_[HajikiType::Player][Reality].object.get(), hajikies_[HajikiType::Player][Imaginary].object.get())) {
+			hajikies_[HajikiType::Player][Reality].object.get(), soulObject_.get())) {
 
 			// 魂がまたついていくようになる
 			hajikies_[HajikiType::Player][Imaginary].isLeave = false;

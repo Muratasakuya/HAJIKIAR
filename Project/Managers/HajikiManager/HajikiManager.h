@@ -73,6 +73,7 @@ public:
 
 	void MouseMove(HajikiType type);
 
+	void Initialize();
 	void Update();
 	void Draw();
 
@@ -92,25 +93,12 @@ private:
 
 	// 現実と虚
 	static const uint32_t dualityNum = 2;
-
-	// ImGui
-	ImGuiRenderer imgui_;
-
-	// 衝突管理
-	std::array< std::unique_ptr<CollisionManager>, dualityNum> collisionManagers_;
-
 	// 質量
 	const float mass_ = 16.0f;
 	// 最低速度
 	const Vector2 minVelocity_ = { 0.02f ,0.02f };
 	// 最高速度
 	const Vector2 maxVelocity_ = { 0.5f,0.5f };
-
-	// 全てのHajiki
-	std::unordered_map<HajikiType, std::vector<HajikiData>> hajikies_;
-
-	// 衝突相手のブロック
-	std::vector<GameObject3D*> blocks_;
 
 	// マウス座標
 	Vector2 mousePos_;
@@ -123,6 +111,23 @@ private:
 
 	// 魂が離れるときの猶予
 	bool isLeaveWaitPlayerSoul_;
+
+	/*----------------------------------------------------------------------*/
+
+	// ImGui
+	ImGuiRenderer imgui_;
+
+	// 衝突管理
+	std::array< std::unique_ptr<CollisionManager>, dualityNum> collisionManagers_;
+
+	// 全てのHajiki
+	std::unordered_map<HajikiType, std::vector<HajikiData>> hajikies_;
+
+	// 衝突相手のブロック
+	std::vector<GameObject3D*> blocks_;
+
+	// 魂が抜けた時の指標オブジェクト
+	std::unique_ptr<GameObject3D> soulObject_;
 
 private:
 	/*-----------------------------*/

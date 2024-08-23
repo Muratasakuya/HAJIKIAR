@@ -238,6 +238,9 @@ void SoloGame::Initialize() {
 		hajikiManager_->SetBlocks(block.get());
 	}
 
+	// 初期化
+	hajikiManager_->Initialize();
+
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// ImGuiセット
 	imgui_.Set(hajikiManager_->GetHajiki(HajikiType::Player, 0).object.get());
@@ -275,8 +278,6 @@ void SoloGame::Update() {
 
 	// マウス移動
 	hajikiManager_->MouseMove(HajikiType::Player);
-	// 更新
-	hajikiManager_->Update();
 
 	// Kirai更新
 	KiraiUpdate();
@@ -291,6 +292,8 @@ void SoloGame::Update() {
 	// 衝突判定
 
 	hajikiManager_->CollisionUpdate();
+	// 更新
+	hajikiManager_->Update();
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

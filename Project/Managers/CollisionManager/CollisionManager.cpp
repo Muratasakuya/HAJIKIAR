@@ -146,18 +146,15 @@ bool CollisionManager::CapsuleCheckCollision(const Vector3& pos0, const Vector3&
 ////////////////////////////////////////////////////////////////////////////////*/
 bool CollisionManager::SphereToSoulSphereCheckCollision(Collider<Vector3>* colliderA, Collider<Vector3>* colliderB) {
 
-	// Z座標
-	float posZ = (colliderA->GetCenterPos().z + colliderB->GetCenterPos().z) / 2.0f;
-
 	// A座標
-	Vector3 posA = { colliderA->GetCenterPos().x,colliderA->GetCenterPos().y,posZ };
+	Vector2 posA = { colliderA->GetCenterPos().x,colliderA->GetCenterPos().y };
 	// B座標
-	Vector3 posB = { colliderB->GetCenterPos().x,colliderB->GetCenterPos().y,posZ };
+	Vector2 posB = { colliderB->GetCenterPos().x,colliderB->GetCenterPos().y };
 
 	// 差分ベクトル
-	Vector3 sub = posB - posA;
+	Vector2 sub = posB - posA;
 	// 距離
-	float distance = Vector3::Length(sub);
+	float distance = Vector2::Length(sub);
 
 	if (distance <= colliderA->GetHalfSize() + colliderB->GetHalfSize()) {
 
