@@ -1,14 +1,6 @@
 #include "HajikiManager.h"
 
-/*////////////////////////////////////////////////////////////////////////////////
-*								コンストラクタ
-////////////////////////////////////////////////////////////////////////////////*/
-HajikiManager::HajikiManager() {}
-
-/*////////////////////////////////////////////////////////////////////////////////
-*								  デストラクタ
-////////////////////////////////////////////////////////////////////////////////*/
-HajikiManager::~HajikiManager() {}
+#include "ImGuiManager.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
 *									Hajiki追加
@@ -44,6 +36,7 @@ void HajikiManager::AddHajiki(HajikiType type, std::unique_ptr<GameObject3D> obj
 	{ friction.magnitude_ * -friction.dirction_.x,friction.magnitude_ * -friction.dirction_.y };
 
 	// 追加
+	hajikiesInitPos_[type].push_back(obj->GetCenterPos());
 	hajikies_[type].emplace_back(std::move(obj), physics, friction);
 
 	for (auto& hajiki : hajikies_[type]) {
@@ -224,6 +217,31 @@ void HajikiManager::MouseMove(HajikiType type) {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
+*								ゲームプレイ中のリセット
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::Reset() {
+
+	if (NewMoon::TriggerKey(DIK_R)) {
+
+		for (auto& pair : hajikies_) {
+			auto& hajikiList = pair.second;
+			for (uint32_t i = 0; i < hajikiList.size(); i++) {
+
+				// 初期座標で初期化
+				hajikiList[i].object->SetTranslate(hajikiesInitPos_[pair.first][i]);
+				hajikiList[i].pos = { hajikiList[i].object->GetCenterPos().x,hajikiList[i].object->GetCenterPos().y };
+
+				hajikiList[i].physics.velocity.Initialize();
+				hajikiList[i].physics.acceleration.Initialize();
+
+				hajikiList[i].isLeave = false;
+				hajikiList[i].isPower_ = false;
+			}
+		}
+	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
 *								    初期化
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::Initialize() {
@@ -234,6 +252,9 @@ void HajikiManager::Initialize() {
 
 		collisionManagers_[i] = std::make_unique<CollisionManager>();
 	}
+
+	// falseで初期化
+	isClear_ = false;
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// 魂が抜けた時のオブジェクト
@@ -274,11 +295,17 @@ void HajikiManager::Initialize() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::Update() {
 
+	// リセット処理
+	Reset();
+
 	// 魂が離れているときのPlayerの更新
 	LeaveSoulPlayerUpdate();
 
 	// LineHajikiの更新処理
 	LineHajikiUpdate();
+
+	// ゴール判定
+	GoalCheck();
 
 	// TargetHajiki1の座標
 	Vector2 targetHajikiPos =
@@ -548,5 +575,32 @@ void HajikiManager::LeaveSoulPlayerUpdate() {
 			hajikies_[HajikiType::Player][Imaginary].isLeave = false;
 			isLeaveWaitPlayerSoul_ = false;
 		}
+	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								ゴール判定とその後の処理
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::GoalCheck() {
+
+	ImGui::Begin("Clear");
+
+	std::string clear = std::format("isClear {}", isClear_);
+	ImGui::Text(clear.c_str());
+
+	ImGui::End();
+
+	// ゴール判定
+	if (collisionManagers_[Reality]->PointInTriangle(
+		hajikies_[HajikiType::Player][Reality].object.get(), hajikies_[HajikiType::Line][0].object.get(),
+		hajikies_[HajikiType::Line][1].object.get(), hajikies_[HajikiType::Target][Reality].object.get())) {
+		// 魂が離れていなくてなおかつ間を通過したあと
+		if (hajikies_[HajikiType::Player][Reality].isPower_ && !hajikies_[HajikiType::Player][Imaginary].isLeave) {
+
+			isClear_ = true;
+		}
+	} else {
+
+		isClear_ = false;
 	}
 }

@@ -167,6 +167,44 @@ bool CollisionManager::SphereToSoulSphereCheckCollision(Collider<Vector3>* colli
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
+*						三角形の中にあるかどうかのチェック
+////////////////////////////////////////////////////////////////////////////////*/
+bool CollisionManager::PointInTriangle(Collider<Vector3>* vertexA, Collider<Vector3>* vertexB, Collider<Vector3>* vertexC, Collider<Vector3>* point) {
+
+	// 座標の代入
+	Vector2 posA = { vertexA->GetCenterPos().x,vertexA->GetCenterPos().y };
+	Vector2 posB = { vertexB->GetCenterPos().x,vertexB->GetCenterPos().y };
+	Vector2 posC = { vertexC->GetCenterPos().x,vertexC->GetCenterPos().y };
+	Vector2 posD = { point->GetCenterPos().x,point->GetCenterPos().y };
+
+	if (LeftRightCheck(posD, posC, posB) && LeftRightCheck(posD, posA, posD) && LeftRightCheck(posD, posB, posA) ||
+		!LeftRightCheck(posD, posC, posB) && !(LeftRightCheck(posD, posA, posD) && !LeftRightCheck(posD, posB, posA))) {
+
+		return true;
+	}
+
+	return false;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*						左右のどちらにいるかチェック
+////////////////////////////////////////////////////////////////////////////////*/
+bool CollisionManager::LeftRightCheck(const Vector2& pos0, const Vector2& pos1, const Vector2& pos2) {
+
+	Vector2 posA = pos1 - pos0;
+	Vector2 posB = pos2 - pos0;
+
+	float cross = posA.x * posB.y - posA.y * posB.x;
+
+	if (cross < 0) {
+
+		return true;
+	}
+
+	return false;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
 *								壁との当たり判定X
 ////////////////////////////////////////////////////////////////////////////////*/
 bool CollisionManager::EdgeCheckCollisionX(Collider<Vector3>* collider, float sizeX) {

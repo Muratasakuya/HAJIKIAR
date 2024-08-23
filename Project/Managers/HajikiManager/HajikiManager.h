@@ -64,14 +64,17 @@ public:
 	///			メンバ関数
 	/*-----------------------------*/
 
-	HajikiManager();
-	~HajikiManager();
+	// default
+	HajikiManager() = default;
+	~HajikiManager() = default;
 
 	void AddHajiki(HajikiType type, std::unique_ptr<GameObject3D> obj);
 
 	void CollisionUpdate();
 
 	void MouseMove(HajikiType type);
+
+	void Reset();
 
 	void Initialize();
 	void Update();
@@ -112,6 +115,9 @@ private:
 	// 魂が離れるときの猶予
 	bool isLeaveWaitPlayerSoul_;
 
+	// クリア判定フラグ
+	bool isClear_;
+
 	/*----------------------------------------------------------------------*/
 
 	// ImGui
@@ -122,6 +128,7 @@ private:
 
 	// 全てのHajiki
 	std::unordered_map<HajikiType, std::vector<HajikiData>> hajikies_;
+	std::unordered_map<HajikiType, std::vector<Vector3>> hajikiesInitPos_;
 
 	// 衝突相手のブロック
 	std::vector<GameObject3D*> blocks_;
@@ -154,5 +161,8 @@ private:
 
 	// 魂が離れているときのPlayerの更新
 	void LeaveSoulPlayerUpdate();
+
+	// ゴール判定
+	void GoalCheck();
 
 };

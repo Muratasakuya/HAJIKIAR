@@ -46,6 +46,7 @@ public:
 	bool SphereToBlockCheckCollision(Collider<Vector3>* sphere, Collider<Vector3>* block);
 	bool CapsuleCheckCollision(const Vector3& pos0, const Vector3& pos1, const Vector3& pos2, float size0, float size1);
 	bool SphereToSoulSphereCheckCollision(Collider<Vector3>* colliderA, Collider<Vector3>* colliderB);
+	bool PointInTriangle(Collider<Vector3>* vertexA, Collider<Vector3>* vertexB, Collider<Vector3>* vertexC, Collider<Vector3>* point);
 
 private:
 	/*-----------------------------*/
@@ -54,6 +55,14 @@ private:
 
 	using ColliderVariant = std::variant<Collider<Vector2>*, Collider<Vector3>*>;
 	std::list<std::pair<ColliderVariant, ColliderType>> colliders_;
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
+
+	// 左右判定
+	bool LeftRightCheck(const Vector2& pos0, const Vector2& pos1, const Vector2& pos2);
 
 };
 
