@@ -3,6 +3,9 @@
 // 3D
 #include "GameObject2D.h"
 
+// ImGui
+#include "ImGuiRenderer.h"
+
 // OpenCV
 #include "OpenCV.h"
 
@@ -30,6 +33,12 @@ private:
 	/*-----------------------------*/
 	///			メンバ変数
 	/*-----------------------------*/
+
+	// OpenCV
+	OpenCV* openCV_ = nullptr;
+
+	// ImGui
+	ImGuiRenderer imgui_;
 
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
