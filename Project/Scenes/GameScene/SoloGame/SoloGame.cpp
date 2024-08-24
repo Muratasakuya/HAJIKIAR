@@ -404,6 +404,18 @@ void SoloGame::LineUpdate() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void SoloGame::UpdateArea() {
 
+	if (hajikiManager_->GetHajiki(HajikiType::Player, 0).physics.velocity.x == 0
+		&& hajikiManager_->GetHajiki(HajikiType::Player, 0).physics.velocity.y == 0) {
+		isShowArea = false;
+	} else if (hajikiManager_->GetHajiki(HajikiType::Player, 0).object->GetIsPass()) {
+		isShowArea = true;
+	}
+
+	// フラグが立っていなければ早期リターン
+	if (!isShowArea) {
+		return;
+	}
+
 	// カメラの方向ベクトル（例として前方方向を示す）
 	Vector3 cameraDirection = { 0.0f, 0.0f, -1.0f };
 
@@ -434,7 +446,6 @@ void SoloGame::UpdateArea() {
 	// 配列に座標を挿入
 	std::array<Vector3, 3> areaTriangleVertices = { posA, posB, posC };
 
-
 	// 重心を求める
 	Vector3 CenterPos = (posA + posB + posC) / 3.0f;
 
@@ -445,5 +456,10 @@ void SoloGame::UpdateArea() {
 }
 
 void SoloGame::DrawArea() {
+
+	// フラグが立っていなければ早期リターン
+	if (!isShowArea) {
+		return;
+	}
 	area_->Draw();
 }
