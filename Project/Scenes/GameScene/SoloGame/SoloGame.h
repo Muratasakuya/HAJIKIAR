@@ -98,6 +98,7 @@ private:
 
 	std::unique_ptr<GameObject3D> area_;
 	float kAreaTranslateZ = 0.0f;
+	bool isShowArea = false;
 
 private:
 	/*-----------------------------*/
