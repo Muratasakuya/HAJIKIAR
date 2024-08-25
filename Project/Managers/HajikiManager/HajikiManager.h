@@ -82,7 +82,7 @@ public:
 
 	// getter
 
-	HajikiData& GetHajiki(HajikiType type, size_t index);
+	const HajikiData& GetHajiki(HajikiType type, size_t index) const;
 	size_t GetHajikiCount(HajikiType type) const;
 
 	// setter
