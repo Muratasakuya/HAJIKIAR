@@ -107,10 +107,6 @@ bool OpenCV::DetectAndCorrectBlackBorder(const cv::Mat& inputFrame, cv::Mat& out
 			if (srcPoints[0].x > srcPoints[1].x) std::swap(srcPoints[0], srcPoints[1]);
 			if (srcPoints[2].x < srcPoints[3].x) std::swap(srcPoints[2], srcPoints[3]);
 
-			// 検出した黒枠の座標を保持
-			blackBorderPoints_ = srcPoints;
-			isBlackBorderDetected_ = true;
-
 			// 目的の出力ポイント（まっすぐな四角形）
 			std::vector<cv::Point2f> dstPoints = {
 				cv::Point2f(0.0f, 0.0f),
@@ -129,20 +125,6 @@ bool OpenCV::DetectAndCorrectBlackBorder(const cv::Mat& inputFrame, cv::Mat& out
 		}
 	}
 
-	// 黒枠が検出されなかった場合、以前の枠を使用
-	if (isBlackBorderDetected_) {
-		std::vector<cv::Point2f> dstPoints = {
-			cv::Point2f(0.0f, 0.0f),
-			cv::Point2f(static_cast<float>(inputFrame.cols), 0.0f),
-			cv::Point2f(static_cast<float>(inputFrame.cols), static_cast<float>(inputFrame.rows)),
-			cv::Point2f(0.0f, static_cast<float>(inputFrame.rows))
-		};
-
-		cv::Mat perspectiveMatrix = cv::getPerspectiveTransform(blackBorderPoints_, dstPoints);
-		cv::warpPerspective(inputFrame, outputFrame, perspectiveMatrix, inputFrame.size());
-		return true;
-	}
-
 	return false;
 }
 
@@ -152,7 +134,7 @@ bool OpenCV::DetectAndCorrectBlackBorder(const cv::Mat& inputFrame, cv::Mat& out
 void OpenCV::OpenCamera() {
 
 	// カメラ起動
-	camera_.open(0);
+	camera_.open(0, cv::CAP_DSHOW);
 
 	// カメラが開けなければエラー
 	if (!camera_.isOpened()) {
@@ -160,10 +142,11 @@ void OpenCV::OpenCamera() {
 		throw std::runtime_error("Error: Camera could not be opened.");
 	}
 
-	// カメラウィンドウのサイズ
-	camera_.set(cv::CAP_PROP_FRAME_WIDTH, 640);  // 横幅
-	camera_.set(cv::CAP_PROP_FRAME_HEIGHT, 360); // 縦幅
-	camera_.set(cv::CAP_PROP_FPS, 60);           // フレームレート (FPS)
+	// 初期化が終わったら、必要に応じて解像度を上げる
+	camera_.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
+	camera_.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+	camera_.set(cv::CAP_PROP_FRAME_HEIGHT, 360);
+	camera_.set(cv::CAP_PROP_FPS, 60);
 
 	trackColor_ = { 0.0f, 1.0f, 0.0f };
 	trackColor2_ = { 0.0f, 0.0f, 1.0f };

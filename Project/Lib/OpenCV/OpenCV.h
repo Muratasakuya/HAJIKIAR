@@ -15,6 +15,7 @@
 #include <vector>
 #include <array>
 #include <string>
+#include <thread>
 #include <iostream>
 #include <fstream>
 #include <cassert>
