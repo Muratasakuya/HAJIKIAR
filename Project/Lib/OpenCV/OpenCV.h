@@ -86,11 +86,15 @@ private:
 
 	bool isFirstFrame_ = true;
 
+	std::vector<cv::Point2f> blackBorderPoints_;
+	bool isBlackBorderDetected_ = false;
+
 private:
 	/*-----------------------------*/
 	///			private関数
 	/*-----------------------------*/
 
 	cv::Mat ConvertRGBtoHSV(const Vector3& color);
+	bool DetectAndCorrectBlackBorder(const cv::Mat& inputFrame, cv::Mat& outputFrame);
 
 };

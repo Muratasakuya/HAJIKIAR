@@ -58,7 +58,96 @@ cv::Mat OpenCV::ConvertRGBtoHSV(const Vector3& color) {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
-*								  カメラ起動
+*									 黒枠検出
+////////////////////////////////////////////////////////////////////////////////*/
+bool OpenCV::DetectAndCorrectBlackBorder(const cv::Mat& inputFrame, cv::Mat& outputFrame) {
+
+	cv::Mat grayFrame, blurredFrame, edges;
+
+	// グレースケール変換
+	cv::cvtColor(inputFrame, grayFrame, cv::COLOR_BGR2GRAY);
+
+	// ブラー処理
+	cv::GaussianBlur(grayFrame, blurredFrame, cv::Size(5, 5), 0);
+
+	// エッジ検出
+	cv::Canny(blurredFrame, edges, 50, 150);
+
+	// 輪郭検出
+	std::vector<std::vector<cv::Point>> contours;
+	cv::findContours(edges, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+	// 最大の輪郭を見つける
+	std::vector<cv::Point> largestContour;
+	double maxArea = 0;
+	for (const auto& contour : contours) {
+		double area = cv::contourArea(contour);
+		if (area > maxArea) {
+			maxArea = area;
+			largestContour = contour;
+		}
+	}
+
+	// 黒枠の特定
+	if (!largestContour.empty()) {
+		// 四角形近似
+		std::vector<cv::Point> approx;
+		cv::approxPolyDP(largestContour, approx, cv::arcLength(largestContour, true) * 0.02, true);
+
+		// 四角形の場合のみ処理を続行
+		if (approx.size() == 4) {
+			// cv::Point を cv::Point2f に変換
+			std::vector<cv::Point2f> srcPoints;
+			for (const auto& point : approx) {
+				srcPoints.push_back(cv::Point2f(static_cast<float>(point.x), static_cast<float>(point.y)));
+			}
+
+			// 頂点の順序を整列させる
+			std::sort(srcPoints.begin(), srcPoints.end(), [](const cv::Point2f& a, const cv::Point2f& b) { return a.y < b.y; });
+			if (srcPoints[0].x > srcPoints[1].x) std::swap(srcPoints[0], srcPoints[1]);
+			if (srcPoints[2].x < srcPoints[3].x) std::swap(srcPoints[2], srcPoints[3]);
+
+			// 検出した黒枠の座標を保持
+			blackBorderPoints_ = srcPoints;
+			isBlackBorderDetected_ = true;
+
+			// 目的の出力ポイント（まっすぐな四角形）
+			std::vector<cv::Point2f> dstPoints = {
+				cv::Point2f(0.0f, 0.0f),
+				cv::Point2f(static_cast<float>(inputFrame.cols), 0.0f),
+				cv::Point2f(static_cast<float>(inputFrame.cols), static_cast<float>(inputFrame.rows)),
+				cv::Point2f(0.0f, static_cast<float>(inputFrame.rows))
+			};
+
+			// 透視変換行列を計算
+			cv::Mat perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
+
+			// 画像の透視変換
+			cv::warpPerspective(inputFrame, outputFrame, perspectiveMatrix, inputFrame.size());
+
+			return true;
+		}
+	}
+
+	// 黒枠が検出されなかった場合、以前の枠を使用
+	if (isBlackBorderDetected_) {
+		std::vector<cv::Point2f> dstPoints = {
+			cv::Point2f(0.0f, 0.0f),
+			cv::Point2f(static_cast<float>(inputFrame.cols), 0.0f),
+			cv::Point2f(static_cast<float>(inputFrame.cols), static_cast<float>(inputFrame.rows)),
+			cv::Point2f(0.0f, static_cast<float>(inputFrame.rows))
+		};
+
+		cv::Mat perspectiveMatrix = cv::getPerspectiveTransform(blackBorderPoints_, dstPoints);
+		cv::warpPerspective(inputFrame, outputFrame, perspectiveMatrix, inputFrame.size());
+		return true;
+	}
+
+	return false;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									カメラ起動
 ////////////////////////////////////////////////////////////////////////////////*/
 void OpenCV::OpenCamera() {
 
@@ -296,16 +385,22 @@ void OpenCV::Update() {
 	// ガウシアンブラー
 	cv::GaussianBlur(frame_, frame_, cv::Size(5, 5), 0);
 
+	// 黒の枠の検出と補正後の画像の抽出
+	cv::Mat correctedFrame;
+	bool foundBlackBorder = DetectAndCorrectBlackBorder(frame_, correctedFrame);
+
+	if (foundBlackBorder) {
+		// 補正されたフレームを640x360にリサイズ
+		cv::resize(correctedFrame, frame_, cv::Size(640, 360));
+	} else if (isBlackBorderDetected_) {
+		// 黒枠が見つからない場合、以前の枠を使用して画像を切り抜き
+		cv::resize(frame_, frame_, cv::Size(640, 360));
+	}
+
+
 	// 色のトラッキング
 	ColorTracking();
 
-	//// QRコードの検出とデコード
-	//decodedText_ = qrDecoder_.detectAndDecode(frame_);
-	//// QRコードを検出できたら
-	//if (!decodedText_.empty()) {
-	//	// QRCodeデータ追加
-	//	qrCodeData_.push_back(decodedText_);
-	//}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
