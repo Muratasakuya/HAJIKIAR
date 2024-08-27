@@ -77,6 +77,7 @@ public:
 	// setter
 
 	void SetHalfSize(float halfSize);
+	void SetDiffSize(const Vector2& size);
 	void SetIsHit(bool isHit);
 	void SetIsPass(bool isPass);
 	void SetPhysics(Physics<VectorType> physics);
@@ -90,6 +91,7 @@ public:
 
 	virtual VectorType GetCenterPos() const = 0;
 	float GetHalfSize() const;
+	Vector2 GetDiffSize() const;
 	bool GetIsHit() const;
 	bool GetIsPass() const;
 	Physics<VectorType> GetPhysics() const;
@@ -105,6 +107,7 @@ private:
 	/*-----------------------------*/
 
 	float halhSize_;
+	Vector2 size_;
 	bool isHit_;
 	bool isPass_;
 	ColliderType colliderType_;
@@ -123,6 +126,12 @@ template<typename VectorType>
 void Collider<VectorType>::SetHalfSize(float halfSize) {
 
 	halhSize_ = halfSize;
+}
+
+template<typename VectorType>
+void Collider<VectorType>::SetDiffSize(const Vector2& size) {
+
+	size_ = size;
 }
 
 // isHit_ = isHit setter
@@ -191,6 +200,11 @@ template<typename VectorType>
 float Collider<VectorType>::GetHalfSize() const {
 
 	return halhSize_;
+}
+
+template<typename VectorType>
+Vector2 Collider<VectorType>::GetDiffSize() const {
+	return size_;
 }
 
 // isHit_ getter

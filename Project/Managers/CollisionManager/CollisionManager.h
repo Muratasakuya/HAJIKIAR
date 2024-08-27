@@ -41,6 +41,10 @@ public:
 	bool CircleToCircleCheckCollision(Collider<Vector2>* colliderA, Collider<Vector2>* colliderB);
 	bool QuadToQuadCheckCollision(Collider<Vector2>* colliderA, Collider<Vector2>* colliderB);
 
+	// MouseTo
+	// 2D 
+	bool MouseToCheckCollision(const Vector2& mousePos, Collider<Vector2>* collider, float anchor);
+
 	// HAJIKI
 	bool PassLineCheckCollision(Collider<Vector3>* linePointA, Collider<Vector3>* linePointB, Collider<Vector3>* collider);
 	bool SphereToBlockCheckCollision(Collider<Vector3>* sphere, Collider<Vector3>* block);

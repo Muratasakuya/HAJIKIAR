@@ -19,6 +19,9 @@ TitleScene::~TitleScene() {}
 ////////////////////////////////////////////////////////////////////////////////*/
 void TitleScene::Initialize() {
 
+	// 衝突判定
+	collisionManager_ = std::make_unique<CollisionManager>();
+
 	/*======================================================*/
 	// テクスチャ読み込み
 
@@ -100,6 +103,7 @@ void TitleScene::Initialize() {
 	credit_->SetTexture(creditTextureName);
 	credit_->SetAnchor(anchorPoint);
 	credit_->SetColor(textureColor);
+	credit_->SetDiffSize({ 327.0f,69.0f });
 	credit_->SetObjectName("credit");
 
 	/*======================================================*/
@@ -155,10 +159,19 @@ void TitleScene::Update() {
 	// 3DMode
 	if (applicationMode_ == ApplicationMode::GAME3D) {
 
-		// 左クリックスタート 基本どこでも、ただしクレジットの文字の場所以外
-		if (NewMoon::PushMouseLeft()) {
+		Vector2 mousePos = NewMoon::GetMousePos();
 
-			SceneManager::GetInstance()->ChangeScene(TUTORIAL);
+		if (collisionManager_->MouseToCheckCollision(mousePos, credit_.get(), credit_->GetAnchor())) {
+
+			// 本来であればクレジットシーンに行く
+			return;
+		} else {
+
+			// 左クリックスタート 基本どこでも、ただしクレジットの文字の場所以外
+			if (NewMoon::PushMouseLeft()) {
+
+				SceneManager::GetInstance()->ChangeScene(TUTORIAL);
+			}
 		}
 	}
 

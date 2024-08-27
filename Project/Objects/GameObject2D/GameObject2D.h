@@ -51,6 +51,7 @@ public:
 
 	Vector2 GetCenterPos() const override;
 	Vector4 GetColor() const;
+	float GetAnchor() const;
 	GameObjectType GetType() const;
 	std::string GetObjectName() const;
 

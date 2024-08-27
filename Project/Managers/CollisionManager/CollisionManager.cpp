@@ -65,6 +65,42 @@ void CollisionManager::CheckAllCollisions() {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
+*							マウスカーソルとの衝突判定
+////////////////////////////////////////////////////////////////////////////////*/
+bool CollisionManager::MouseToCheckCollision(const Vector2& mousePos, Collider<Vector2>* collider, float anchor) {
+
+	// 左上アンカー
+	if (anchor == 0.0f) {
+
+		Vector2 pos = collider->GetCenterPos();
+		Vector2 size = collider->GetDiffSize();
+
+		// 左上アンカーの場合の範囲チェック
+		if (mousePos.x >= pos.x && mousePos.x <= pos.x + size.x &&
+			mousePos.y >= pos.y && mousePos.y <= pos.y + size.y) {
+
+			return true;
+		}
+	}
+
+	// 中心アンカー
+	if (anchor == 0.5f) {
+
+		Vector2 pos = collider->GetCenterPos();
+		// 半分
+		Vector2 size = { collider->GetDiffSize().x / 2.0f,collider->GetDiffSize().y / 2.0f };
+
+		if (mousePos.x >= pos.x - size.x && mousePos.x <= pos.x + size.x &&
+			mousePos.y >= pos.y - size.y && mousePos.y <= pos.y + size.y) {
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
 *							 線の上を通過したかの判定
 ////////////////////////////////////////////////////////////////////////////////*/
 bool CollisionManager::PassLineCheckCollision(Collider<Vector3>* linePointA, Collider<Vector3>* linePointB, Collider<Vector3>* collider) {

@@ -62,6 +62,11 @@ Vector4 GameObject2D::GetColor() const {
 
 	return color_;
 }
+float GameObject2D::GetAnchor() const {
+
+	// 両方一緒とする
+	return transform2D_.anchorPoint.x;
+}
 // type_ getter
 GameObjectType GameObject2D::GetType() const {
 

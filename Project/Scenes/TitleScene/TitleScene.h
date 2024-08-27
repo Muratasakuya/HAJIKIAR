@@ -9,6 +9,9 @@
 // ImGui
 #include "ImGuiRenderer.h"
 
+// Collision
+#include "CollisionManager.h"
+
 // c++
 #include <memory>
 
@@ -36,6 +39,9 @@ private:
 
 	// ImGui
 	ImGuiRenderer imgui_;
+
+	// 衝突判定
+	std::unique_ptr<CollisionManager> collisionManager_;
 
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
