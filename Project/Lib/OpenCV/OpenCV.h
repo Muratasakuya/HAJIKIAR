@@ -7,6 +7,9 @@
 #include <opencv2/video/tracking.hpp>
 #include <opencv2/objdetect/objdetect.hpp>
 
+// json
+#include "JsonHandler.h"
+
 // Lib
 #include "Vector2.h"
 #include "Vector3.h"
@@ -67,9 +70,6 @@ private:
 	///			メンバ変数
 	/*-----------------------------*/
 
-	Vector2 edgeSize_;
-	bool game3DMode_ = false;
-
 	// カメラ
 	cv::VideoCapture camera_;
 
@@ -89,39 +89,44 @@ private:
 	// ゲームシーンに渡す座標
 	Vector2 greenCenter_;
 	Vector2 blueCenter_;
-	// 座標が取れなかったときの座標 pre
-	Vector2 greenPreCenter_;
-	Vector2 bluePreCenter_;
-
 	Vector2 prevGreenCenter_;
 	Vector2 prevBlueCenter_;
 
-	Vector3 trackColor_;
-	Vector3 trackColor2_;
-
-	int colorRange_;
-
 	bool isFirstFrame_ = true;
 
-	std::vector<cv::Point2f> blackBorderPoints_;
-	bool isBlackBorderDetected_ = false;
+	// 追跡する指標の色RGBA
+	Vector3 trackColor_;
+	Vector3 trackColor2_;
+	// 色の藩士
+	int colorRange_;
 
 	// HAHJIKI
+
+	// 画面サイズ
+	Vector2 edgeSize_;
+	bool game3DMode_ = false;
 
 	bool isBlueHajikiFound_ = false;
 	bool isGreenHajikiFound_ = false;
 
-	int exposure_;
-	int kelvin_;
-
 	/*---------------------------------------------------------*/
+
+	// json
+	std::unique_ptr<JsonHandler> jsonHandler_;
 
 	// ROIの範囲を設定する変数
 	// 4つの頂点の座標を保持する変数
-	cv::Point point1_ = { 137, 100 };
-	cv::Point point2_ = { 540, 90 };
-	cv::Point point3_ = { 559, 322 };
-	cv::Point point4_ = { 137, 341 };
+	cv::Point point1_;
+	cv::Point point2_;
+	cv::Point point3_;
+	cv::Point point4_;
+
+	std::array<cv::Point, 4> points_;
+
+	int exposure_;
+	int kelvin_;
+	bool whiteBalance_;
+
 private:
 	/*-----------------------------*/
 	///			private関数

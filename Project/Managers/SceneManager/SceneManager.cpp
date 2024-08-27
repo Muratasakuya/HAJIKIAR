@@ -20,6 +20,7 @@ SceneManager::SceneManager() {
 
 	// インスタンスの代入
 	openCV_ = OpenCV::GetInstance();
+	openCV_->Initialize();
 	// カメラ起動
 	openCV_->OpenCamera();
 	// ウィンドウサイズ

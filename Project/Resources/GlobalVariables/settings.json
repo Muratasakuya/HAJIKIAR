@@ -1,0 +1,21 @@
+{
+    "Exposure": -4,
+    "Kelvin": 4500,
+    "Point1": [
+        136,
+        108
+    ],
+    "Point2": [
+        554,
+        99
+    ],
+    "Point3": [
+        554,
+        315
+    ],
+    "Point4": [
+        127,
+        315
+    ],
+    "WhiteBalance": true
+}

@@ -151,13 +151,6 @@ void OpenCV::OpenCamera() {
 	camera_.set(cv::CAP_PROP_FRAME_HEIGHT, 360);
 	camera_.set(cv::CAP_PROP_FPS, 60);
 
-	exposure_ = -6;
-
-	kelvin_ = 4500;
-
-	camera_.set(cv::CAP_PROP_AUTO_WB, 0);
-	camera_.set(cv::CAP_PROP_WB_TEMPERATURE, kelvin_);
-
 	trackColor_ = { 0.0f, 1.0f, 0.0f };
 	trackColor2_ = { 0.0f, 0.0f, 1.0f };
 
@@ -326,7 +319,6 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 		} else {
 
 			isGreenHajikiFound_ = false;
-			greenPreCenter_ = currentGreenCenter;
 		}
 	}
 
@@ -374,7 +366,6 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 		} else {
 
 			isBlueHajikiFound_ = false;
-			bluePreCenter_ = currentBlueCenter;
 		}
 	}
 
@@ -400,7 +391,30 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 /*////////////////////////////////////////////////////////////////////////////////
 *									初期化
 ////////////////////////////////////////////////////////////////////////////////*/
-void OpenCV::Initialize() {}
+void OpenCV::Initialize() {
+
+	jsonHandler_ = std::make_unique<JsonHandler>("./Resources/GlobalVariables/");
+
+	// JSONからポイント情報とカメラ設定を読み込む
+	if (!jsonHandler_->LoadSettings("settings", points_, exposure_, kelvin_, whiteBalance_)) {
+
+		// デフォルト値を設定
+		points_ = { cv::Point(0, 0), cv::Point(100, 0), cv::Point(100, 100), cv::Point(0, 100) };
+		exposure_ = -6;
+		kelvin_ = 4500;
+		whiteBalance_ = false;
+	}
+
+	// 読み込んだポイントと設定を使って初期化
+	point1_ = points_[0];
+	point2_ = points_[1];
+	point3_ = points_[2];
+	point4_ = points_[3];
+
+	camera_.set(cv::CAP_PROP_AUTO_WB, whiteBalance_);
+	camera_.set(cv::CAP_PROP_EXPOSURE, exposure_);
+	camera_.set(cv::CAP_PROP_WB_TEMPERATURE, kelvin_);
+}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								    更新処理
@@ -410,15 +424,30 @@ void OpenCV::Update() {
 	// ImGuiを使用してROIの範囲を設定
 	ImGui::Begin("Polygon ROI Control");
 
-	ImGui::SliderInt2("Point 1", &point1_.x, 0, frame_.cols);
-	ImGui::SliderInt2("Point 2", &point2_.x, 0, frame_.cols);
-	ImGui::SliderInt2("Point 3", &point3_.x, 0, frame_.cols);
-	ImGui::SliderInt2("Point 4", &point4_.x, 0, frame_.cols);
+	bool updated = false;
+
+	updated |= ImGui::SliderInt2("Point 1", &point1_.x, 0, frame_.cols);
+	updated |= ImGui::SliderInt2("Point 2", &point2_.x, 0, frame_.cols);
+	updated |= ImGui::SliderInt2("Point 3", &point3_.x, 0, frame_.cols);
+	updated |= ImGui::SliderInt2("Point 4", &point4_.x, 0, frame_.cols);
 	ImGui::InputInt("exposure ", &exposure_);
 	ImGui::InputInt("kelvin ", &kelvin_);
+	ImGui::Checkbox("whiteBalance", &whiteBalance_);
+
+	ImGui::Separator();
+	ImGui::Text("Json");
+	if (ImGui::Button("Save")) {
+
+		points_ = { point1_, point2_, point3_, point4_ };
+		jsonHandler_->SaveSettings("settings", points_, exposure_, kelvin_, whiteBalance_);
+		std::string message = "Settings.json saved.";
+		MessageBoxA(nullptr, message.c_str(), "Save Confirmation", 0);
+	}
 
 	ImGui::End();
 
+	// ImGuiで変更した値の適応
+	camera_.set(cv::CAP_PROP_AUTO_WB, whiteBalance_);
 	camera_.set(cv::CAP_PROP_EXPOSURE, exposure_);
 	camera_.set(cv::CAP_PROP_WB_TEMPERATURE, kelvin_);
 
