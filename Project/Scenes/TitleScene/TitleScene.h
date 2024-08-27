@@ -39,10 +39,7 @@ private:
 
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
-
-	// 背景画像
-	std::unique_ptr<GameObject2D> background_;
-
+	// 
 	// タイトルロゴ
 	std::unique_ptr<GameObject2D> titleLogo_;
 

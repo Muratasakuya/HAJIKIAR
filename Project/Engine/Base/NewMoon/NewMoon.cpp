@@ -17,6 +17,7 @@ uint32_t NewMoon::kWindowWidthd = 1280;
 uint32_t NewMoon::kWindowHeightd = 720;
 float NewMoon::kWindowWidthf = 1280.0f;
 float NewMoon::kWindowHeightf = 720.0f;
+float NewMoon::deltaTime = 0.01f;
 std::unique_ptr<WinApp> NewMoon::winApp_ = nullptr;
 std::unique_ptr<DXCommon> NewMoon::dxCommon_ = nullptr;
 std::unique_ptr<SrvManager> NewMoon::srvManager_ = nullptr;
@@ -263,7 +264,7 @@ void NewMoon::DrawTriangle(const std::array<Vector3, kTriangleVertexNum_>& verti
 /*////////////////////////////////////////////////////////////////////////////////
 *								   スプライト
 ////////////////////////////////////////////////////////////////////////////////*/
-void NewMoon::DrawSprite(const Transform2D& transform2D, Vector4 color, const std::string textureName, BlendMode blendMode) {
+void NewMoon::DrawSprite(const Transform2D& transform2D, Vector4 color, const std::string textureName, bool adjustSize, BlendMode blendMode) {
 
 	// CommandListをdxCommonClassからもってくる
 	ComPtr<ID3D12GraphicsCommandList> commandList = dxCommon_->GetCommandList();
@@ -275,7 +276,7 @@ void NewMoon::DrawSprite(const Transform2D& transform2D, Vector4 color, const st
 	// 色のセット
 	sprite->SetColor(color);
 	// 更新
-	sprite->Update(textureName);
+	sprite->Update(textureName, adjustSize);
 	// パイプラインのセット
 	pipelineManager_->SetGraphicsPipeline(commandList.Get(), Object2D, blendMode);
 	// 頂点バッファのセット

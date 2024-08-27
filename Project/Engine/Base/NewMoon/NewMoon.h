@@ -52,6 +52,9 @@ public:
 	static float kWindowWidthf;
 	static float kWindowHeightf;
 
+	// deltaTime
+	static float deltaTime;
+
 public:
 	/*-----------------------------*/
 	///			メンバ関数
@@ -83,7 +86,7 @@ public:
 	/// 描画関数
 
 	// スプライト
-	static void DrawSprite(const Transform2D& transform2D, Vector4 color, const std::string textureName, BlendMode blendMode);
+	static void DrawSprite(const Transform2D& transform2D, Vector4 color, const std::string textureName, bool adjustSize, BlendMode blendMode);
 
 	// 三角形
 	static void DrawTriangle(const std::array<Vector3, kTriangleVertexNum_>& vertices,

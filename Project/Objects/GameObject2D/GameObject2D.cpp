@@ -47,10 +47,20 @@ void GameObject2D::SetTextureLeftTop(Vector2 textureLeftTop) {
 	transform2D_.textureLeftTop = textureLeftTop;
 }
 
+// サイズ適応の有無
+void GameObject2D::SetAjustSize(bool ajustSize) {
+
+	ajustSize_ = ajustSize;
+}
+
 // 中心座標取得 transform_.translate getter
 Vector2 GameObject2D::GetCenterPos() const {
 
 	return transform2D_.pos;
+}
+Vector4 GameObject2D::GetColor() const {
+
+	return color_;
 }
 // type_ getter
 GameObjectType GameObject2D::GetType() const {
@@ -110,7 +120,7 @@ void GameObject2D::Update() {}
 ////////////////////////////////////////////////////////////////////////////////*/
 void GameObject2D::Draw() {
 
-	NewMoon::DrawSprite(transform2D_, color_, textureName_, kBlendModeNormal);
+	NewMoon::DrawSprite(transform2D_, color_, textureName_, ajustSize_, kBlendModeNormal);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

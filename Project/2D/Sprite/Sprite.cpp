@@ -122,7 +122,7 @@ void Sprite::AjustTextureSize(const std::string textureName) {
 /*////////////////////////////////////////////////////////////////////////////////
 *							スプライト頂点データの作成
 ////////////////////////////////////////////////////////////////////////////////*/
-void Sprite::Update(const std::string textureName) {
+void Sprite::Update(const std::string textureName, bool adjustSize) {
 
 	// アンカーポイント
 	float left = 0.0f - transform2D_.anchorPoint.x;
@@ -146,8 +146,11 @@ void Sprite::Update(const std::string textureName) {
 	// メタデータ取得
 	const DirectX::TexMetadata& metadata = textureManager_->GetMetaData(textureName);
 
-	// サイズを合わせる
-	AjustTextureSize(textureName);
+	if (adjustSize) {
+
+		// サイズを合わせる
+		AjustTextureSize(textureName);
+	}
 
 	// 横
 	float texLeft = transform2D_.textureLeftTop.x / metadata.width;

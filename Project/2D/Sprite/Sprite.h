@@ -82,7 +82,7 @@ public:
 
 	void Initialize(DXCommon* dxCommon, TextureManager* textureManager);
 
-	void Update(const std::string textureName);
+	void Update(const std::string textureName, bool adjustSize);
 
 	void SetBufferData(ID3D12GraphicsCommandList* commandList);
 	void DrawCall(ID3D12GraphicsCommandList* commandList);

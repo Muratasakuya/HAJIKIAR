@@ -45,10 +45,12 @@ public:
 	void SetColor(Vector4 color);
 	void SetAnchor(Vector2 anchor);
 	void SetTextureLeftTop(Vector2 textureLeftTop);
+	void SetAjustSize(bool ajustSize);
 
 	// getter
 
 	Vector2 GetCenterPos() const override;
+	Vector4 GetColor() const;
 	GameObjectType GetType() const;
 	std::string GetObjectName() const;
 
@@ -76,5 +78,7 @@ private:
 
 	// 使用するテクスチャの名前
 	std::string textureName_;
+
+	bool ajustSize_ = true;
 
 };

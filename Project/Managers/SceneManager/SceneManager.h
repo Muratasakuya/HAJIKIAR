@@ -5,8 +5,9 @@
 
 // Base
 #include "IScene.h"
-// SceneFactory
+// SceneMethod
 #include "SceneFactory.h"
+#include "TransitionScene.h"
 
 // Lib
 #include "OpenCV.h"
@@ -41,8 +42,11 @@ private:
 	OpenCV* openCV_ = nullptr;
 
 	std::unique_ptr<IScene> currentScene_;
+	std::unique_ptr<TransitionScene> transitionScene_;
 	SceneFactory sceneFactory_;
 
 	SceneNo currentSceneNo_{};
+
+	bool isTransition_ = false;
 
 };

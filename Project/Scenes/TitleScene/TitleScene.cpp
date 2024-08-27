@@ -22,10 +22,6 @@ void TitleScene::Initialize() {
 	/*======================================================*/
 	// テクスチャ読み込み
 
-	// 背景画像
-	const std::string bgTextureName = "background.jpg";
-	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + bgTextureName);
-
 	// タイトルロゴ
 	const std::string titleLogoTextureName = "titleSceneLogoType.png";
 	NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + titleLogoTextureName);
@@ -46,17 +42,8 @@ void TitleScene::Initialize() {
 
 	// テクスチャアンカーポイント
 	const Vector2 anchorPoint = { 0.5f,0.5f };
-
-	/*-------------------------------------------------------------------------------------------------------------------*/
-	// 背景画像
-
-	// 背景色
-	const Vector4 backgroundColor = { 0.16f,0.16f,0.16f,1.0f };
-
-	background_ = std::make_unique<GameObject2D>();
-	background_->Initialize();
-	background_->SetTexture(bgTextureName);
-	background_->SetColor(backgroundColor);
+	// 色
+	const Vector4 textureColor = { 0.0f,0.0f,0.0f,1.0f };
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// タイトルロゴ
@@ -69,6 +56,7 @@ void TitleScene::Initialize() {
 	titleLogo_->SetPos(titleLogoPos);
 	titleLogo_->SetTexture(titleLogoTextureName);
 	titleLogo_->SetAnchor(anchorPoint);
+	titleLogo_->SetColor(textureColor);
 	titleLogo_->SetObjectName("titleLogo");
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
@@ -82,10 +70,11 @@ void TitleScene::Initialize() {
 	startNotation_->SetPos(startNotationPos);
 	startNotation_->SetTexture(startNotationTextureName);
 	startNotation_->SetAnchor(anchorPoint);
+	startNotation_->SetColor(textureColor);
 	startNotation_->SetObjectName("startNotation");
 
 	// Color
-	startNotionChangeAlpha_ = 0.005f;
+	startNotionChangeAlpha_ = 0.008f;
 	startNotionColorAlpha_ = 1.0f;
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
@@ -98,6 +87,7 @@ void TitleScene::Initialize() {
 	credit_->SetPos(creditPos);
 	credit_->SetTexture(creditTextureName);
 	credit_->SetAnchor(anchorPoint);
+	credit_->SetColor(textureColor);
 	credit_->SetObjectName("credit");
 
 	/*======================================================*/
@@ -158,9 +148,6 @@ void TitleScene::Draw() {
 	/*======================================================*/
 	// 2Dオブジェクト
 
-	// 背景画像
-	background_->Draw();
-
 	// タイトルロゴ
 	titleLogo_->Draw();
 
@@ -184,18 +171,18 @@ void TitleScene::StartNotionUpdate() {
 
 	startNotionColorAlpha_ += startNotionChangeAlpha_;
 
-	if (startNotionColorAlpha_ >= 0.4f) {
+	if (startNotionColorAlpha_ >= 1.0f) {
 
-		startNotionColorAlpha_ = 0.4f;
+		startNotionColorAlpha_ = 1.0f;
 		// 減少に切り替え
 		startNotionChangeAlpha_ = -startNotionChangeAlpha_;
-	} else if (startNotionColorAlpha_ <= 0.1f) {
+	} else if (startNotionColorAlpha_ <= 0.25f) {
 
-		startNotionColorAlpha_ = 0.1f;
+		startNotionColorAlpha_ = 0.25f;
 		// 増加に切り替え
 		startNotionChangeAlpha_ = -startNotionChangeAlpha_;
 	}
 
 	// 色のセット
-	startNotation_->SetColor({ 1.0f,1.0f,1.0f,startNotionColorAlpha_ });
+	startNotation_->SetColor({ 0.0f,0.0f,0.0f,startNotionColorAlpha_ });
 }

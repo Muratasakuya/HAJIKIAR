@@ -21,6 +21,9 @@ SceneManager::SceneManager() {
 	// インスタンスの代入
 	openCV_ = OpenCV::GetInstance();
 
+	// シーン遷移
+	transitionScene_ = std::make_unique<TransitionScene>();
+
 	currentSceneNo_ = TITLE;
 	currentScene_ = static_cast<std::unique_ptr<IScene>>(sceneFactory_.CreateScene(currentSceneNo_));
 	currentScene_->Initialize();
@@ -41,8 +44,12 @@ SceneManager::~SceneManager() {
 void SceneManager::ChangeScene(SceneNo sceneNo) {
 
 	currentSceneNo_ = sceneNo;
-	currentScene_ = static_cast<std::unique_ptr<IScene>>(sceneFactory_.CreateScene(currentSceneNo_));
-	currentScene_->Initialize();
+
+	// 0.1f == waitTimeInit 遷移中に更新させないため
+	if (transitionScene_->GetWaitTime() == 0.1f) {
+
+		isTransition_ = true;
+	}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -68,11 +75,31 @@ void SceneManager::Run() {
 			}
 		}
 
-		currentSceneNo_ = currentScene_->GetSceneNo();
+		if (isTransition_) {
 
-		// 更新 描画
+			transitionScene_->Fade();
+			if (transitionScene_->FadeOutFinished()) {
+
+				currentScene_ = static_cast<std::unique_ptr<IScene>>(sceneFactory_.CreateScene(currentSceneNo_));
+				currentScene_->Initialize();
+
+				isTransition_ = false;
+			}
+		} else {
+			if (transitionScene_->FadeOutFinished() && !transitionScene_->FadeInFinished()) {
+
+				transitionScene_->Fade();
+			}
+		}
+
+		// 更新
 		currentScene_->Update();
+
+		// 描画
 		currentScene_->Draw();
+
+		// シーン遷移
+		transitionScene_->Draw();
 
 		// フレームの終了
 		NewMoon::EndFrame();
