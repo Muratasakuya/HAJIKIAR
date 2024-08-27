@@ -89,7 +89,7 @@ private:
 	/*----------------------------------------------------------------------*/
 	// Block
 
-	static const uint32_t blockNum = 1;
+	static const uint32_t blockNum = 5;
 	std::array<std::unique_ptr<GameObject3D>, blockNum> blocks_;
 
 	/*----------------------------------------------------------------------*/

@@ -12,7 +12,7 @@ SelectScene::SelectScene() {}
 *								  デストラクタ
 ////////////////////////////////////////////////////////////////////////////////*/
 SelectScene::~SelectScene() {
-	openCV_->Finalize();
+	//openCV_->Finalize();
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -23,10 +23,10 @@ void SelectScene::Initialize() {
 	/*======================================================*/
 	// OpenCV
 
-	openCV_ = OpenCV::GetInstance();
+	//openCV_ = OpenCV::GetInstance();
 
-	// カメラ起動
-	openCV_->OpenCamera();
+	//// カメラ起動
+	//openCV_->OpenCamera();
 
 	/*======================================================*/
 	// 読み込み
@@ -102,11 +102,11 @@ void SelectScene::Update() {
 	/*======================================================*/
 	// 2Dオブジェクト
 
-	openCV_->Update();
+	//openCV_->Update();
 
-	// カラー追従
-	player_->SetPos(openCV_->GetBlueCenterPos());
-	target_->SetPos(openCV_->GetGreenCenterPos());
+	//// カラー追従
+	//player_->SetPos(openCV_->GetBlueCenterPos());
+	//target_->SetPos(openCV_->GetGreenCenterPos());
 
 	/*======================================================*/
 	// 3Dオブジェクト
@@ -120,7 +120,7 @@ void SelectScene::Update() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void SelectScene::Draw() {
 
-	openCV_->Draw();
+	//openCV_->Draw();
 
 	/*======================================================*/
 	// 2Dオブジェクト

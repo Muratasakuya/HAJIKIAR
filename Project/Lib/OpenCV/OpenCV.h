@@ -36,7 +36,9 @@ public:
 
 	void OpenCamera();
 	void QRTracking(const std::vector<std::string>& qrCodeDataList);
-	void ColorTracking();
+	void ColorTracking(cv::Mat& frame);
+
+	void CropAndShowPolygonRegion(const std::array<cv::Point, 4>& points);
 
 	void Initialize();
 	void Update();
@@ -90,12 +92,18 @@ private:
 	std::vector<cv::Point2f> blackBorderPoints_;
 	bool isBlackBorderDetected_ = false;
 
+	/*---------------------------------------------------------*/
+
+	// ROIの範囲を設定する変数
+	// 4つの頂点の座標を保持する変数
+	cv::Point point1_ = { 137, 100 };
+	cv::Point point2_ = { 540, 90 };
+	cv::Point point3_ = { 559, 322 };
+	cv::Point point4_ = { 137, 341 };
 private:
 	/*-----------------------------*/
 	///			private関数
 	/*-----------------------------*/
 
 	cv::Mat ConvertRGBtoHSV(const Vector3& color);
-	bool DetectAndCorrectBlackBorder(const cv::Mat& inputFrame, cv::Mat& outputFrame);
-
 };

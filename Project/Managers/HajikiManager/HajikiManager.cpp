@@ -10,7 +10,7 @@ void HajikiManager::AddHajiki(HajikiType type, std::unique_ptr<GameObject3D> obj
 	// 初期回転角
 	float initRotateX = std::numbers::pi_v<float> / 2.0f;
 	// Hajikiモデルのハーフサイズ -> 衝突判定で使用する
-	const float kHajikiHalfSize = 0.018f;
+	const float kHajikiHalfSize = 0.02f;
 
 	// 共通設定
 	obj->SetRotate({ initRotateX ,0.0f,0.0f });
@@ -26,7 +26,7 @@ void HajikiManager::AddHajiki(HajikiType type, std::unique_ptr<GameObject3D> obj
 	// 重力加速度
 	friction.kGravity_ = { 0.0f,-9.8f };
 	// 動摩擦係数
-	friction.miu_ = 0.08f;
+	friction.miu_ = 0.16f;
 	// 動摩擦力の大きさ
 	friction.magnitude_ = friction.miu_ * std::sqrtf(-physics.mass * friction.kGravity_.y);
 	// 向き
@@ -71,10 +71,9 @@ void HajikiManager::CollisionUpdate() {
 	collisionManagers_[Reality]->Reset();
 
 	// コライダー追加
-	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Player][Reality].object.get());
+	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Player][Imaginary].object.get());
 	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Line][0].object.get());
 	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Line][1].object.get());
-	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Target][Reality].object.get());
 
 	// 全てのオブジェクトの衝突判定
 	collisionManagers_[Reality]->CheckAllCollisions();
@@ -255,6 +254,9 @@ void HajikiManager::Initialize() {
 
 	// falseで初期化
 	isClear_ = false;
+	playerSoulFollow_ = false;
+	// 60f
+	playerSoulInvincibleTime_ = 60.0f;
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// 魂が抜けた時のオブジェクト
@@ -295,6 +297,16 @@ void HajikiManager::Initialize() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::Update() {
 
+	ImGui::Begin("DeltaTime");
+
+	ImGui::Text("playerSoulInvincibleTime_ : %4.1f", playerSoulInvincibleTime_);
+	ImGui::Text("playerSoulInvincibleTime_ : %4.1f", playerSoulInvincibleTime_);
+
+	std::string invincible = std::format("invincible {}", playerSoulFollow_);
+	ImGui::Text(invincible.c_str());
+
+	ImGui::End();
+
 	// リセット処理
 	Reset();
 
@@ -315,7 +327,18 @@ void HajikiManager::Update() {
 	hajikies_[HajikiType::Target][Imaginary].object->SetTranslate(
 		{ targetHajikiPos.x,targetHajikiPos.y,hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().z });
 
-	if (!hajikies_[HajikiType::Player][Imaginary].isLeave) {
+	if (!hajikies_[HajikiType::Player][Reality].isLeave) {
+
+		// 無敵時間カウント
+		if (playerSoulFollow_) {
+
+			playerSoulInvincibleTime_ -= deltaTime_;
+			if (playerSoulInvincibleTime_ < 0.0f) {
+
+				// 無敵時間終了
+				playerSoulFollow_ = false;
+			}
+		}
 
 		// PlayerHajiki1の座標
 		Vector2 playerHajikiPos =
@@ -324,6 +347,18 @@ void HajikiManager::Update() {
 		// PlayerHajiki2のXY座標をPlayerHajiki1と合わせる
 		hajikies_[HajikiType::Player][Imaginary].object->SetTranslate(
 			{ playerHajikiPos.x,playerHajikiPos.y,hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z });
+
+		// PlayerHajiki1の速度をPlayerHajiki2に代入
+		hajikies_[HajikiType::Player][Imaginary].physics.velocity = hajikies_[HajikiType::Player][Reality].physics.velocity;
+		hajikies_[HajikiType::Player][Imaginary].physics.acceleration = hajikies_[HajikiType::Player][Reality].physics.acceleration;
+	} else {
+
+		// 座標はその場に留まる
+		hajikies_[HajikiType::Player][Imaginary].object->SetTranslate(
+			{ hajikies_[HajikiType::Player][Imaginary].prePos.x,hajikies_[HajikiType::Player][Imaginary].prePos.y,
+			hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z });
+		hajikies_[HajikiType::Player][Imaginary].physics.velocity = { 0.0f,0.0f };
+		hajikies_[HajikiType::Player][Imaginary].physics.acceleration = { 0.0f,0.0f };
 	}
 
 }
@@ -345,7 +380,7 @@ void HajikiManager::Draw() {
 	}
 
 	// 魂が抜けているとき
-	if (hajikies_[HajikiType::Player][Imaginary].isLeave) {
+	if (hajikies_[HajikiType::Player][Reality].isLeave) {
 
 		soulObject_->Draw();
 	}
@@ -414,8 +449,8 @@ void HajikiManager::ReflectVelocity(HajikiData& hajiki1, HajikiData& hajiki2) {
 	float angle2 = std::atan2(pos1.y - pos2.y, pos1.x - pos2.x);
 
 	// 反射速度の計算
-	float speed1 = Vector2::Length({ velocity1.x * 0.9f + velocity2.x * 0.6f, velocity1.y * 0.9f + velocity2.y * 0.6f });
-	float speed2 = Vector2::Length({ velocity2.x * 0.9f + velocity1.x * 0.6f, velocity2.y * 0.9f + velocity1.y * 0.6f });
+	float speed1 = Vector2::Length({ velocity1.x * 0.7f + velocity2.x * 0.4f, velocity1.y * 0.7f + velocity2.y * 0.4f });
+	float speed2 = Vector2::Length({ velocity2.x * 0.7f + velocity1.x * 0.4f, velocity2.y * 0.7f + velocity1.y * 0.4f });
 
 	hajiki1.physics.velocity = { -speed1 * std::cosf(angle1), -speed1 * std::sinf(angle1) };
 	hajiki2.physics.velocity = { -speed2 * std::cosf(angle2), -speed2 * std::sinf(angle2) };
@@ -474,7 +509,7 @@ void HajikiManager::ApplyVelocityAndFriction(HajikiData& hajiki) {
 void HajikiManager::WallCollision(HajikiData& hajiki) {
 
 	// 壁の端
-	const Vector2 edgeSize = { 0.361f, 0.204f };
+	const Vector2 edgeSize = { 0.41f, 0.231f };
 
 	// 壁との衝突判定
 	if (collisionManagers_[Reality]->EdgeCheckCollisionX(hajiki.object.get(), edgeSize.x)) {
@@ -494,16 +529,16 @@ void HajikiManager::CheckPassLineCollision() {
 
 	if (collisionManagers_[Reality]->PassLineCheckCollision(
 		hajikies_[HajikiType::Line][0].object.get(), hajikies_[HajikiType::Line][1].object.get(),
-		hajikies_[HajikiType::Player][Reality].object.get())) {
+		hajikies_[HajikiType::Player][Imaginary].object.get())) {
 
-		hajikies_[HajikiType::Player][Reality].object->SetIsPass(true);
+		hajikies_[HajikiType::Player][Imaginary].object->SetIsPass(true);
 	} else {
 
-		hajikies_[HajikiType::Player][Reality].object->SetIsPass(false);
+		hajikies_[HajikiType::Player][Imaginary].object->SetIsPass(false);
 	}
 
 	// 間を通過したとき
-	if (hajikies_[HajikiType::Player][Reality].object->GetIsPass()) {
+	if (hajikies_[HajikiType::Player][Imaginary].object->GetIsPass()) {
 
 		// 強化する、Imaginaryが離れない、拾える
 		hajikies_[HajikiType::Player][Reality].isPower_ = true;
@@ -516,16 +551,23 @@ void HajikiManager::CheckPassLineCollision() {
 void HajikiManager::CheckBlockToHajikiCollision() {
 
 	for (const auto& block : blocks_) {
-		if (!hajikies_[HajikiType::Player][Imaginary].isLeave) {
+
+		// 消滅したブロックは判定を行わない
+		if (block->GetIsHit()) {
+
+			continue;
+		}
+
+		if (!hajikies_[HajikiType::Player][Reality].isLeave) {
 			// 衝突したらその場に止める
 			if (collisionManagers_[Imaginary]->SphereToBlockCheckCollision(
 				hajikies_[HajikiType::Player][Imaginary].object.get(), block)) {
 
-				// 強化が入っていなければ
-				if (!hajikies_[HajikiType::Player][Reality].isPower_) {
+				// 強化が入っていなければ 無敵時間外
+				if (!hajikies_[HajikiType::Player][Reality].isPower_ && !playerSoulFollow_) {
 
 					// 魂が離れる
-					hajikies_[HajikiType::Player][Imaginary].isLeave = true;
+					hajikies_[HajikiType::Player][Reality].isLeave = true;
 
 					Vector2 imaginaryPlayerPos =
 					{ hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().x,
@@ -537,14 +579,18 @@ void HajikiManager::CheckBlockToHajikiCollision() {
 
 				} else {
 
-					// 入っているときは...?
+					// 強化が入っているときにぶつかれば消滅する
+					if (hajikies_[HajikiType::Player][Reality].isPower_) {
+					
+						block->SetIsHit(true);
+					}
 				}
 			}
 		}
 	}
 
 	// 魂が離れているとき
-	if (hajikies_[HajikiType::Player][Imaginary].isLeave) {
+	if (hajikies_[HajikiType::Player][Reality].isLeave) {
 
 		// 座標はその場に留まる
 		hajikies_[HajikiType::Player][Imaginary].object->SetTranslate(
@@ -572,8 +618,12 @@ void HajikiManager::LeaveSoulPlayerUpdate() {
 			hajikies_[HajikiType::Player][Reality].object.get(), soulObject_.get())) {
 
 			// 魂がまたついていくようになる
-			hajikies_[HajikiType::Player][Imaginary].isLeave = false;
+			hajikies_[HajikiType::Player][Reality].isLeave = false;
 			isLeaveWaitPlayerSoul_ = false;
+
+			// 魂無敵CoolTimeカウント開始
+			playerSoulFollow_ = true;
+			playerSoulInvincibleTime_ = 60.0f;
 		}
 	}
 }
@@ -592,10 +642,10 @@ void HajikiManager::GoalCheck() {
 
 	// ゴール判定
 	if (collisionManagers_[Reality]->PointInTriangle(
-		hajikies_[HajikiType::Player][Reality].object.get(), hajikies_[HajikiType::Line][0].object.get(),
-		hajikies_[HajikiType::Line][1].object.get(), hajikies_[HajikiType::Target][Reality].object.get())) {
+		hajikies_[HajikiType::Player][Imaginary].object.get(), hajikies_[HajikiType::Line][0].object.get(),
+		hajikies_[HajikiType::Line][1].object.get(), hajikies_[HajikiType::Target][Imaginary].object.get())) {
 		// 魂が離れていなくてなおかつ間を通過したあと
-		if (hajikies_[HajikiType::Player][Reality].isPower_ && !hajikies_[HajikiType::Player][Imaginary].isLeave) {
+		if (hajikies_[HajikiType::Player][Reality].isPower_ && !hajikies_[HajikiType::Player][Reality].isLeave) {
 
 			isClear_ = true;
 		}

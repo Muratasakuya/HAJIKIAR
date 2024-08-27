@@ -41,6 +41,12 @@ void GameObject2D::SetAnchor(Vector2 anchor) {
 	transform2D_.anchorPoint = anchor;
 }
 
+// テクスチャ左上座標のセット
+void GameObject2D::SetTextureLeftTop(Vector2 textureLeftTop) {
+
+	transform2D_.textureLeftTop = textureLeftTop;
+}
+
 // 中心座標取得 transform_.translate getter
 Vector2 GameObject2D::GetCenterPos() const {
 

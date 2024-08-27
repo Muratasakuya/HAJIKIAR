@@ -4,6 +4,58 @@
 #include "ImGuiManager.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
+*							領域を切り取るメソッド
+////////////////////////////////////////////////////////////////////////////////*/
+void OpenCV::CropAndShowPolygonRegion(const std::array<cv::Point, 4>& points) {
+	// カメラが開かれていなければ早期リターン
+	if (!camera_.isOpened()) {
+		return;
+	}
+
+	// フレームのコピーを作成
+	cv::Mat frameCopy = frame_.clone();
+
+	// 画像全体をマスクするための黒いマスクを作成
+	cv::Mat mask = cv::Mat::zeros(frame_.size(), CV_8UC1);
+
+	// ポリゴンの頂点を設定
+	std::vector<std::vector<cv::Point>> pts{ std::vector<cv::Point>(points.begin(), points.end()) };
+
+	// マスクに白いポリゴンを描画
+	cv::fillPoly(mask, pts, cv::Scalar(255));
+
+	// マスクを使用して元の画像から領域を切り取る
+	cv::Mat croppedFrame;
+	frame_.copyTo(croppedFrame, mask);
+
+	// 変換先の4つの頂点を指定
+	std::vector<cv::Point2f> dstPoints;
+	dstPoints.push_back(cv::Point2f(0, 0));               // 左上
+	dstPoints.push_back(cv::Point2f(640, 0));             // 右上
+	dstPoints.push_back(cv::Point2f(640, 360));           // 右下
+	dstPoints.push_back(cv::Point2f(0, 360));             // 左下
+
+	// 変換元の頂点（入力頂点）を設定
+	std::vector<cv::Point2f> srcPoints;
+	for (const auto& point : points) {
+		srcPoints.push_back(cv::Point2f(static_cast<float>(point.x), static_cast<float>(point.y)));
+	}
+
+	// 射影変換行列を計算
+	cv::Mat transformMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
+
+	// 射影変換を実行して、指定されたサイズに変換
+	cv::Mat transformedFrame;
+	cv::warpPerspective(croppedFrame, transformedFrame, transformMatrix, cv::Size(640, 360));
+
+	// 色のトラッキング
+	ColorTracking(transformedFrame);
+
+	// 変換されたフレームの表示
+	cv::imshow("TransformedRegion", transformedFrame);
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
 *								singleton
 ////////////////////////////////////////////////////////////////////////////////*/
 OpenCV* OpenCV::GetInstance() {
@@ -55,77 +107,6 @@ cv::Mat OpenCV::ConvertRGBtoHSV(const Vector3& color) {
 
 	// HSV値を取り出す
 	return hsvMat;
-}
-
-/*////////////////////////////////////////////////////////////////////////////////
-*									 黒枠検出
-////////////////////////////////////////////////////////////////////////////////*/
-bool OpenCV::DetectAndCorrectBlackBorder(const cv::Mat& inputFrame, cv::Mat& outputFrame) {
-
-	cv::Mat grayFrame, blurredFrame, edges;
-
-	// グレースケール変換
-	cv::cvtColor(inputFrame, grayFrame, cv::COLOR_BGR2GRAY);
-
-	// ブラー処理
-	cv::GaussianBlur(grayFrame, blurredFrame, cv::Size(5, 5), 0);
-
-	// エッジ検出
-	cv::Canny(blurredFrame, edges, 50, 150);
-
-	// 輪郭検出
-	std::vector<std::vector<cv::Point>> contours;
-	cv::findContours(edges, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-	// 最大の輪郭を見つける
-	std::vector<cv::Point> largestContour;
-	double maxArea = 0;
-	for (const auto& contour : contours) {
-		double area = cv::contourArea(contour);
-		if (area > maxArea) {
-			maxArea = area;
-			largestContour = contour;
-		}
-	}
-
-	// 黒枠の特定
-	if (!largestContour.empty()) {
-		// 四角形近似
-		std::vector<cv::Point> approx;
-		cv::approxPolyDP(largestContour, approx, cv::arcLength(largestContour, true) * 0.02, true);
-
-		// 四角形の場合のみ処理を続行
-		if (approx.size() == 4) {
-			// cv::Point を cv::Point2f に変換
-			std::vector<cv::Point2f> srcPoints;
-			for (const auto& point : approx) {
-				srcPoints.push_back(cv::Point2f(static_cast<float>(point.x), static_cast<float>(point.y)));
-			}
-
-			// 頂点の順序を整列させる
-			std::sort(srcPoints.begin(), srcPoints.end(), [](const cv::Point2f& a, const cv::Point2f& b) { return a.y < b.y; });
-			if (srcPoints[0].x > srcPoints[1].x) std::swap(srcPoints[0], srcPoints[1]);
-			if (srcPoints[2].x < srcPoints[3].x) std::swap(srcPoints[2], srcPoints[3]);
-
-			// 目的の出力ポイント（まっすぐな四角形）
-			std::vector<cv::Point2f> dstPoints = {
-				cv::Point2f(0.0f, 0.0f),
-				cv::Point2f(static_cast<float>(inputFrame.cols), 0.0f),
-				cv::Point2f(static_cast<float>(inputFrame.cols), static_cast<float>(inputFrame.rows)),
-				cv::Point2f(0.0f, static_cast<float>(inputFrame.rows))
-			};
-
-			// 透視変換行列を計算
-			cv::Mat perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
-
-			// 画像の透視変換
-			cv::warpPerspective(inputFrame, outputFrame, perspectiveMatrix, inputFrame.size());
-
-			return true;
-		}
-	}
-
-	return false;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -213,7 +194,7 @@ void OpenCV::QRTracking(const std::vector<std::string>& qrCodeDataList) {
 /*////////////////////////////////////////////////////////////////////////////////
 *							色のついたものの複数トラッキング
 ////////////////////////////////////////////////////////////////////////////////*/
-void OpenCV::ColorTracking() {
+void OpenCV::ColorTracking(cv::Mat& frame) {
 
 	/*======================================================*/
 	// ImGui
@@ -232,7 +213,7 @@ void OpenCV::ColorTracking() {
 
 	// フレームをHSV色空間に変換
 	cv::Mat hsvFrame;
-	cv::cvtColor(frame_, hsvFrame, cv::COLOR_BGR2HSV);
+	cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
 
 	// RGBからHSV色空間に変換
 	cv::Mat hsvColor = ConvertRGBtoHSV(trackColor_);
@@ -260,8 +241,8 @@ void OpenCV::ColorTracking() {
 
 	// マスクの処理
 	cv::Mat green_result, blue_result;
-	cv::bitwise_and(frame_, frame_, green_result, greenMask);
-	cv::bitwise_and(frame_, frame_, blue_result, blueMask);
+	cv::bitwise_and(frame, frame, green_result, greenMask);
+	cv::bitwise_and(frame, frame, blue_result, blueMask);
 #pragma endregion
 
 	// 緑色の物体の輪郭を検出
@@ -347,9 +328,18 @@ void OpenCV::Initialize() {}
 ////////////////////////////////////////////////////////////////////////////////*/
 void OpenCV::Update() {
 
+	// ImGuiを使用してROIの範囲を設定
+	ImGui::Begin("Polygon ROI Control");
+
+	ImGui::SliderInt2("Point 1", &point1_.x, 0, frame_.cols);
+	ImGui::SliderInt2("Point 2", &point2_.x, 0, frame_.cols);
+	ImGui::SliderInt2("Point 3", &point3_.x, 0, frame_.cols);
+	ImGui::SliderInt2("Point 4", &point4_.x, 0, frame_.cols);
+
+	ImGui::End();
+
 	// カメラが開かれていなければ早期リターン
 	if (!camera_.isOpened()) {
-
 		return;
 	}
 
@@ -358,7 +348,6 @@ void OpenCV::Update() {
 
 	// 何も取得できなければ早期リターン
 	if (frame_.empty()) {
-
 		return;
 	}
 
@@ -368,21 +357,9 @@ void OpenCV::Update() {
 	// ガウシアンブラー
 	cv::GaussianBlur(frame_, frame_, cv::Size(5, 5), 0);
 
-	// 黒の枠の検出と補正後の画像の抽出
-	cv::Mat correctedFrame;
-	bool foundBlackBorder = DetectAndCorrectBlackBorder(frame_, correctedFrame);
-
-	if (foundBlackBorder) {
-		// 補正されたフレームを640x360にリサイズ
-		cv::resize(correctedFrame, frame_, cv::Size(640, 360));
-	} else if (isBlackBorderDetected_) {
-		// 黒枠が見つからない場合、以前の枠を使用して画像を切り抜き
-		cv::resize(frame_, frame_, cv::Size(640, 360));
-	}
-
-
-	// 色のトラッキング
-	ColorTracking();
+	// 指定した4つの頂点で領域を切り取って表示する
+	std::array<cv::Point, 4> points = { point1_, point2_, point3_, point4_ };
+	CropAndShowPolygonRegion(points);
 
 }
 
@@ -406,8 +383,9 @@ void OpenCV::Draw() {
 		return;
 	}
 
-	// カメラウィンドウの表示
-	cv::imshow("CameraCapture", frame_);
+	// 変換されたフレームの表示
+	cv::imshow("cameraTest", frame_);
+
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

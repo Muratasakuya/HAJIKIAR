@@ -68,7 +68,7 @@ void SoloGame::Initialize() {
 	// 初期座標
 	const Vector3 playerHajikiInitPos[playerHajikiNum] = {
 		Vector3(0.0f,0.0f,1.0f),
-		Vector3(0.0f,0.0f,1.5f)
+		Vector3(0.0f,0.0f,1.05f)
 	};
 	// 色
 	const Vector4 playerHajikiColor = { 0.0f,0.0f ,0.0f ,1.0f };
@@ -100,8 +100,8 @@ void SoloGame::Initialize() {
 
 	// LineHajikiの初期座標
 	const Vector3 lineHajikiInitPos[lineHajikiNum] = {
-		Vector3(-0.215f,0.087f,1.0f),
-		Vector3(-0.008f,-0.093f,1.0f)
+		Vector3(-0.215f,0.087f,1.05f),
+		Vector3(-0.008f,-0.093f,1.05f)
 	};
 
 	// 2 //
@@ -127,7 +127,7 @@ void SoloGame::Initialize() {
 	//　TargetHajikiの初期座標
 	const Vector3 targetHajikiInitPos[targetHajikiNum] = {
 	Vector3(0.1f,0.0f,1.0f),
-	Vector3(0.1f,0.0f,1.5f)
+	Vector3(0.1f,0.0f,1.05f)
 	};
 	// 色
 	const Vector4 targetHajikiColor = { 0.16f,0.16f ,0.16f ,1.0f };
@@ -176,7 +176,7 @@ void SoloGame::Initialize() {
 	// Block
 
 	// 初期座標
-	const Vector3 blockInitPos = { -0.044f,0.136f,1.5f };
+	const Vector3 blockInitPos = { -0.044f,0.136f,1.05f };
 	// 色
 	const Vector4 blockColor = { 0.0f,0.0f,0.0f,1.0f };
 	// ブロックモデルのハーフサイズ
@@ -201,7 +201,7 @@ void SoloGame::Initialize() {
 	// Kirai
 
 	// 初期座標
-	const Vector3 kiraiInitPos = { 0.043f,0.09f,1.5f };
+	const Vector3 kiraiInitPos = { 0.043f,0.09f,1.05f };
 	// 色
 	const Vector4 kiraiColor = { 0.0f,0.0f,0.0f,1.0f };
 
@@ -243,6 +243,7 @@ void SoloGame::Initialize() {
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// ImGuiセット
+
 	imgui_.Set(hajikiManager_->GetHajiki(HajikiType::Player, 0).object.get());
 	// 2つ
 	for (uint32_t i = 0; i < 2; i++) {
@@ -318,6 +319,12 @@ void SoloGame::Draw() {
 	// Block
 	for (const auto& block : blocks_) {
 
+		// 消滅したブロックは描画しない
+		if (block->GetIsHit()) {
+
+			continue;
+		}
+
 		block->Draw();
 	}
 
@@ -383,7 +390,7 @@ void SoloGame::LineUpdate() {
 	// 間の中心座標
 	Vector2 centerPos = posA + posB;
 	centerPos = { centerPos.x / 2.0f,centerPos.y / 2.0f };
-	line_->SetTranslate({ centerPos.x, centerPos.y,1.0f });
+	line_->SetTranslate({ centerPos.x, centerPos.y,1.05f });
 
 	// scaleの計算
 	float distance = Vector2::Length(posB - posA);
@@ -404,10 +411,10 @@ void SoloGame::LineUpdate() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void SoloGame::UpdateArea() {
 
-	if (hajikiManager_->GetHajiki(HajikiType::Player, 0).physics.velocity.x == 0
-		&& hajikiManager_->GetHajiki(HajikiType::Player, 0).physics.velocity.y == 0) {
+	if (hajikiManager_->GetHajiki(HajikiType::Player, Imaginary).physics.velocity.x == 0
+		&& hajikiManager_->GetHajiki(HajikiType::Player, Imaginary).physics.velocity.y == 0) {
 		isShowArea = false;
-	} else if (hajikiManager_->GetHajiki(HajikiType::Player, 0).object->GetIsPass()) {
+	} else if (hajikiManager_->GetHajiki(HajikiType::Player, Imaginary).object->GetIsPass()) {
 		isShowArea = true;
 	}
 
@@ -428,9 +435,9 @@ void SoloGame::UpdateArea() {
 					 hajikiManager_->GetHajiki(HajikiType::Line,1).object->GetCenterPos().z };
 
 	// プレイヤーハジキの座標を取得
-	Vector3 posC = { hajikiManager_->GetHajiki(HajikiType::Player,0).object->GetCenterPos().x,
-					 hajikiManager_->GetHajiki(HajikiType::Player,0).object->GetCenterPos().y,
-					 hajikiManager_->GetHajiki(HajikiType::Player,0).object->GetCenterPos().z };
+	Vector3 posC = { hajikiManager_->GetHajiki(HajikiType::Player,Imaginary).object->GetCenterPos().x,
+					 hajikiManager_->GetHajiki(HajikiType::Player,Imaginary).object->GetCenterPos().y,
+					 hajikiManager_->GetHajiki(HajikiType::Player,Imaginary).object->GetCenterPos().z };
 
 	// 三角形の法線ベクトルを計算
 	Vector3 edge1 = posB - posA;

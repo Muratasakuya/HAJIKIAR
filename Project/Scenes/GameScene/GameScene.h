@@ -54,9 +54,23 @@ private:
 	std::unique_ptr<GameObject2D> background_;
 	std::unique_ptr<GameObject2D> grid_;
 
+	// 波
+	static const uint32_t waveNum = 3;
+	std::array<std::unique_ptr<GameObject2D>, waveNum> waves_;
+	// テクスチャ左上座標
+	std::array<Vector2, waveNum> waveTextureLeftTops_;
+	std::array<float, waveNum> waveAlpha_;
+
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト
 
 
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
+
+	void WaveUpdate();
 
 };

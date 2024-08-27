@@ -102,6 +102,8 @@ private:
 	const Vector2 minVelocity_ = { 0.02f ,0.02f };
 	// 最高速度
 	const Vector2 maxVelocity_ = { 0.5f,0.5f };
+	
+	const float deltaTime_ = 1.0f;
 
 	// マウス座標
 	Vector2 mousePos_;
@@ -114,6 +116,10 @@ private:
 
 	// 魂が離れるときの猶予
 	bool isLeaveWaitPlayerSoul_;
+	// 魂がまたついていく
+	bool playerSoulFollow_;
+	// 魂無敵時間
+	float playerSoulInvincibleTime_;
 
 	// クリア判定フラグ
 	bool isClear_;

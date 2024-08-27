@@ -44,6 +44,7 @@ public:
 	void SetSize(Vector2 size);
 	void SetColor(Vector4 color);
 	void SetAnchor(Vector2 anchor);
+	void SetTextureLeftTop(Vector2 textureLeftTop);
 
 	// getter
 

@@ -34,6 +34,10 @@ void GameScene::Initialize() {
 	/*======================================================*/
 	// テクスチャ読み込み
 
+	// 波
+	const std::string waveTextureName = "wave.png";
+	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + waveTextureName);
+
 	/*======================================================*/
 	// 2Dオブジェクト
 
@@ -49,6 +53,19 @@ void GameScene::Initialize() {
 	grid_->Initialize();
 	grid_->SetTexture(gridTextureName);
 
+	// 波
+	for (uint32_t i = 0; i < waves_.size(); i++) {
+
+		waves_[i] = std::make_unique<GameObject2D>();
+		waves_[i]->Initialize();
+		waves_[i]->SetAnchor({ 0.5f,0.5f });
+		waves_[i]->SetPos({ 960.0f,880.0f + i * 32.0f });
+		waves_[i]->SetTexture(waveTextureName);
+
+		waveTextureLeftTops_[i].Initialize();
+		waveAlpha_[i] = 1.0f;
+	}
+
 	/*======================================================*/
 	// 3Dオブジェクト
 
@@ -59,6 +76,9 @@ void GameScene::Initialize() {
 
 	imgui_.Set(background_.get());
 	imgui_.Set(grid_.get());
+	for (const auto& wave : waves_) {
+		imgui_.Set(wave.get());
+	}
 
 }
 
@@ -77,6 +97,12 @@ void GameScene::Update() {
 	NewMoon::InputImGui();
 
 	imgui_.Render();
+
+	/*======================================================*/
+	// 2Dオブジェクト
+
+	// 波の更新処理
+	WaveUpdate();
 
 	/*======================================================*/
 	// ゲームモード
@@ -108,7 +134,11 @@ void GameScene::Draw() {
 	/*======================================================*/
 	// 背景
 
-	background_->Draw();
+	for (const auto& wave : waves_) {
+
+		wave->Draw();
+	}
+
 	grid_->Draw();
 
 	/*======================================================*/
@@ -122,4 +152,43 @@ void GameScene::Draw() {
 		matchGame_->Draw();
 	}
 
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									波の更新処理
+////////////////////////////////////////////////////////////////////////////////*/
+void GameScene::WaveUpdate() {
+
+	for (uint32_t i = 0; i < waves_.size(); i++) {
+
+		float movePos = 1.2f * i + 0.5f;
+		waveTextureLeftTops_[i].x += movePos;
+		waves_[i]->SetTextureLeftTop(waveTextureLeftTops_[i]);
+	}
+
+	// 変数の初期化
+	float alphaTransition = 0.01f;
+	float alphaValue = 0.0f;
+	bool increasing = true;
+
+	// フレームごとにAlpha値を更新する処理
+	for (int i = 0; i < waves_.size(); ++i) {
+		if (increasing) {
+
+			waveAlpha_[i] += alphaTransition;
+			if (waveAlpha_[i] >= 1.0f) {
+				waveAlpha_[i] = 1.0f; 
+				increasing = false;
+			}
+		} else {
+			waveAlpha_[i] -= alphaTransition;
+			if (waveAlpha_[i] <= 0.0f) {
+				waveAlpha_[i] = 0.0f;
+				increasing = true;
+			}
+		}
+
+		// 色の更新
+		waves_[i]->SetColor({ 1.0f, 1.0f, 1.0f, waveAlpha_[i] });
+	}
 }
