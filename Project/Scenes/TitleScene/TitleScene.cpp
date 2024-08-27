@@ -2,6 +2,7 @@
 
 #include "ImGuiManager.h"
 #include "SceneManager.h"
+#include "OpenCV.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								コンストラクタ
@@ -21,6 +22,9 @@ void TitleScene::Initialize() {
 
 	// 衝突判定
 	collisionManager_ = std::make_unique<CollisionManager>();
+
+	//  AR スタート待ち時間
+	waitStartTime_ = 60.0f;
 
 	/*======================================================*/
 	// テクスチャ読み込み
@@ -153,7 +157,22 @@ void TitleScene::Update() {
 	// ARMode
 	if (applicationMode_ == ApplicationMode::AR) {
 
-		// ビットをおいてスタート
+		OpenCV* openCV = OpenCV::GetInstance();
+		
+		// 一定時間置かれていればスタート
+		if (openCV->IsBlueHajikiFound()) {
+
+			waitStartTime_--;
+
+			// 1秒以上置いてあれば次のシーンに遷移
+			if (waitStartTime_ < 0.0f) {
+
+				SceneManager::GetInstance()->ChangeScene(TUTORIAL);
+			}
+		} else {
+
+			waitStartTime_ = 60.0f;
+		}
 
 	}
 	// 3DMode

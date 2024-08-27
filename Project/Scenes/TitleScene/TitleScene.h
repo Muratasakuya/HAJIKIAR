@@ -43,6 +43,9 @@ private:
 	// 衝突判定
 	std::unique_ptr<CollisionManager> collisionManager_;
 
+	// AR
+	float waitStartTime_;
+
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
 	// 

@@ -54,6 +54,7 @@ public:
 	std::string GetQRCodeData();
 	Vector2 GetGreenCenterPos() const;
 	Vector2 GetBlueCenterPos() const;
+	bool IsBlueHajikiFound() const;
 
 private:
 	/*-----------------------------*/
@@ -91,6 +92,10 @@ private:
 
 	std::vector<cv::Point2f> blackBorderPoints_;
 	bool isBlackBorderDetected_ = false;
+
+	// HAHJIKI
+
+	bool isBlueHajikiFound_ = false;
 
 	/*---------------------------------------------------------*/
 

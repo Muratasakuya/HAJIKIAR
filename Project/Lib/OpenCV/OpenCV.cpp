@@ -93,6 +93,12 @@ Vector2 OpenCV::GetBlueCenterPos() const {
 	return blueCenter_;
 }
 
+// isBlueHajikiFound_ getter
+bool OpenCV::IsBlueHajikiFound() const{
+
+	return isBlueHajikiFound_;
+}
+
 /*////////////////////////////////////////////////////////////////////////////////
 *								RGBからHSV色空間に変換
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -294,8 +300,13 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 
 			currentBlueCenter = { normalizedX * NewMoon::kWindowWidthf, normalizedY * NewMoon::kWindowHeightf };
 
+			isBlueHajikiFound_ = true;
+
 			// 最初に見つけた中心だけを取得
 			break;
+		} else {
+
+			isBlueHajikiFound_ = false;
 		}
 	}
 

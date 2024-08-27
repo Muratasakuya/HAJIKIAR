@@ -20,6 +20,8 @@ SceneManager::SceneManager() {
 
 	// インスタンスの代入
 	openCV_ = OpenCV::GetInstance();
+	// カメラ起動
+	openCV_->OpenCamera();
 
 	// シーン遷移
 	transitionScene_ = std::make_unique<TransitionScene>();
@@ -74,6 +76,9 @@ void SceneManager::Run() {
 				NewMoon::SetFullScreenMode(true);
 			}
 		}
+
+		// 常に更新
+		openCV_->Update();
 
 		if (isTransition_) {
 
