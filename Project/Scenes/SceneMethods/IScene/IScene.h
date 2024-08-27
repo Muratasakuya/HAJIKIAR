@@ -17,6 +17,13 @@ enum class GameMode {
 	MATCH
 };
 
+// AR 3Dゲーム選択
+enum class ApplicationMode {
+
+	AR,
+	GAME3D
+};
+
 /*////////////////////////////////////////////////////////////////////////////////
 *								IScene Class
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -46,5 +53,7 @@ protected:
 	static SceneNo sceneNo_;
 	// ゲームモード
 	static GameMode gameMode_;
+	// アプリケーションモード
+	static ApplicationMode applicationMode_;
 
 };

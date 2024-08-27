@@ -11,3 +11,6 @@ SceneNo IScene::sceneNo_ = SceneNo::TITLE;
 
 // ゲームモード とりあえずソロ
 GameMode IScene::gameMode_ = GameMode::SOLO;
+
+// アプリケーションモード
+ApplicationMode IScene::applicationMode_ = ApplicationMode::GAME3D;

@@ -26,13 +26,25 @@ void TitleScene::Initialize() {
 	const std::string titleLogoTextureName = "titleSceneLogoType.png";
 	NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + titleLogoTextureName);
 
-	// スタートの仕方表記文字
-	const std::string startNotationTextureName = "titleSceneSetBitToStart.png";
-	NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + startNotationTextureName);
-
 	// クレジット 今はActiveのみ
 	const std::string creditTextureName = "titleSceneCredit.png";
 	NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + creditTextureName);
+
+	// スタートの仕方表記文字
+	std::string startNotationTextureName;
+
+	// ARMode
+	if (applicationMode_ == ApplicationMode::AR) {
+
+		startNotationTextureName = "titleSceneSetBitToStart.png";
+		NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + startNotationTextureName);
+	}
+	// 3DMode
+	if (applicationMode_ == ApplicationMode::GAME3D) {
+
+		startNotationTextureName = "titleSceneSetBitToStart.png";
+		NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + startNotationTextureName);
+	}
 
 	/*======================================================*/
 	// 2Dオブジェクト
@@ -133,9 +145,21 @@ void TitleScene::Update() {
 	// シーン遷移処理
 
 	// Title -> Tutorial
-	if (NewMoon::TriggerKey(DIK_SPACE)) {
 
-		SceneManager::GetInstance()->ChangeScene(TUTORIAL);
+	// ARMode
+	if (applicationMode_ == ApplicationMode::AR) {
+
+		// ビットをおいてスタート
+
+	}
+	// 3DMode
+	if (applicationMode_ == ApplicationMode::GAME3D) {
+
+		// 左クリックスタート 基本どこでも、ただしクレジットの文字の場所以外
+		if (NewMoon::PushMouseLeft()) {
+
+			SceneManager::GetInstance()->ChangeScene(TUTORIAL);
+		}
 	}
 
 }
