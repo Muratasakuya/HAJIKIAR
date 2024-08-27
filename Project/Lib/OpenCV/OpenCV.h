@@ -49,17 +49,26 @@ public:
 	// singleton
 	static OpenCV* GetInstance();
 
+	// setter
+
+	void SetEdgeSize(const Vector2& edgeSize);
+	void SetGame3DMode(bool game3DMode);
+
 	// getter
 
 	std::string GetQRCodeData();
 	Vector2 GetGreenCenterPos() const;
 	Vector2 GetBlueCenterPos() const;
 	bool IsBlueHajikiFound() const;
+	bool IsGreenHajikiFound() const;
 
 private:
 	/*-----------------------------*/
 	///			メンバ変数
 	/*-----------------------------*/
+
+	Vector2 edgeSize_;
+	bool game3DMode_ = false;
 
 	// カメラ
 	cv::VideoCapture camera_;
@@ -80,6 +89,10 @@ private:
 	// ゲームシーンに渡す座標
 	Vector2 greenCenter_;
 	Vector2 blueCenter_;
+	// 座標が取れなかったときの座標 pre
+	Vector2 greenPreCenter_;
+	Vector2 bluePreCenter_;
+
 	Vector2 prevGreenCenter_;
 	Vector2 prevBlueCenter_;
 
@@ -96,6 +109,10 @@ private:
 	// HAHJIKI
 
 	bool isBlueHajikiFound_ = false;
+	bool isGreenHajikiFound_ = false;
+
+	int exposure_;
+	int kelvin_;
 
 	/*---------------------------------------------------------*/
 

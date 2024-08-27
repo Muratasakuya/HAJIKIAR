@@ -2,6 +2,12 @@
 
 #include "ImGuiManager.h"
 
+// モードセット
+void SoloGame::SetApplicationMode(const ApplicationMode& mode) {
+
+	mode_ = mode;
+}
+
 /*////////////////////////////////////////////////////////////////////////////////
 *								   初期化
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -14,11 +20,8 @@ void SoloGame::Initialize() {
 	// Hajiki管理
 	// 生成
 	hajikiManager_ = std::make_unique<HajikiManager>();
-
-	// クリックしているか
-	isPressMouse_ = false;
-	// Playerを動かすのに使うカウント
-	playerMoveCount_ = 0;
+	// モードセット
+	hajikiManager_->SetApplicationMode(mode_);
 
 	/*======================================================*/
 	// 読み込み
@@ -277,8 +280,15 @@ void SoloGame::Update() {
 	/*======================================================*/
 	// 3Dオブジェクト
 
-	// マウス移動
-	hajikiManager_->MouseMove(HajikiType::Player);
+	if (mode_ == ApplicationMode::GAME3D) {
+
+		// マウス移動
+		hajikiManager_->MouseMove(HajikiType::Player);
+	} else if (mode_ == ApplicationMode::AR) {
+
+		// AR移動
+		hajikiManager_->ARMove();
+	}
 
 	// Kirai更新
 	KiraiUpdate();

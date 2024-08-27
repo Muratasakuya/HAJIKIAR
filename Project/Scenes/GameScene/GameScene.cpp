@@ -13,6 +13,8 @@ GameScene::GameScene() {
 	if (gameMode_ == GameMode::SOLO) {
 
 		soloGame_ = std::make_unique<SoloGame>();
+		// モードセット
+		soloGame_->SetApplicationMode(applicationMode_);
 		soloGame_->Initialize();
 	} else if (gameMode_ == GameMode::MATCH) {
 

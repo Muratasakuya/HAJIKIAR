@@ -22,6 +22,9 @@ SceneManager::SceneManager() {
 	openCV_ = OpenCV::GetInstance();
 	// カメラ起動
 	openCV_->OpenCamera();
+	// ウィンドウサイズ
+	openCV_->SetEdgeSize({ NewMoon::kWindowWidthf,NewMoon::kWindowHeightf });
+	openCV_->SetGame3DMode(false);
 
 	// シーン遷移
 	transitionScene_ = std::make_unique<TransitionScene>();

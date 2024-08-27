@@ -1,6 +1,7 @@
 #include "HajikiManager.h"
 
 #include "ImGuiManager.h"
+#include "OpenCV.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
 *									Hajiki追加
@@ -44,7 +45,7 @@ void HajikiManager::AddHajiki(HajikiType type, std::unique_ptr<GameObject3D> obj
 		// 座標の適応
 		hajiki.pos = { hajiki.object->GetCenterPos().x,hajiki.object->GetCenterPos().y };
 
-		// 名前の設定
+		// 名前の設定 DebugName
 		if (type == HajikiType::Player) {
 
 			hajiki.name_ = "HajikiPlayer";
@@ -114,7 +115,20 @@ void HajikiManager::CollisionUpdate() {
 
 	for (auto& pair : hajikies_) {
 		auto& hajikiList = pair.second;
-		for (auto& hajiki : hajikiList) {
+
+		for (size_t i = 0; i < hajikiList.size(); i++) {
+
+			auto& hajiki = hajikiList[i];
+
+			// ARモードで
+			if (mode_ == ApplicationMode::AR) {
+				if (pair.first == HajikiType::Player) {
+					continue;
+				}
+				if (pair.first == HajikiType::Target) {
+					continue;
+				}
+			}
 
 			// 壁との衝突判定
 			WallCollision(hajiki);
@@ -213,6 +227,47 @@ void HajikiManager::MouseMove(HajikiType type) {
 			hajikies_[type][Reality].isPower_ = false;
 		}
 	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*									ARモードの移動
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::ARMove() {
+
+	// 壁の端
+	const Vector2 edgeSize = { 0.41f, 0.231f };
+
+	OpenCV* openCV = OpenCV::GetInstance();
+	openCV->SetGame3DMode(true);
+	openCV->SetEdgeSize({ edgeSize.x,edgeSize.y });
+
+	// 青にプレイヤー 座標が取れているとき
+	if (openCV->GetBlueCenterPos() != Vector2(0.0f, 0.0f)) {
+
+		hajikies_[HajikiType::Player][Reality].pos = openCV->GetBlueCenterPos();
+	} else {
+
+		// 座標が取れていないときはopenCVから座標
+		hajikies_[HajikiType::Player][Reality].pos = { hajikies_[HajikiType::Player][Reality].pos.x, hajikies_[HajikiType::Player][Reality].pos.y * -1.0f };
+	}
+
+	hajikies_[HajikiType::Player][Reality].object->SetTranslate(
+		{ hajikies_[HajikiType::Player][Reality].pos.x,hajikies_[HajikiType::Player][Reality].pos.y * -1.0f,
+		hajikies_[HajikiType::Player][Reality].object->GetCenterPos().z });
+
+	// 緑にターゲット
+	if (openCV->GetGreenCenterPos() != Vector2(0.0f, 0.0f)) {
+
+		hajikies_[HajikiType::Target][Reality].pos = openCV->GetGreenCenterPos();
+	} else {
+
+		// 座標が取れていないときはopenCVから座標
+		hajikies_[HajikiType::Target][Reality].pos = { hajikies_[HajikiType::Target][Reality].pos.x, hajikies_[HajikiType::Target][Reality].pos.y * -1.0f };
+	}
+
+	hajikies_[HajikiType::Target][Reality].object->SetTranslate(
+		{ hajikies_[HajikiType::Target][Reality].pos.x,hajikies_[HajikiType::Target][Reality].pos.y * -1.0f,
+		hajikies_[HajikiType::Target][Reality].object->GetCenterPos().z });
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -370,7 +425,19 @@ void HajikiManager::Draw() {
 
 	for (auto& pair : hajikies_) {
 		auto& hajikiList = pair.second;
-		for (auto& hajiki : hajikiList) {
+		for (size_t i = 0; i < hajikiList.size(); i++) {
+
+			auto& hajiki = hajikiList[i];
+
+			// ARモード
+			if (mode_ == ApplicationMode::AR) {
+				if (pair.first == HajikiType::Player && i == static_cast<size_t>(Reality)) {
+					continue;
+				}
+				if (pair.first == HajikiType::Target && i == static_cast<size_t>(Reality)) {
+					continue;
+				}
+			}
 
 			if (hajiki.object) {
 
@@ -409,6 +476,11 @@ size_t HajikiManager::GetHajikiCount(HajikiType type) const {
 void HajikiManager::SetBlocks(GameObject3D* block) {
 
 	blocks_.push_back(block);
+}
+
+void HajikiManager::SetApplicationMode(const ApplicationMode& mode) {
+
+	mode_ = mode;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -581,7 +653,7 @@ void HajikiManager::CheckBlockToHajikiCollision() {
 
 					// 強化が入っているときにぶつかれば消滅する
 					if (hajikies_[HajikiType::Player][Reality].isPower_) {
-					
+
 						block->SetIsHit(true);
 					}
 				}

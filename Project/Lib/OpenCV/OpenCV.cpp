@@ -65,6 +65,16 @@ OpenCV* OpenCV::GetInstance() {
 	return &instance;
 }
 
+void OpenCV::SetEdgeSize(const Vector2& edgeSize) {
+
+	edgeSize_ = edgeSize;
+}
+
+void OpenCV::SetGame3DMode(bool game3DMode) {
+
+	game3DMode_ = game3DMode;
+}
+
 // 複数のQRコードデータを取得
 std::string OpenCV::GetQRCodeData() {
 
@@ -94,9 +104,15 @@ Vector2 OpenCV::GetBlueCenterPos() const {
 }
 
 // isBlueHajikiFound_ getter
-bool OpenCV::IsBlueHajikiFound() const{
+bool OpenCV::IsBlueHajikiFound() const {
 
 	return isBlueHajikiFound_;
+}
+
+// isGreenHajikiFound_ getter
+bool OpenCV::IsGreenHajikiFound() const {
+
+	return isGreenHajikiFound_;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -135,10 +151,17 @@ void OpenCV::OpenCamera() {
 	camera_.set(cv::CAP_PROP_FRAME_HEIGHT, 360);
 	camera_.set(cv::CAP_PROP_FPS, 60);
 
+	exposure_ = -6;
+
+	kelvin_ = 4500;
+
+	camera_.set(cv::CAP_PROP_AUTO_WB, 0);
+	camera_.set(cv::CAP_PROP_WB_TEMPERATURE, kelvin_);
+
 	trackColor_ = { 0.0f, 1.0f, 0.0f };
 	trackColor2_ = { 0.0f, 0.0f, 1.0f };
 
-	colorRange_ = 10;
+	colorRange_ = 35;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -271,14 +294,39 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 				static_cast<int>(m.m10 / m.m00),
 				static_cast<int>(m.m01 / m.m00));
 
-			// 座標の正規化
-			float normalizedX = static_cast<float>(center.x) / 640.0f;
-			float normalizedY = static_cast<float>(center.y) / 360.0f;
+			if (game3DMode_) {
 
-			currentGreenCenter = { normalizedX * NewMoon::kWindowWidthf, normalizedY * NewMoon::kWindowHeightf };
+				// ウィンドウの中心座標を求める
+				float halfWidth = 640.0f / 2.0f;
+				float halfHeight = 360.0f / 2.0f;
+
+				// 座標をウィンドウの中心を基準に変換
+				float centeredX = static_cast<float>(center.x) - halfWidth;
+				float centeredY = static_cast<float>(center.y) - halfHeight;
+
+				// 中心を基準にした座標を -1 から 1 に正規化
+				float normalizedX = centeredX / halfWidth;
+				float normalizedY = centeredY / halfHeight;
+
+				// 正規化された座標を使用してエッジサイズを計算
+				currentGreenCenter = { normalizedX * edgeSize_.x, normalizedY * edgeSize_.y };
+			} else {
+
+				// 座標の正規化
+				float normalizedX = static_cast<float>(center.x) / 640.0f;
+				float normalizedY = static_cast<float>(center.y) / 360.0f;
+
+				currentGreenCenter = { normalizedX * edgeSize_.x, normalizedY * edgeSize_.y };
+			}
+
+			isGreenHajikiFound_ = true;
 
 			// 最初に見つけた中心だけを取得
 			break;
+		} else {
+
+			isGreenHajikiFound_ = false;
+			greenPreCenter_ = currentGreenCenter;
 		}
 	}
 
@@ -294,11 +342,30 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 				static_cast<int>(m.m10 / m.m00),
 				static_cast<int>(m.m01 / m.m00));
 
-			// 座標の正規化
-			float normalizedX = static_cast<float>(center.x) / 640.0f;
-			float normalizedY = static_cast<float>(center.y) / 360.0f;
+			if (game3DMode_) {
 
-			currentBlueCenter = { normalizedX * NewMoon::kWindowWidthf, normalizedY * NewMoon::kWindowHeightf };
+				// ウィンドウの中心座標を求める
+				float halfWidth = 640.0f / 2.0f;
+				float halfHeight = 360.0f / 2.0f;
+
+				// 座標をウィンドウの中心を基準に変換
+				float centeredX = static_cast<float>(center.x) - halfWidth;
+				float centeredY = static_cast<float>(center.y) - halfHeight;
+
+				// 中心を基準にした座標を -1 から 1 に正規化
+				float normalizedX = centeredX / halfWidth;
+				float normalizedY = centeredY / halfHeight;
+
+				// 正規化された座標を使用してエッジサイズを計算
+				currentBlueCenter = { normalizedX * edgeSize_.x, normalizedY * edgeSize_.y };
+			} else {
+
+				// 座標の正規化
+				float normalizedX = static_cast<float>(center.x) / 640.0f;
+				float normalizedY = static_cast<float>(center.y) / 360.0f;
+
+				currentBlueCenter = { normalizedX * edgeSize_.x, normalizedY * edgeSize_.y };
+			}
 
 			isBlueHajikiFound_ = true;
 
@@ -307,6 +374,7 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 		} else {
 
 			isBlueHajikiFound_ = false;
+			bluePreCenter_ = currentBlueCenter;
 		}
 	}
 
@@ -346,8 +414,13 @@ void OpenCV::Update() {
 	ImGui::SliderInt2("Point 2", &point2_.x, 0, frame_.cols);
 	ImGui::SliderInt2("Point 3", &point3_.x, 0, frame_.cols);
 	ImGui::SliderInt2("Point 4", &point4_.x, 0, frame_.cols);
+	ImGui::InputInt("exposure ", &exposure_);
+	ImGui::InputInt("kelvin ", &kelvin_);
 
 	ImGui::End();
+
+	camera_.set(cv::CAP_PROP_EXPOSURE, exposure_);
+	camera_.set(cv::CAP_PROP_WB_TEMPERATURE, kelvin_);
 
 	// カメラが開かれていなければ早期リターン
 	if (!camera_.isOpened()) {

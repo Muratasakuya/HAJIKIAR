@@ -8,6 +8,9 @@
 // ImGui
 #include "ImGuiRenderer.h"
 
+// BaseScene
+#include "IScene.h"
+
 // 衝突判定
 #include "CollisionManager.h"
 
@@ -31,10 +34,17 @@ public:
 	void Update();
 	void Draw();
 
+	// stter
+
+	void SetApplicationMode(const ApplicationMode& mode);
+
 private:
 	/*-----------------------------*/
 	///			メンバ変数
 	/*-----------------------------*/
+
+	// ARか3Dゲーム
+	ApplicationMode mode_;
 
 	// ImGui
 	ImGuiRenderer imgui_;
@@ -44,15 +54,6 @@ private:
 
 	// Hajiki管理
 	std::unique_ptr<HajikiManager> hajikiManager_;
-
-	// マウス座標
-	Vector2 mousePos_;
-	// クリックした座標
-	Vector2 mousePressPos_;
-	// クリックしているか
-	bool isPressMouse_;
-	// Playerを動かすのに使うカウント
-	uint32_t playerMoveCount_;
 
 	// 摩擦
 	Friction friction_;

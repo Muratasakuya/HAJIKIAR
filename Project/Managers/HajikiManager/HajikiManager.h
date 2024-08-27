@@ -6,6 +6,9 @@
 // ImGui
 #include "ImGuiRenderer.h"
 
+// BaseScene
+#include "IScene.h"
+
 // 3D
 #include "GameObject3D.h"
 
@@ -73,6 +76,7 @@ public:
 	void CollisionUpdate();
 
 	void MouseMove(HajikiType type);
+	void ARMove();
 
 	void Reset();
 
@@ -88,11 +92,15 @@ public:
 	// setter
 
 	void SetBlocks(GameObject3D* block);
+	void SetApplicationMode(const ApplicationMode& mode);
 
 private:
 	/*-----------------------------*/
 	///			メンバ変数
 	/*-----------------------------*/
+
+	// ARか3Dゲーム
+	ApplicationMode mode_;
 
 	// 現実と虚
 	static const uint32_t dualityNum = 2;
