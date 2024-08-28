@@ -17,6 +17,7 @@
 // c++
 #include <vector>
 #include <array>
+#include <deque>
 #include <string>
 #include <thread>
 #include <iostream>
@@ -45,7 +46,6 @@ public:
 
 	void Initialize();
 	void Update();
-	void Draw();
 
 	void Finalize();
 
@@ -72,6 +72,8 @@ private:
 
 	// カメラ
 	cv::VideoCapture camera_;
+
+	int framerate_;
 
 	// カメラから取得するフレーム
 	cv::Mat frame_;
@@ -122,10 +124,16 @@ private:
 	cv::Point point4_;
 
 	std::array<cv::Point, 4> points_;
+	std::vector<cv::Point> toneCurvePoints_ = { {0, 0}, {128, 128}, {255, 255} };
+	std::vector<cv::Point> toneCurvePointsR_ = { {0, 0}, {128, 128}, {255, 255} };
+	std::vector<cv::Point> toneCurvePointsG_ = { {0, 0}, {128, 128}, {255, 255} };
+	std::vector<cv::Point> toneCurvePointsB_ = { {0, 0}, {128, 128}, {255, 255} };
+	cv::Mat processedFrame_;
 
 	int exposure_;
 	int kelvin_;
 	bool whiteBalance_;
+	float saturationScale_ = 1.0f;
 
 private:
 	/*-----------------------------*/
@@ -133,4 +141,9 @@ private:
 	/*-----------------------------*/
 
 	cv::Mat ConvertRGBtoHSV(const Vector3& color);
+	void RenderToneCurveEditor(std::vector<cv::Point>& points, const char* label);
+	void ApplyToneCurve(const cv::Mat& inputImage, cv::Mat& outputImage, const std::vector<cv::Point>& toneCurvePoints);
+	void ApplyToneCurveRGB(const cv::Mat& inputImage, cv::Mat& outputImage, const std::vector<cv::Point>& toneCurvePointsR,
+		const std::vector<cv::Point>& toneCurvePointsG, const std::vector<cv::Point>& toneCurvePointsB);
+	void IncreaseSaturation(cv::Mat& frame, float saturationScale);
 };

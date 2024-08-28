@@ -4,58 +4,6 @@
 #include "ImGuiManager.h"
 
 /*////////////////////////////////////////////////////////////////////////////////
-*							領域を切り取るメソッド
-////////////////////////////////////////////////////////////////////////////////*/
-void OpenCV::CropAndShowPolygonRegion(const std::array<cv::Point, 4>& points) {
-	// カメラが開かれていなければ早期リターン
-	if (!camera_.isOpened()) {
-		return;
-	}
-
-	// フレームのコピーを作成
-	cv::Mat frameCopy = frame_.clone();
-
-	// 画像全体をマスクするための黒いマスクを作成
-	cv::Mat mask = cv::Mat::zeros(frame_.size(), CV_8UC1);
-
-	// ポリゴンの頂点を設定
-	std::vector<std::vector<cv::Point>> pts{ std::vector<cv::Point>(points.begin(), points.end()) };
-
-	// マスクに白いポリゴンを描画
-	cv::fillPoly(mask, pts, cv::Scalar(255));
-
-	// マスクを使用して元の画像から領域を切り取る
-	cv::Mat croppedFrame;
-	frame_.copyTo(croppedFrame, mask);
-
-	// 変換先の4つの頂点を指定
-	std::vector<cv::Point2f> dstPoints;
-	dstPoints.push_back(cv::Point2f(0, 0));               // 左上
-	dstPoints.push_back(cv::Point2f(640, 0));             // 右上
-	dstPoints.push_back(cv::Point2f(640, 360));           // 右下
-	dstPoints.push_back(cv::Point2f(0, 360));             // 左下
-
-	// 変換元の頂点（入力頂点）を設定
-	std::vector<cv::Point2f> srcPoints;
-	for (const auto& point : points) {
-		srcPoints.push_back(cv::Point2f(static_cast<float>(point.x), static_cast<float>(point.y)));
-	}
-
-	// 射影変換行列を計算
-	cv::Mat transformMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
-
-	// 射影変換を実行して、指定されたサイズに変換
-	cv::Mat transformedFrame;
-	cv::warpPerspective(croppedFrame, transformedFrame, transformMatrix, cv::Size(640, 360));
-
-	// 色のトラッキング
-	ColorTracking(transformedFrame);
-
-	// 変換されたフレームの表示
-	cv::imshow("TransformedRegion", transformedFrame);
-}
-
-/*////////////////////////////////////////////////////////////////////////////////
 *								singleton
 ////////////////////////////////////////////////////////////////////////////////*/
 OpenCV* OpenCV::GetInstance() {
@@ -132,12 +80,39 @@ cv::Mat OpenCV::ConvertRGBtoHSV(const Vector3& color) {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
+*									彩度調整
+////////////////////////////////////////////////////////////////////////////////*/
+void OpenCV::IncreaseSaturation(cv::Mat& frame, float saturationScale) {
+
+	// BGR色空間からHSV色空間に変換
+	cv::Mat hsvFrame;
+	cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
+
+	// HSVチャンネルを分離
+	std::vector<cv::Mat> hsvChannels;
+	cv::split(hsvFrame, hsvChannels);
+
+	// 彩度チャンネルを調整
+	hsvChannels[1] *= saturationScale; // Sチャンネルを指定倍率で調整
+
+	// 彩度が255を超えないようにクリップ
+	cv::threshold(hsvChannels[1], hsvChannels[1], 255, 255, cv::THRESH_TRUNC);
+
+	// チャンネルを結合して再度HSV画像を作成
+	cv::merge(hsvChannels, hsvFrame);
+
+	// HSV色空間からBGR色空間に戻す
+	cv::cvtColor(hsvFrame, frame, cv::COLOR_HSV2BGR);
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
 *									カメラ起動
 ////////////////////////////////////////////////////////////////////////////////*/
 void OpenCV::OpenCamera() {
 
 	// カメラ起動
 	camera_.open(0, cv::CAP_DSHOW);
+	framerate_ = 120;
 
 	// カメラが開けなければエラー
 	if (!camera_.isOpened()) {
@@ -149,7 +124,7 @@ void OpenCV::OpenCamera() {
 	camera_.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
 	camera_.set(cv::CAP_PROP_FRAME_WIDTH, 640);
 	camera_.set(cv::CAP_PROP_FRAME_HEIGHT, 360);
-	camera_.set(cv::CAP_PROP_FPS, 60);
+	camera_.set(cv::CAP_PROP_FPS, framerate_);
 
 	trackColor_ = { 0.0f, 1.0f, 0.0f };
 	trackColor2_ = { 0.0f, 0.0f, 1.0f };
@@ -158,59 +133,55 @@ void OpenCV::OpenCamera() {
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
-*							QRコードの複数トラッキング
+*							領域を切り取るメソッド
 ////////////////////////////////////////////////////////////////////////////////*/
-void OpenCV::QRTracking(const std::vector<std::string>& qrCodeDataList) {
-
+void OpenCV::CropAndShowPolygonRegion(const std::array<cv::Point, 4>& points) {
 	// カメラが開かれていなければ早期リターン
 	if (!camera_.isOpened()) {
-
 		return;
 	}
 
-	// カメラから画像データを読んでframeに送る
-	camera_ >> frame_;
+	// フレームのコピーを作成
+	cv::Mat frameCopy = frame_.clone();
 
-	// 何も取得できなければ早期リターン
-	if (frame_.empty()) {
+	// 画像全体をマスクするための黒いマスクを作成
+	cv::Mat mask = cv::Mat::zeros(frame_.size(), CV_8UC1);
 
-		return;
+	// ポリゴンの頂点を設定
+	std::vector<std::vector<cv::Point>> pts{ std::vector<cv::Point>(points.begin(), points.end()) };
+
+	// マスクに白いポリゴンを描画
+	cv::fillPoly(mask, pts, cv::Scalar(255));
+
+	// マスクを使用して元の画像から領域を切り取る
+	cv::Mat croppedFrame;
+	frame_.copyTo(croppedFrame, mask);
+
+	// 変換先の4つの頂点を指定
+	std::vector<cv::Point2f> dstPoints;
+	dstPoints.push_back(cv::Point2f(0, 0));               // 左上
+	dstPoints.push_back(cv::Point2f(640, 0));             // 右上
+	dstPoints.push_back(cv::Point2f(640, 360));           // 右下
+	dstPoints.push_back(cv::Point2f(0, 360));             // 左下
+
+	// 変換元の頂点（入力頂点）を設定
+	std::vector<cv::Point2f> srcPoints;
+	for (const auto& point : points) {
+		srcPoints.push_back(cv::Point2f(static_cast<float>(point.x), static_cast<float>(point.y)));
 	}
 
-	// 取得したフレームの左右反転
-	cv::flip(frame_, frame_, 1);
+	// 射影変換行列を計算
+	cv::Mat transformMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
 
-	// ガウシアンブラー
-	cv::GaussianBlur(frame_, frame_, cv::Size(5, 5), 0);
+	// 射影変換を実行して、指定されたサイズに変換
+	cv::Mat transformedFrame;
+	cv::warpPerspective(croppedFrame, transformedFrame, transformMatrix, cv::Size(640, 360));
 
-	// QRコードの検出とデコード
-	std::vector<cv::Point> points;
-	std::vector<cv::String> decodedTexts;
-	qrDecoder_.detectAndDecodeMulti(frame_, decodedTexts, points);
+	// 色のトラッキング
+	ColorTracking(transformedFrame);
 
-	// 検出された各QRコードについて処理
-	for (size_t i = 0; i < decodedTexts.size(); i++) {
-
-		std::string decodedText = decodedTexts[i];
-		std::vector<cv::Point> pointSet(points.begin() + i * 4, points.begin() + (i + 1) * 4);
-
-		// デコードしたQRコードがリストにあるか
-		if (std::find(qrCodeDataList.begin(), qrCodeDataList.end(), decodedText) != qrCodeDataList.end()) {
-
-			// QRコードの中心座標取得
-			cv::Point center(0, 0);
-			for (const auto& point : pointSet) {
-
-				center += point;
-			}
-
-			center.x /= static_cast<int>(pointSet.size());
-			center.y /= static_cast<int>(pointSet.size());
-
-			// 中心座標にマークを描画
-			cv::circle(frame_, center, 10, cv::Scalar(0, 255, 0), 2);
-		}
-	}
+	// 変換されたフレームの表示
+	cv::imshow("TransformedRegion", transformedFrame);
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -433,6 +404,7 @@ void OpenCV::Update() {
 	ImGui::InputInt("exposure ", &exposure_);
 	ImGui::InputInt("kelvin ", &kelvin_);
 	ImGui::Checkbox("whiteBalance", &whiteBalance_);
+	ImGui::DragFloat("saturation", &saturationScale_, 0.01f, 0.0f, 3.0f);
 
 	ImGui::Separator();
 	ImGui::Text("Json");
@@ -470,34 +442,23 @@ void OpenCV::Update() {
 	// ガウシアンブラー
 	cv::GaussianBlur(frame_, frame_, cv::Size(5, 5), 0);
 
+	// 彩度を上げる
+	IncreaseSaturation(frame_, saturationScale_);
+
 	// 指定した4つの頂点で領域を切り取って表示する
 	std::array<cv::Point, 4> points = { point1_, point2_, point3_, point4_ };
 	CropAndShowPolygonRegion(points);
 
-}
-
-/*////////////////////////////////////////////////////////////////////////////////
-*								    描画処理
-////////////////////////////////////////////////////////////////////////////////*/
-void OpenCV::Draw() {
-
-	// カメラがどこを映しているかだけで描画する必要はない
-	// デバッグ用に近い
-
-	// カメラが開かれていなければ早期リターン
-	if (!camera_.isOpened()) {
-
-		return;
-	}
-
-	// 何も取得できなければ早期リターン
-	if (frame_.empty()) {
-
-		return;
-	}
-
-	// 変換されたフレームの表示
-	cv::imshow("cameraTest", frame_);
+	//// 全体のトーンカーブエディタのレンダリング
+	//RenderToneCurveEditor(toneCurvePoints_, "Tone Curve Editor - Overall");
+	//// RGB個別のトーンカーブエディタのレンダリング
+	//RenderToneCurveEditor(toneCurvePointsR_, "Tone Curve Editor - Red");
+	//RenderToneCurveEditor(toneCurvePointsG_, "Tone Curve Editor - Green");
+	//RenderToneCurveEditor(toneCurvePointsB_, "Tone Curve Editor - Blue");
+	//// 全体のトーンカーブを適用
+	//ApplyToneCurve(frame_, processedFrame_, toneCurvePoints_);
+	//// RGBごとのトーンカーブを適用
+	//ApplyToneCurveRGB(processedFrame_, processedFrame_, toneCurvePointsR_, toneCurvePointsG_, toneCurvePointsB_);
 
 }
 
@@ -510,4 +471,158 @@ void OpenCV::Finalize() {
 		camera_.release();
 	}
 	cv::destroyAllWindows();
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*							QRコードの複数トラッキング
+////////////////////////////////////////////////////////////////////////////////*/
+void OpenCV::QRTracking(const std::vector<std::string>& qrCodeDataList) {
+
+	// カメラが開かれていなければ早期リターン
+	if (!camera_.isOpened()) {
+
+		return;
+	}
+
+	// カメラから画像データを読んでframeに送る
+	camera_ >> frame_;
+
+	// 何も取得できなければ早期リターン
+	if (frame_.empty()) {
+
+		return;
+	}
+
+	// 取得したフレームの左右反転
+	cv::flip(frame_, frame_, 1);
+
+	// ガウシアンブラー
+	cv::GaussianBlur(frame_, frame_, cv::Size(5, 5), 0);
+
+	// QRコードの検出とデコード
+	std::vector<cv::Point> points;
+	std::vector<cv::String> decodedTexts;
+	qrDecoder_.detectAndDecodeMulti(frame_, decodedTexts, points);
+
+	// 検出された各QRコードについて処理
+	for (size_t i = 0; i < decodedTexts.size(); i++) {
+
+		std::string decodedText = decodedTexts[i];
+		std::vector<cv::Point> pointSet(points.begin() + i * 4, points.begin() + (i + 1) * 4);
+
+		// デコードしたQRコードがリストにあるか
+		if (std::find(qrCodeDataList.begin(), qrCodeDataList.end(), decodedText) != qrCodeDataList.end()) {
+
+			// QRコードの中心座標取得
+			cv::Point center(0, 0);
+			for (const auto& point : pointSet) {
+
+				center += point;
+			}
+
+			center.x /= static_cast<int>(pointSet.size());
+			center.y /= static_cast<int>(pointSet.size());
+
+			// 中心座標にマークを描画
+			cv::circle(frame_, center, 10, cv::Scalar(0, 255, 0), 2);
+		}
+	}
+}
+void OpenCV::RenderToneCurveEditor(std::vector<cv::Point>& points, const char* label) {
+
+	ImGui::Begin(label);
+
+	ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
+	ImVec2 canvas_size = ImGui::GetContentRegionAvail();
+	if (canvas_size.x < 50.0f) canvas_size.x = 50.0f;
+	if (canvas_size.y < 50.0f) canvas_size.y = 50.0f;
+
+	ImGui::InvisibleButton("canvas", canvas_size, ImGuiButtonFlags_MouseButtonLeft);
+	bool is_hovered = ImGui::IsItemHovered();
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	draw_list->AddRectFilled(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(50, 50, 50, 255));
+	draw_list->AddRect(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(255, 255, 255, 255));
+
+	for (size_t i = 0; i < points.size(); ++i) {
+		ImVec2 p = ImVec2(canvas_pos.x + (points[i].x / 255.0f) * canvas_size.x, canvas_pos.y + (1.0f - points[i].y / 255.0f) * canvas_size.y);
+		draw_list->AddCircleFilled(p, 3.0f, IM_COL32(255, 0, 0, 255));
+
+		if (ImGui::IsMouseHoveringRect(ImVec2(p.x - 5, p.y - 5), ImVec2(p.x + 5, p.y + 5)) && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+			ImVec2 mouse_pos = ImGui::GetMousePos();
+			points[i].x = static_cast<int>((mouse_pos.x - canvas_pos.x) / canvas_size.x * 255);
+			points[i].y = static_cast<int>(255 - (mouse_pos.y - canvas_pos.y) / canvas_size.y * 255);
+		}
+	}
+
+	for (size_t i = 0; i < points.size() - 1; ++i) {
+		ImVec2 p1 = ImVec2(canvas_pos.x + (points[i].x / 255.0f) * canvas_size.x, canvas_pos.y + (1.0f - points[i].y / 255.0f) * canvas_size.y);
+		ImVec2 p2 = ImVec2(canvas_pos.x + (points[i + 1].x / 255.0f) * canvas_size.x, canvas_pos.y + (1.0f - points[i + 1].y / 255.0f) * canvas_size.y);
+		draw_list->AddLine(p1, p2, IM_COL32(255, 255, 255, 255));
+	}
+
+	ImGui::End();
+}
+void OpenCV::ApplyToneCurve(const cv::Mat& inputImage, cv::Mat& outputImage, const std::vector<cv::Point>& toneCurvePoints) {
+
+	cv::Mat lookupTable(1, 256, CV_8U);
+	uchar* p = lookupTable.ptr();
+	for (int i = 0; i < 256; ++i) {
+		float x = static_cast<float>(i);
+		float y = static_cast<float>(i);
+
+		for (size_t j = 0; j < toneCurvePoints.size() - 1; ++j) {
+			cv::Point p0 = toneCurvePoints[j];
+			cv::Point p1 = toneCurvePoints[j + 1];
+
+			if (x >= p0.x && x <= p1.x) {
+				float t = (x - p0.x) / (p1.x - p0.x);
+				y = p0.y * (1 - t) + p1.y * t;
+				break;
+			}
+		}
+
+		p[i] = cv::saturate_cast<uchar>(y);
+	}
+
+	cv::LUT(inputImage, lookupTable, outputImage);
+}
+void OpenCV::ApplyToneCurveRGB(const cv::Mat& inputImage, cv::Mat& outputImage, const std::vector<cv::Point>& toneCurvePointsR,
+	const std::vector<cv::Point>& toneCurvePointsG, const std::vector<cv::Point>& toneCurvePointsB) {
+
+	std::array<cv::Mat, 3> lookupTables;
+	lookupTables[0] = cv::Mat(1, 256, CV_8U);  // Blue
+	lookupTables[1] = cv::Mat(1, 256, CV_8U);  // Green
+	lookupTables[2] = cv::Mat(1, 256, CV_8U);  // Red
+
+	// 各チャンネルのルックアップテーブルを作成
+	for (int ch = 0; ch < 3; ++ch) {
+		uchar* p = lookupTables[ch].ptr();
+		const std::vector<cv::Point>& toneCurvePoints = (ch == 0) ? toneCurvePointsB : (ch == 1) ? toneCurvePointsG : toneCurvePointsR;
+
+		for (int i = 0; i < 256; ++i) {
+			float x = static_cast<float>(i);
+			float y = static_cast<float>(i);
+
+			for (size_t j = 0; j < toneCurvePoints.size() - 1; ++j) {
+				cv::Point p0 = toneCurvePoints[j];
+				cv::Point p1 = toneCurvePoints[j + 1];
+
+				if (x >= p0.x && x <= p1.x) {
+					float t = (x - p0.x) / (p1.x - p0.x);
+					y = p0.y * (1 - t) + p1.y * t;
+					break;
+				}
+			}
+
+			p[i] = cv::saturate_cast<uchar>(y);
+		}
+	}
+
+	// 各チャンネルにトーンカーブを適用
+	cv::Mat channels[3];
+	cv::split(inputImage, channels);
+	for (int ch = 0; ch < 3; ++ch) {
+		cv::LUT(channels[ch], lookupTables[ch], channels[ch]);
+	}
+	cv::merge(channels, 3, outputImage);
 }
