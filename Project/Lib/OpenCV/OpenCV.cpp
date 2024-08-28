@@ -405,7 +405,7 @@ void OpenCV::Initialize() {
 		whiteBalance_ = false;
 	}
 
-	// 読み込んだポイントと設定を使って初期化
+	// 読み込んだ設定を使って初期化
 	point1_ = points_[0];
 	point2_ = points_[1];
 	point3_ = points_[2];
