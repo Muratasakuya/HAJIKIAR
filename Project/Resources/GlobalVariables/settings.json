@@ -1,5 +1,5 @@
 {
-    "Exposure": -11,
+    "Exposure": -7,
     "Kelvin": 4500,
     "Point1": [
         32,
@@ -17,5 +17,6 @@
         45,
         334
     ],
+    "SaturationScale": 1.25,
     "WhiteBalance": true
 }

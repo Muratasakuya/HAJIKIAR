@@ -367,13 +367,14 @@ void OpenCV::Initialize() {
 	jsonHandler_ = std::make_unique<JsonHandler>("./Resources/GlobalVariables/");
 
 	// JSONからポイント情報とカメラ設定を読み込む
-	if (!jsonHandler_->LoadSettings("settings", points_, exposure_, kelvin_, whiteBalance_)) {
+	if (!jsonHandler_->LoadSettings("settings", points_, exposure_, kelvin_, whiteBalance_, saturationScale_)) {
 
 		// デフォルト値を設定
 		points_ = { cv::Point(0, 0), cv::Point(100, 0), cv::Point(100, 100), cv::Point(0, 100) };
 		exposure_ = -6;
 		kelvin_ = 4500;
 		whiteBalance_ = false;
+		saturationScale_ = 1.0f;
 	}
 
 	// 読み込んだ設定を使って初期化
@@ -411,7 +412,7 @@ void OpenCV::Update() {
 	if (ImGui::Button("Save")) {
 
 		points_ = { point1_, point2_, point3_, point4_ };
-		jsonHandler_->SaveSettings("settings", points_, exposure_, kelvin_, whiteBalance_);
+		jsonHandler_->SaveSettings("settings", points_, exposure_, kelvin_, whiteBalance_, saturationScale_);
 		std::string message = "Settings.json saved.";
 		MessageBoxA(nullptr, message.c_str(), "Save Confirmation", 0);
 	}

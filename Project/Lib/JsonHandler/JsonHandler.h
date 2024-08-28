@@ -25,8 +25,8 @@ public:
 	~JsonHandler() {}
 
 	// OpenCV
-	void SaveSettings(const std::string& fileName, const std::array<cv::Point, 4>& points, int exposure, int kelvin, bool whiteBalance);
-	bool LoadSettings(const std::string& fileName, std::array<cv::Point, 4>& points, int& exposure, int& kelvin, bool& whiteBalance);
+	void SaveSettings(const std::string& fileName, const std::array<cv::Point, 4>& points, int exposure, int kelvin, bool whiteBalance, float saturationScale);
+	bool LoadSettings(const std::string& fileName, std::array<cv::Point, 4>& points, int& exposure, int& kelvin, bool& whiteBalance, float& saturationScale);
 
 private:
 	/*-----------------------------*/
