@@ -1,3 +1,6 @@
+
+#define NOMINMAX
+
 #include "OpenCV.h"
 
 #include "NewMoon.h"
@@ -39,16 +42,14 @@ std::string OpenCV::GetQRCodeData() {
 	return "";
 }
 
-// greenCenter_ getter
-Vector2 OpenCV::GetGreenCenterPos() const {
+Vector2 OpenCV::GetGreenLargestCenterPos() const {
 
-	return greenCenter_;
+	return largestGreenCenter_;
 }
 
-// blueCenter_ getter
-Vector2 OpenCV::GetBlueCenterPos() const {
+Vector2 OpenCV::GetSmallestGreenCenterPos() const{
 
-	return blueCenter_;
+	return smallestGreenCenter_;
 }
 
 // isBlueHajikiFound_ getter
@@ -61,6 +62,24 @@ bool OpenCV::IsBlueHajikiFound() const {
 bool OpenCV::IsGreenHajikiFound() const {
 
 	return isGreenHajikiFound_;
+}
+
+Vector2 OpenCV::GetTrackColorPos() const {
+
+	return trackColorCenter_;
+}
+bool OpenCV::FoundTrackColor() const {
+
+	return foundTrackColor_;
+}
+
+Vector2 OpenCV::GetOtherColorPos() const {
+
+	return otherColorCenter_;
+}
+bool OpenCV::FoundOtherColor() const {
+
+	return foundOtherColor_;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -105,6 +124,38 @@ void OpenCV::IncreaseSaturation(cv::Mat& frame, float saturationScale) {
 	cv::cvtColor(hsvFrame, frame, cv::COLOR_HSV2BGR);
 }
 
+Vector2 OpenCV::NormalizeCoordinates(const cv::Point& center){
+
+	Vector2 normalizedCenter;
+
+	if (game3DMode_) {
+		// ウィンドウの中心座標を求める
+		float halfWidth = 640.0f / 2.0f;
+		float halfHeight = 360.0f / 2.0f;
+
+		// 座標をウィンドウの中心を基準に変換
+		float centeredX = static_cast<float>(center.x) - halfWidth;
+		float centeredY = static_cast<float>(center.y) - halfHeight;
+
+		// 中心を基準にした座標を -1 から 1 に正規化
+		normalizedCenter.x = centeredX / halfWidth;
+		normalizedCenter.y = centeredY / halfHeight;
+
+		// 正規化された座標を使用してエッジサイズを計算
+		normalizedCenter.x *= edgeSize_.x;
+		normalizedCenter.y *= edgeSize_.y;
+	} else {
+		// 座標の正規化
+		normalizedCenter.x = static_cast<float>(center.x) / 640.0f;
+		normalizedCenter.y = static_cast<float>(center.y) / 360.0f;
+
+		normalizedCenter.x *= edgeSize_.x;
+		normalizedCenter.y *= edgeSize_.y;
+	}
+
+	return normalizedCenter;
+}
+
 /*////////////////////////////////////////////////////////////////////////////////
 *									カメラ起動
 ////////////////////////////////////////////////////////////////////////////////*/
@@ -127,9 +178,8 @@ void OpenCV::OpenCamera() {
 	camera_.set(cv::CAP_PROP_FPS, framerate_);
 
 	trackColor_ = { 0.0f, 1.0f, 0.0f };
-	trackColor2_ = { 0.0f, 0.0f, 1.0f };
 
-	colorRange_ = 35;
+	colorRange_ = 40;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -142,10 +192,10 @@ void OpenCV::CropAndShowPolygonRegion(const std::array<cv::Point, 4>& points) {
 	}
 
 	// フレームのコピーを作成
-	cv::Mat frameCopy = frame_.clone();
+	cv::Mat frameCopy = processedFrame_.clone();
 
 	// 画像全体をマスクするための黒いマスクを作成
-	cv::Mat mask = cv::Mat::zeros(frame_.size(), CV_8UC1);
+	cv::Mat mask = cv::Mat::zeros(processedFrame_.size(), CV_8UC1);
 
 	// ポリゴンの頂点を設定
 	std::vector<std::vector<cv::Point>> pts{ std::vector<cv::Point>(points.begin(), points.end()) };
@@ -155,7 +205,7 @@ void OpenCV::CropAndShowPolygonRegion(const std::array<cv::Point, 4>& points) {
 
 	// マスクを使用して元の画像から領域を切り取る
 	cv::Mat croppedFrame;
-	frame_.copyTo(croppedFrame, mask);
+	processedFrame_.copyTo(croppedFrame, mask);
 
 	// 変換先の4つの頂点を指定
 	std::vector<cv::Point2f> dstPoints;
@@ -190,12 +240,11 @@ void OpenCV::CropAndShowPolygonRegion(const std::array<cv::Point, 4>& points) {
 void OpenCV::ColorTracking(cv::Mat& frame) {
 
 	/*======================================================*/
-	// ImGui
+   // ImGui
 
 	ImGui::Begin("OpenCV");
 
 	ImGui::ColorEdit3("trackColor", &trackColor_.x);
-	ImGui::ColorEdit3("trackColor2", &trackColor2_.x);
 	ImGui::DragInt("colorRange", &colorRange_, 1, 0, 100);
 
 	ImGui::End();
@@ -210,153 +259,109 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 
 	// RGBからHSV色空間に変換
 	cv::Mat hsvColor = ConvertRGBtoHSV(trackColor_);
-	cv::Mat hsvColor2 = ConvertRGBtoHSV(trackColor2_);
 
 	// HSV値を取得
 	cv::Vec3b hsvValues = hsvColor.at<cv::Vec3b>(0, 0);
-	cv::Vec3b hsvValues2 = hsvColor2.at<cv::Vec3b>(0, 0);
 
-	// 緑色の範囲を定義
-	cv::Mat greenMask;
-	cv::inRange(hsvFrame, cv::Scalar(hsvValues[0] - colorRange_, 100, 100), cv::Scalar(hsvValues[0] + colorRange_, 255, 255), greenMask);
+	// 指定した色の範囲を定義
+	cv::Mat colorMask;
+	cv::inRange(hsvFrame, cv::Scalar(hsvValues[0] - colorRange_, 100, 100),
+		cv::Scalar(hsvValues[0] + colorRange_, 255, 255), colorMask);
 
-	// 青色の範囲を定義
-	cv::Mat blueMask;
-	cv::inRange(hsvFrame, cv::Scalar(hsvValues2[0] - colorRange_, 100, 100), cv::Scalar(hsvValues2[0] + colorRange_, 255, 255), blueMask);
+	// 白以外の色の範囲を定義（彩度 S > 50 で白以外を判定）
+	cv::Mat nonWhiteMask;
+	cv::inRange(hsvFrame, cv::Scalar(0, 50, 0), cv::Scalar(180, 255, 255), nonWhiteMask);
 
 	// モルフォロジー変換（開閉処理）でノイズ除去
 	cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5));
-	cv::morphologyEx(greenMask, greenMask, cv::MORPH_CLOSE, kernel);
-	cv::morphologyEx(greenMask, greenMask, cv::MORPH_OPEN, kernel);
+	cv::morphologyEx(colorMask, colorMask, cv::MORPH_CLOSE, kernel);
+	cv::morphologyEx(colorMask, colorMask, cv::MORPH_OPEN, kernel);
 
-	cv::morphologyEx(blueMask, blueMask, cv::MORPH_CLOSE, kernel);
-	cv::morphologyEx(blueMask, blueMask, cv::MORPH_OPEN, kernel);
-
-	// マスクの処理
-	cv::Mat green_result, blue_result;
-	cv::bitwise_and(frame, frame, green_result, greenMask);
-	cv::bitwise_and(frame, frame, blue_result, blueMask);
-#pragma endregion
+	cv::morphologyEx(nonWhiteMask, nonWhiteMask, cv::MORPH_CLOSE, kernel);
+	cv::morphologyEx(nonWhiteMask, nonWhiteMask, cv::MORPH_OPEN, kernel);
 
 	// 緑色の物体の輪郭を検出
-	std::vector<std::vector<cv::Point>> green_contours;
-	cv::findContours(greenMask, green_contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+	std::vector<std::vector<cv::Point>> color_contours;
+	cv::findContours(colorMask, color_contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
-	// 青色の物体の輪郭を検出
-	std::vector<std::vector<cv::Point>> blue_contours;
-	cv::findContours(blueMask, blue_contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+	// 白以外の物体の輪郭を検出
+	std::vector<std::vector<cv::Point>> nonWhite_contours;
+	cv::findContours(nonWhiteMask, nonWhite_contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
-	// 緑色の物体の中心座標を計算
-	Vector2 currentGreenCenter{};
-	for (size_t i = 0; i < green_contours.size(); ++i) {
-		cv::Moments m = cv::moments(green_contours[i]);
-		double area = cv::contourArea(green_contours[i]);
+	// 中心座標の計算
+	Vector2 currentColorCenter{};
+	Vector2 currentNonWhiteCenter{};
 
-		// 面積が十分大きく、m.m00がゼロでない場合のみ処理
+	// 指定色の物体の中心座標を計算
+	foundTrackColor_ = false; // フラグをリセット
+	for (size_t i = 0; i < color_contours.size(); ++i) {
+		cv::Moments m = cv::moments(color_contours[i]);
+		double area = cv::contourArea(color_contours[i]);
+
 		if (area > 100 && m.m00 != 0) {
 			cv::Point center(
 				static_cast<int>(m.m10 / m.m00),
 				static_cast<int>(m.m01 / m.m00));
 
-			if (game3DMode_) {
-
-				// ウィンドウの中心座標を求める
-				float halfWidth = 640.0f / 2.0f;
-				float halfHeight = 360.0f / 2.0f;
-
-				// 座標をウィンドウの中心を基準に変換
-				float centeredX = static_cast<float>(center.x) - halfWidth;
-				float centeredY = static_cast<float>(center.y) - halfHeight;
-
-				// 中心を基準にした座標を -1 から 1 に正規化
-				float normalizedX = centeredX / halfWidth;
-				float normalizedY = centeredY / halfHeight;
-
-				// 正規化された座標を使用してエッジサイズを計算
-				currentGreenCenter = { normalizedX * edgeSize_.x, normalizedY * edgeSize_.y };
-			} else {
-
-				// 座標の正規化
-				float normalizedX = static_cast<float>(center.x) / 640.0f;
-				float normalizedY = static_cast<float>(center.y) / 360.0f;
-
-				currentGreenCenter = { normalizedX * edgeSize_.x, normalizedY * edgeSize_.y };
-			}
-
-			isGreenHajikiFound_ = true;
-
-			// 最初に見つけた中心だけを取得
-			break;
-		} else {
-
-			isGreenHajikiFound_ = false;
+			currentColorCenter = NormalizeCoordinates(center);
+			foundTrackColor_ = true;
+			break; // 最初に見つけた中心だけを取得
 		}
 	}
 
-	// 青色の物体の中心座標を計算
-	Vector2 currentBlueCenter{};
-	for (size_t i = 0; i < blue_contours.size(); ++i) {
-		cv::Moments m = cv::moments(blue_contours[i]);
-		double area = cv::contourArea(blue_contours[i]);
+	// 白以外の物体の中心座標を計算
+	foundOtherColor_ = false; // フラグをリセット
+	for (size_t i = 0; i < nonWhite_contours.size(); ++i) {
+		cv::Moments m = cv::moments(nonWhite_contours[i]);
+		double area = cv::contourArea(nonWhite_contours[i]);
 
-		// 面積が十分大きく、m.m00がゼロでない場合のみ処理
 		if (area > 100 && m.m00 != 0) {
 			cv::Point center(
 				static_cast<int>(m.m10 / m.m00),
 				static_cast<int>(m.m01 / m.m00));
 
-			if (game3DMode_) {
-
-				// ウィンドウの中心座標を求める
-				float halfWidth = 640.0f / 2.0f;
-				float halfHeight = 360.0f / 2.0f;
-
-				// 座標をウィンドウの中心を基準に変換
-				float centeredX = static_cast<float>(center.x) - halfWidth;
-				float centeredY = static_cast<float>(center.y) - halfHeight;
-
-				// 中心を基準にした座標を -1 から 1 に正規化
-				float normalizedX = centeredX / halfWidth;
-				float normalizedY = centeredY / halfHeight;
-
-				// 正規化された座標を使用してエッジサイズを計算
-				currentBlueCenter = { normalizedX * edgeSize_.x, normalizedY * edgeSize_.y };
-			} else {
-
-				// 座標の正規化
-				float normalizedX = static_cast<float>(center.x) / 640.0f;
-				float normalizedY = static_cast<float>(center.y) / 360.0f;
-
-				currentBlueCenter = { normalizedX * edgeSize_.x, normalizedY * edgeSize_.y };
-			}
-
-			isBlueHajikiFound_ = true;
-
-			// 最初に見つけた中心だけを取得
-			break;
-		} else {
-
-			isBlueHajikiFound_ = false;
+			currentNonWhiteCenter = NormalizeCoordinates(center);
+			foundOtherColor_ = true;
+			break; // 最初に見つけた中心だけを取得
 		}
 	}
 
 	// フレーム間の追跡の平滑化
 	if (isFirstFrame_) {
-		greenCenter_ = currentGreenCenter;
-		blueCenter_ = currentBlueCenter;
+		// 最初のフレームでは現在の座標を使用
+		trackColorCenter_ = currentColorCenter;
+		otherColorCenter_ = currentNonWhiteCenter;
 		isFirstFrame_ = false;
 	} else {
+		// 前回のフレームの座標を使用するための条件を追加
+		if (foundTrackColor_) {
+			// 座標が取得できた場合は現在の座標を使用
+			trackColorCenter_ = currentColorCenter;
+		} else {
+			// 座標が取得できなかった場合は前回の座標を使用
+			trackColorCenter_ = preTrackColorCenter_;
+		}
+
+		if (foundOtherColor_) {
+			// 座標が取得できた場合は現在の座標を使用
+			otherColorCenter_ = currentNonWhiteCenter;
+		} else {
+			// 座標が取得できなかった場合は前回の座標を使用
+			otherColorCenter_ = preOtherColorCenter_;
+		}
+
 		// 平滑化の係数
 		float alpha = 0.5f;
-		greenCenter_.x = static_cast<float>(alpha * currentGreenCenter.x + (1.0f - alpha) * prevGreenCenter_.x);
-		greenCenter_.y = static_cast<float>(alpha * currentGreenCenter.y + (1.0f - alpha) * prevGreenCenter_.y);
+		trackColorCenter_.x = alpha * trackColorCenter_.x + (1.0f - alpha) * preTrackColorCenter_.x;
+		trackColorCenter_.y = alpha * trackColorCenter_.y + (1.0f - alpha) * preTrackColorCenter_.y;
 
-		blueCenter_.x = static_cast<float>(alpha * currentBlueCenter.x + (1.0f - alpha) * prevBlueCenter_.x);
-		blueCenter_.y = static_cast<float>(alpha * currentBlueCenter.y + (1.0f - alpha) * prevBlueCenter_.y);
+		otherColorCenter_.x = alpha * otherColorCenter_.x + (1.0f - alpha) * preOtherColorCenter_.x;
+		otherColorCenter_.y = alpha * otherColorCenter_.y + (1.0f - alpha) * preOtherColorCenter_.y;
 	}
 
-	prevGreenCenter_ = greenCenter_;
-	prevBlueCenter_ = blueCenter_;
+	// 前回の座標を更新
+	preTrackColorCenter_ = trackColorCenter_;
+	preOtherColorCenter_ = otherColorCenter_;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -445,6 +450,17 @@ void OpenCV::Update() {
 
 	// 彩度を上げる
 	IncreaseSaturation(frame_, saturationScale_);
+
+	// 全体のトーンカーブエディタのレンダリング
+	RenderToneCurveEditor(toneCurvePoints_, "Tone Curve Editor - Overall");
+	// RGB個別のトーンカーブエディタのレンダリング
+	RenderToneCurveEditor(toneCurvePointsR_, "Tone Curve Editor - Red");
+	RenderToneCurveEditor(toneCurvePointsG_, "Tone Curve Editor - Green");
+	RenderToneCurveEditor(toneCurvePointsB_, "Tone Curve Editor - Blue");
+	// 全体のトーンカーブを適用
+	ApplyToneCurve(frame_, processedFrame_, toneCurvePoints_);
+	// RGBごとのトーンカーブを適用
+	ApplyToneCurveRGB(processedFrame_, processedFrame_, toneCurvePointsR_, toneCurvePointsG_, toneCurvePointsB_);
 
 	// 指定した4つの頂点で領域を切り取って表示する
 	std::array<cv::Point, 4> points = { point1_, point2_, point3_, point4_ };

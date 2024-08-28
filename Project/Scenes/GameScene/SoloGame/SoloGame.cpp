@@ -247,7 +247,7 @@ void SoloGame::Initialize() {
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// ImGuiセット
 
-	imgui_.Set(hajikiManager_->GetHajiki(HajikiType::Player, 0).object.get());
+	imgui_.Set(hajikiManager_->GetHajiki(HajikiType::Player, Imaginary).object.get());
 	// 2つ
 	for (uint32_t i = 0; i < 2; i++) {
 		imgui_.Set(hajikiManager_->GetHajiki(HajikiType::Line, i).object.get());

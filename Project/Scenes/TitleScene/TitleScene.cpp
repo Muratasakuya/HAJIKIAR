@@ -160,7 +160,7 @@ void TitleScene::Update() {
 		OpenCV* openCV = OpenCV::GetInstance();
 		
 		// 一定時間置かれていればスタート
-		if (openCV->IsBlueHajikiFound()) {
+		if (openCV->FoundTrackColor()) {
 
 			waitStartTime_--;
 

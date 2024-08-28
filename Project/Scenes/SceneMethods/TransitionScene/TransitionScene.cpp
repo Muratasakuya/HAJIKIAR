@@ -35,7 +35,7 @@ TransitionScene::TransitionScene() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void TransitionScene::Fade() {
 
-	const float changeAlpha = 0.01f;
+	const float changeAlpha = 0.05f;
 
 	// 透明 -> 不透明
 	if (!fadeOutFinished_) {

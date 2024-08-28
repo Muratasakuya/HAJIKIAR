@@ -241,30 +241,13 @@ void HajikiManager::ARMove() {
 	openCV->SetGame3DMode(true);
 	openCV->SetEdgeSize({ edgeSize.x,edgeSize.y });
 
-	// 青にプレイヤー 座標が取れているとき
-	if (openCV->GetBlueCenterPos() != Vector2(0.0f, 0.0f)) {
-
-		hajikies_[HajikiType::Player][Reality].pos = openCV->GetBlueCenterPos();
-	} else {
-
-		// 座標が取れていないときはopenCVから座標
-		hajikies_[HajikiType::Player][Reality].pos = { hajikies_[HajikiType::Player][Reality].pos.x, hajikies_[HajikiType::Player][Reality].pos.y * -1.0f };
-	}
-
+	// 追跡する色
+	hajikies_[HajikiType::Player][Reality].pos = openCV->GetTrackColorPos();
 	hajikies_[HajikiType::Player][Reality].object->SetTranslate(
 		{ hajikies_[HajikiType::Player][Reality].pos.x,hajikies_[HajikiType::Player][Reality].pos.y * -1.0f,
 		hajikies_[HajikiType::Player][Reality].object->GetCenterPos().z });
 
-	// 緑にターゲット
-	if (openCV->GetGreenCenterPos() != Vector2(0.0f, 0.0f)) {
-
-		hajikies_[HajikiType::Target][Reality].pos = openCV->GetGreenCenterPos();
-	} else {
-
-		// 座標が取れていないときはopenCVから座標
-		hajikies_[HajikiType::Target][Reality].pos = { hajikies_[HajikiType::Target][Reality].pos.x, hajikies_[HajikiType::Target][Reality].pos.y * -1.0f };
-	}
-
+	hajikies_[HajikiType::Target][Reality].pos = openCV->GetOtherColorPos();
 	hajikies_[HajikiType::Target][Reality].object->SetTranslate(
 		{ hajikies_[HajikiType::Target][Reality].pos.x,hajikies_[HajikiType::Target][Reality].pos.y * -1.0f,
 		hajikies_[HajikiType::Target][Reality].object->GetCenterPos().z });

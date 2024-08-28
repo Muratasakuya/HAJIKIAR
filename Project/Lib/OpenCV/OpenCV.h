@@ -18,9 +18,11 @@
 #include <vector>
 #include <array>
 #include <deque>
+#include <limits>
 #include <string>
 #include <thread>
 #include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <cassert>
 #include <stdexcept>
@@ -60,10 +62,16 @@ public:
 	// getter
 
 	std::string GetQRCodeData();
-	Vector2 GetGreenCenterPos() const;
-	Vector2 GetBlueCenterPos() const;
+	Vector2 GetGreenLargestCenterPos() const;
+	Vector2 GetSmallestGreenCenterPos() const;
 	bool IsBlueHajikiFound() const;
 	bool IsGreenHajikiFound() const;
+
+	Vector2 GetTrackColorPos() const;
+	bool FoundTrackColor() const;
+
+	Vector2 GetOtherColorPos() const;
+	bool FoundOtherColor() const;
 
 private:
 	/*-----------------------------*/
@@ -89,7 +97,8 @@ private:
 	std::vector <std::string> qrCodeData_;
 
 	// ゲームシーンに渡す座標
-	Vector2 greenCenter_;
+	Vector2 largestGreenCenter_;
+	Vector2 smallestGreenCenter_;
 	Vector2 blueCenter_;
 	Vector2 prevGreenCenter_;
 	Vector2 prevBlueCenter_;
@@ -135,6 +144,17 @@ private:
 	bool whiteBalance_;
 	float saturationScale_ = 1.0f;
 
+	/*-------------------------------------------------------------------------------*/
+	// New
+
+	Vector2 trackColorCenter_;
+	Vector2 preTrackColorCenter_;
+	Vector2 otherColorCenter_;
+	Vector2 preOtherColorCenter_;
+
+	bool foundTrackColor_;
+	bool foundOtherColor_;
+
 private:
 	/*-----------------------------*/
 	///			private関数
@@ -146,4 +166,5 @@ private:
 	void ApplyToneCurveRGB(const cv::Mat& inputImage, cv::Mat& outputImage, const std::vector<cv::Point>& toneCurvePointsR,
 		const std::vector<cv::Point>& toneCurvePointsG, const std::vector<cv::Point>& toneCurvePointsB);
 	void IncreaseSaturation(cv::Mat& frame, float saturationScale);
+	Vector2 NormalizeCoordinates(const cv::Point& center);
 };

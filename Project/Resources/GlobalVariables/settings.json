@@ -2,21 +2,21 @@
     "Exposure": -7,
     "Kelvin": 4500,
     "Point1": [
-        32,
-        122
+        0,
+        81
     ],
     "Point2": [
-        440,
-        117
+        452,
+        121
     ],
     "Point3": [
         449,
         320
     ],
     "Point4": [
-        45,
-        334
+        0,
+        340
     ],
-    "SaturationScale": 1.25,
+    "SaturationScale": 1.2000000476837158,
     "WhiteBalance": true
 }
