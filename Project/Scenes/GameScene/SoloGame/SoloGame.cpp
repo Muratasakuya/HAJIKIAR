@@ -79,11 +79,11 @@ void SoloGame::Initialize() {
 
 	// 初期座標
 	const Vector3 playerHajikiInitPos[playerHajikiNum] = {
-		Vector3(0.0f,0.0f,1.0f),
-		Vector3(0.0f,0.0f,1.05f)
+		Vector3(-0.1f,0.0f,1.0f),
+		Vector3(-0.1f,0.0f,1.05f)
 	};
 	// 色
-	const Vector4 playerHajikiColor = { 0.0f,0.0f ,0.0f ,1.0f };
+	const Vector4 playerHajikiColor = { 0.16f,0.16f ,0.16f ,1.0f };
 
 	// 2 //
 	for (uint32_t i = 0; i < playerHajikiNum; i++) {
@@ -106,14 +106,14 @@ void SoloGame::Initialize() {
 	// LineHajiki
 
 	// LineHajikiBodyの色
-	const Vector4 lineHajikiBodyColor = { 1.0f,1.0f,1.0f,1.0f };
+	const Vector4 lineHajikiBodyColor = { 0.8196f, 0.8784f, 0.8392f, 1.0f };
 	// LineHajikiEmmisiveの色 (仮)
-	const Vector4 lineHajikiEmmisiveColor = { 0.698f, 0.992f, 1.0f, 1.0f };
+	const Vector4 lineHajikiEmmisiveColor = { 0.0745f, 0.8471f, 0.8471f, 1.0f };
 
 	// LineHajikiの初期座標
 	const Vector3 lineHajikiInitPos[lineHajikiNum] = {
-		Vector3(-0.215f,0.087f,1.05f),
-		Vector3(-0.008f,-0.093f,1.05f)
+		Vector3(0.0f,0.143f,1.05f),
+		Vector3(0.0f,-0.172f,1.05f)
 	};
 
 	// 2 //
@@ -138,11 +138,11 @@ void SoloGame::Initialize() {
 
 	//　TargetHajikiの初期座標
 	const Vector3 targetHajikiInitPos[targetHajikiNum] = {
-	Vector3(0.1f,0.0f,1.0f),
-	Vector3(0.1f,0.0f,1.05f)
+	Vector3(0.06f,-0.133f,1.0f),
+	Vector3(0.06f,-0.133f,1.05f)
 	};
 	// 色
-	const Vector4 targetHajikiColor = { 0.16f,0.16f ,0.16f ,1.0f };
+	const Vector4 targetHajikiColor = { 0.65f,0.0f ,0.0f ,1.0f };
 
 	// 2 //
 	for (uint32_t i = 0; i < targetHajikiNum; i++) {
@@ -190,7 +190,7 @@ void SoloGame::Initialize() {
 	// 初期座標
 	const Vector3 blockInitPos = { -0.044f,0.136f,1.05f };
 	// 色
-	const Vector4 blockColor = { 0.0f,0.0f,0.0f,1.0f };
+	const Vector4 blockColor = { 0.2f,0.2f,0.2f,1.0f };
 	// ブロックモデルのハーフサイズ
 	const float kBlockHalfSize = 0.02f;
 
@@ -215,7 +215,7 @@ void SoloGame::Initialize() {
 	// 初期座標
 	const Vector3 kiraiInitPos = { 0.043f,0.09f,1.05f };
 	// 色
-	const Vector4 kiraiColor = { 0.0f,0.0f,0.0f,1.0f };
+	const Vector4 kiraiColor = { 0.2f,0.2f,0.2f,1.0f };
 	// 機雷モデルのハーフサイズ
 	const float kKiraiHalfSize = 0.018f;
 
@@ -454,6 +454,10 @@ void SoloGame::UpdateArea() {
 	if (hajikiManager_->CheckAllHajikiStop()) {
 		isShowArea = false;
 	} else if (hajikiManager_->GetHajiki(HajikiType::Player, Imaginary).object->GetIsPass()) {
+		isShowArea = true;
+	}
+
+	if (hajikiManager_->IsClear()) {
 		isShowArea = true;
 	}
 

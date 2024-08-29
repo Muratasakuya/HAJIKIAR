@@ -111,3 +111,8 @@ Vector2 Vector2::fabs(const Vector2& v) {
 
 	return Vector2(std::fabs(v.x), std::fabs(v.y));
 }
+
+float Vector2::Cross(const Vector2& v1, const Vector2& v2) {
+
+	return v1.x * v2.y - v1.y * v2.x;;
+}

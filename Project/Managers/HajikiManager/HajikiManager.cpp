@@ -17,6 +17,7 @@ void HajikiManager::AddHajiki(HajikiType type, std::unique_ptr<GameObject3D> obj
 	obj->SetRotate({ initRotateX ,0.0f,0.0f });
 	obj->SetHalfSize(kHajikiHalfSize);
 	obj->SetColliderType(ColliderType::Sphere);
+	obj->SetEnableHalfLambert(true);
 
 	Physics<Vector2> physics{};
 	physics.velocity.Initialize();
@@ -79,6 +80,7 @@ void HajikiManager::CollisionUpdate() {
 	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Player][Imaginary].object.get());
 	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Line][0].object.get());
 	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Line][1].object.get());
+	collisionManagers_[Reality]->AddCollider(hajikies_[HajikiType::Target][Imaginary].object.get());
 
 	// 全てのオブジェクトの衝突判定
 	collisionManagers_[Reality]->CheckAllCollisions();
@@ -156,6 +158,12 @@ void HajikiManager::MouseMove(HajikiType type) {
 		return;
 	}
 
+	if (CheckAllHajikiStop()) {
+		if (isClear_) {
+			return;
+		}
+	}
+
 	// マウス座標
 	mousePos_ = NewMoon::GetMousePos();
 
@@ -165,14 +173,8 @@ void HajikiManager::MouseMove(HajikiType type) {
 		// 左クリックしたときの座標
 		mousePressPos_ = NewMoon::GetMousePos();
 
-		if (CheckAllHajikiStop()) {
-
-			// カウントを進める
-			moveCount_ = 1;
-		} else {
-
-			moveCount_ = 0;
-		}
+		// カウントを進める
+		moveCount_ = 1;
 	}
 
 	hajikies_[type][Reality].mouseMove_ = true;
@@ -510,16 +512,21 @@ void HajikiManager::Update() {
 	}
 
 	/*--------------------------------------------------------------------------------------------------------------------------------------------*/
+	/// クリアしたときの処理
+
+
+
+	/*--------------------------------------------------------------------------------------------------------------------------------------------*/
 	/// 座標更新
 
 	if (!gameOver_) {
 		// TargetHajiki1の座標
 		Vector2 targetHajikiPos =
-		{ hajikies_[HajikiType::Target][Reality].object->GetCenterPos().x,hajikies_[HajikiType::Target][Reality].object->GetCenterPos().y };
+		{ hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().x,hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().y };
 
 		// TargetHajiki2のXY座標をTargetHajiki1と合わせる
-		hajikies_[HajikiType::Target][Imaginary].object->SetTranslate(
-			{ targetHajikiPos.x,targetHajikiPos.y,hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().z });
+		hajikies_[HajikiType::Target][Reality].object->SetTranslate(
+			{ targetHajikiPos.x,targetHajikiPos.y,hajikies_[HajikiType::Target][Reality].object->GetCenterPos().z });
 
 		if (!hajikies_[HajikiType::Player][Reality].isLeave) {
 
@@ -608,6 +615,11 @@ const HajikiData& HajikiManager::GetHajiki(HajikiType type, size_t index) const 
 size_t HajikiManager::GetHajikiCount(HajikiType type) const {
 
 	return hajikies_.at(type).size();
+}
+
+bool HajikiManager::IsClear() const {
+
+	return isClear_;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

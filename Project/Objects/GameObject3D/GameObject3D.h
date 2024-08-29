@@ -54,6 +54,8 @@ public:
 
 	void SetMaterialNum(uint32_t materialNum);
 
+	void SetEnableHalfLambert(bool enable);
+
 	void SetObjectName(const std::string name);
 
 	// getter

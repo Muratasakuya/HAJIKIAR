@@ -91,6 +91,7 @@ public:
 
 	const HajikiData& GetHajiki(HajikiType type, size_t index) const;
 	size_t GetHajikiCount(HajikiType type) const;
+	bool IsClear() const;
 
 	// setter
 

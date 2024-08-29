@@ -59,6 +59,8 @@ public:
 	static Vector2 Normalize(const Vector2& v);
 	// 絶対値
 	static Vector2 fabs(const Vector2& v);
+	// クロス積
+	static float Cross(const Vector2& v1, const Vector2& v2);
 
 };
 

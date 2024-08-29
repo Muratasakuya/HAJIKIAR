@@ -207,15 +207,27 @@ bool CollisionManager::SphereToSoulSphereCheckCollision(Collider<Vector3>* colli
 ////////////////////////////////////////////////////////////////////////////////*/
 bool CollisionManager::PointInTriangle(Collider<Vector3>* vertexA, Collider<Vector3>* vertexB, Collider<Vector3>* vertexC, Collider<Vector3>* point) {
 
-	// 座標の代入
-	Vector2 posA = { vertexA->GetCenterPos().x,vertexA->GetCenterPos().y };
-	Vector2 posB = { vertexB->GetCenterPos().x,vertexB->GetCenterPos().y };
-	Vector2 posC = { vertexC->GetCenterPos().x,vertexC->GetCenterPos().y };
-	Vector2 posD = { point->GetCenterPos().x,point->GetCenterPos().y };
+	// 三角形の各頂点の2D座標を取得
+	Vector2 posA = { vertexA->GetCenterPos().x, vertexA->GetCenterPos().y };
+	Vector2 posB = { vertexB->GetCenterPos().x, vertexB->GetCenterPos().y };
+	Vector2 posC = { vertexC->GetCenterPos().x, vertexC->GetCenterPos().y };
+	Vector2 posD = { point->GetCenterPos().x, point->GetCenterPos().y };
 
-	if (LeftRightCheck(posD, posC, posB) && LeftRightCheck(posD, posA, posD) && LeftRightCheck(posD, posB, posA) ||
-		!LeftRightCheck(posD, posC, posB) && !(LeftRightCheck(posD, posA, posD) && !LeftRightCheck(posD, posB, posA))) {
+	// 各辺に対して外積を計算して点が三角形の内部にあるかを確認
+	Vector2 AB = { posB.x - posA.x, posB.y - posA.y };
+	Vector2 BC = { posC.x - posB.x, posC.y - posB.y };
+	Vector2 CA = { posA.x - posC.x, posA.y - posC.y };
 
+	Vector2 AP = { posD.x - posA.x, posD.y - posA.y };
+	Vector2 BP = { posD.x - posB.x, posD.y - posB.y };
+	Vector2 CP = { posD.x - posC.x, posD.y - posC.y };
+
+	float cross1 = Vector2::Cross(AB, AP);
+	float cross2 = Vector2::Cross(BC, BP);
+	float cross3 = Vector2::Cross(CA, CP);
+
+	// 全ての外積が同じ符号（すべて正またはすべて負）であれば、点は三角形の内部にある
+	if ((cross1 >= 0 && cross2 >= 0 && cross3 >= 0) || (cross1 <= 0 && cross2 <= 0 && cross3 <= 0)) {
 		return true;
 	}
 

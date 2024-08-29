@@ -51,6 +51,13 @@ void GameObject3D::SetMaterialNum(uint32_t materialNum) {
 	}
 }
 
+// Lighting
+void GameObject3D::SetEnableHalfLambert(bool enable){
+
+	material_.enableLighting = enable;
+	material_.enableHalfLambert = enable;
+}
+
 // オブジェクトの名前のセット
 void GameObject3D::SetObjectName(const std::string name) { objectName_ = name; }
 
@@ -96,10 +103,16 @@ void GameObject3D::Initialize() {
 
 	// ライト
 	light_.Initialize();
-	enableLighting_ = false;
-	enableHalfLambert_ = false;
+	light_.directional.direction = { 0.0f,0.0f,1.0f };
+	enableLighting_ = true;
+	enableHalfLambert_ = true;
 	enablePhongReflection_ = false;
 	enableBlinnPhongReflection_ = false;
+
+	material_.enableLighting = enableLighting_;
+	material_.enableHalfLambert = enableHalfLambert_;
+	material_.enablePhongReflection = enablePhongReflection_;
+	material_.enableBlinnPhongReflection = enableBlinnPhongReflection_;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
