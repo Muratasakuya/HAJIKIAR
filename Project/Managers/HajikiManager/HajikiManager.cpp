@@ -399,8 +399,6 @@ void HajikiManager::Initialize() {
 
 	// モデル
 	const std::string soulModelName = "mainHajiki4.gltf";
-	NewMoon::LoadModel("./Resources/Gltf/Hajiki/", soulModelName);
-
 	// テクスチャ
 	const std::string soulTextureName = "white.png";
 

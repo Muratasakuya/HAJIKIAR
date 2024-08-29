@@ -8,10 +8,9 @@
 TransitionScene::TransitionScene() {
 
 	/*======================================================*/
-	// テクスチャ読み込み
+	// テクスチャ
 
 	const std::string whiteTextureName = "white.png";
-	NewMoon::LoadTexture("./Resources/Images/" + whiteTextureName);
 
 	/*======================================================*/
 	// フェード
@@ -35,7 +34,7 @@ TransitionScene::TransitionScene() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void TransitionScene::Fade() {
 
-	const float changeAlpha = 0.05f;
+	const float changeAlpha = 0.025f;
 
 	// 透明 -> 不透明
 	if (!fadeOutFinished_) {

@@ -30,26 +30,18 @@ void SoloGame::Initialize() {
 	hajikiManager_->SetApplicationMode(mode_);
 
 	/*======================================================*/
-	// 読み込み
+	// テクスチャ モデル
 
 	// debug用White
 	const std::string whiteTexName = "white.png";
-	NewMoon::LoadTexture("./Resources/Images/" + whiteTexName);
 
 	// lineHajiki
 	const std::string lineHajikiModelName[lineHajikiNum] = { "lineHajiki.gltf" ,"lineHajiki2.gltf" };
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName[0]);
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineHajikiModelName[1]);
 	// line
 	const std::string lineModelName = "line.gltf";
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", lineModelName);
 	// mainHajiki
 	const std::string playerHajikiModelName[playerHajikiNum] = { "mainHajiki0.gltf","mainHajiki1.gltf" };
 	const std::string targetHajikiModelName[targetHajikiNum] = { "mainHajiki2.gltf","mainHajiki3.gltf" };
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", playerHajikiModelName[0]);
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", playerHajikiModelName[1]);
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", targetHajikiModelName[0]);
-	NewMoon::LoadGltfModel("./Resources/Gltf/Hajiki/", targetHajikiModelName[1]);
 
 	// Cube
 	std::string cubeModelName[blockNum];
@@ -59,11 +51,6 @@ void SoloGame::Initialize() {
 		oss << "cube" << i + 1 << ".gltf";
 		cubeModelName[i] = oss.str();
 	}
-	for (uint32_t i = 0; i < blockNum; i++) {
-
-		NewMoon::LoadGltfModel("./Resources/Gltf/Objects/", cubeModelName[i]);
-	}
-
 	// Kirai
 	std::string kiraiModelName[kiraiNum];
 	kiraiModelName[0] = "kirai.gltf";
@@ -71,10 +58,6 @@ void SoloGame::Initialize() {
 		std::ostringstream oss;
 		oss << "kirai" << i + 1 << ".gltf";
 		kiraiModelName[i] = oss.str();
-	}
-	for (uint32_t i = 0; i < blockNum; i++) {
-
-		NewMoon::LoadGltfModel("./Resources/Gltf/Objects/", kiraiModelName[i]);
 	}
 
 	/*======================================================*/

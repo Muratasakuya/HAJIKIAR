@@ -36,23 +36,22 @@ void GameScene::Initialize() {
 	isClear_ = false;
 
 	/*======================================================*/
-	// テクスチャ読み込み
+	// テクスチャ
 
 	// 波
 	const std::string waveTextureName = "wave.png";
-	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + waveTextureName);
+	const std::string bgTextureName = "bg.png";
+	const std::string gridTextureName = "grid.png";
 
 	/*======================================================*/
 	// 2Dオブジェクト
 
 	// 背景画像
-	const std::string bgTextureName = "bg.png";
 	background_ = std::make_unique<GameObject2D>();
 	background_->Initialize();
 	background_->SetTexture(bgTextureName);
 
 	// 背景グリッド
-	const std::string gridTextureName = "grid.png";
 	grid_ = std::make_unique<GameObject2D>();
 	grid_->Initialize();
 	grid_->SetTexture(gridTextureName);

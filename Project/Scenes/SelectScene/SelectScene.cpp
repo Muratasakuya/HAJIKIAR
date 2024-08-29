@@ -21,21 +21,11 @@ SelectScene::~SelectScene() {
 void SelectScene::Initialize() {
 
 	/*======================================================*/
-	// OpenCV
-
-	//openCV_ = OpenCV::GetInstance();
-
-	//// カメラ起動
-	//openCV_->OpenCamera();
-
-	/*======================================================*/
-	// 読み込み
+	// テクスチャ
 
 	// debug用White
 	const std::string playerHajikiTextureName = "playerHajiki.png";
-	NewMoon::LoadTexture("./Resources/Images/Common/Objects/" + playerHajikiTextureName);
 	const std::string targetHAJIKIActiveTextureName = "targetHAJIKIActive.png";
-	NewMoon::LoadTexture("./Resources/Images/Common/Objects/" + targetHAJIKIActiveTextureName);
 
 	/*======================================================*/
 	// 2Dオブジェクト

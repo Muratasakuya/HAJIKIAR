@@ -27,31 +27,14 @@ void TitleScene::Initialize() {
 	waitStartTime_ = 60.0f;
 
 	/*======================================================*/
-	// テクスチャ読み込み
+	// テクスチャ
 
 	// タイトルロゴ
 	const std::string titleLogoTextureName = "titleSceneLogoType.png";
-	NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + titleLogoTextureName);
-
 	// クレジット 今はActiveのみ
 	const std::string creditTextureName = "titleSceneCredit.png";
-	NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + creditTextureName);
-
 	// スタートの仕方表記文字
-	std::string startNotationTextureName;
-
-	// ARMode
-	if (applicationMode_ == ApplicationMode::AR) {
-
-		startNotationTextureName = "titleSceneSetBitToStart.png";
-		NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + startNotationTextureName);
-	}
-	// 3DMode
-	if (applicationMode_ == ApplicationMode::GAME3D) {
-
-		startNotationTextureName = "titleSceneSetBitToStart.png";
-		NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + startNotationTextureName);
-	}
+	std::string startNotationTextureName = "titleSceneSetBitToStart.png";
 
 	/*======================================================*/
 	// 2Dオブジェクト

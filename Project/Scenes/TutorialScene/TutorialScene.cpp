@@ -20,14 +20,11 @@ TutorialScene::~TutorialScene() {}
 void TutorialScene::Initialize() {
 
 	/*======================================================*/
-	// テクスチャ読み込み
+	// テクスチャ
 
 	// 背景画像
 	const std::string bgTextureName = "bg.png";
-	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + bgTextureName);
-
 	const std::string gridTextureName = "grid.png";
-	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + gridTextureName);
 
 	/*======================================================*/
 	// 2Dオブジェクト
