@@ -34,7 +34,11 @@ public:
 	void Update();
 	void Draw();
 
-	// stter
+	// getter
+
+	bool IsClear() const;
+
+	// setter
 
 	void SetApplicationMode(const ApplicationMode& mode);
 
@@ -57,6 +61,9 @@ private:
 
 	// 摩擦
 	Friction friction_;
+
+	// クリア判定
+	bool isClear_;
 
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト

@@ -33,6 +33,8 @@ GameScene::~GameScene() {}
 ////////////////////////////////////////////////////////////////////////////////*/
 void GameScene::Initialize() {
 
+	isClear_ = false;
+
 	/*======================================================*/
 	// テクスチャ読み込み
 
@@ -88,6 +90,12 @@ void GameScene::Initialize() {
 *								    更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
 void GameScene::Update() {
+
+	//　クリア判定更新
+	if (gameMode_ == GameMode::SOLO) {
+
+		isClear_ = soloGame_->IsClear();
+	} else if (gameMode_ == GameMode::MATCH) {}
 
 	/*======================================================*/
 	// ImGui
@@ -179,7 +187,7 @@ void GameScene::WaveUpdate() {
 
 			waveAlpha_[i] += alphaTransition;
 			if (waveAlpha_[i] >= 1.0f) {
-				waveAlpha_[i] = 1.0f; 
+				waveAlpha_[i] = 1.0f;
 				increasing = false;
 			}
 		} else {
