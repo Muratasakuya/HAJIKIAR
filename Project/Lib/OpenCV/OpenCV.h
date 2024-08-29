@@ -105,9 +105,6 @@ private:
 
 	bool isFirstFrame_ = true;
 
-	// 追跡する指標の色RGBA
-	Vector3 trackColor_;
-	Vector3 trackColor2_;
 	// 色の藩士
 	int colorRange_;
 
@@ -147,13 +144,17 @@ private:
 	/*-------------------------------------------------------------------------------*/
 	// New
 
-	Vector2 trackColorCenter_;
-	Vector2 preTrackColorCenter_;
-	Vector2 otherColorCenter_;
-	Vector2 preOtherColorCenter_;
+	// 追跡する指標の色RGBA
+	Vector3 trackColor1_;
+	Vector3 trackColor2_;
 
-	bool foundTrackColor_;
-	bool foundOtherColor_;
+	Vector2 trackColorCenter1_;
+	Vector2 preTrackColorCenter1_;
+	Vector2 trackColorCenter2_;
+	Vector2 preTrackColorCenter2_;
+
+	bool foundTrackColor1_;
+	bool foundTrackColor2_;
 
 private:
 	/*-----------------------------*/

@@ -275,6 +275,11 @@ void HajikiManager::Reset() {
 				hajikiList[i].isPower_ = false;
 			}
 		}
+
+		for (const auto& block : blocks_) {
+
+			block->SetIsHit(false);
+		}
 	}
 }
 

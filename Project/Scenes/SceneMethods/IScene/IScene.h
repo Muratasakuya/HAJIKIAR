@@ -42,7 +42,7 @@ public:
 
 	// getter
 
-	SceneNo GetSceneNo() const;
+	ApplicationMode GetApplicationMode() const;
 
 protected:
 	/*-----------------------------*/

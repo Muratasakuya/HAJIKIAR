@@ -66,20 +66,20 @@ bool OpenCV::IsGreenHajikiFound() const {
 
 Vector2 OpenCV::GetTrackColorPos() const {
 
-	return trackColorCenter_;
+	return trackColorCenter1_;
 }
 bool OpenCV::FoundTrackColor() const {
 
-	return foundTrackColor_;
+	return foundTrackColor1_;
 }
 
 Vector2 OpenCV::GetOtherColorPos() const {
 
-	return otherColorCenter_;
+	return trackColorCenter2_;
 }
 bool OpenCV::FoundOtherColor() const {
 
-	return foundOtherColor_;
+	return foundTrackColor2_;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +177,8 @@ void OpenCV::OpenCamera() {
 	camera_.set(cv::CAP_PROP_FRAME_HEIGHT, 360);
 	camera_.set(cv::CAP_PROP_FPS, framerate_);
 
-	trackColor_ = { 0.0f, 1.0f, 0.0f };
+	trackColor1_ = { 1.0f, 0.0f, 0.0f };
+	trackColor1_ = { 0.0f, 0.0f, 1.0f };
 
 	colorRange_ = 40;
 }
@@ -240,11 +241,12 @@ void OpenCV::CropAndShowPolygonRegion(const std::array<cv::Point, 4>& points) {
 void OpenCV::ColorTracking(cv::Mat& frame) {
 
 	/*======================================================*/
-   // ImGui
-
+	// ImGui
 	ImGui::Begin("OpenCV");
 
-	ImGui::ColorEdit3("trackColor", &trackColor_.x);
+	// 2つの色の設定
+	ImGui::ColorEdit3("trackColor1", &trackColor1_.x);
+	ImGui::ColorEdit3("trackColor2", &trackColor2_.x);
 	ImGui::DragInt("colorRange", &colorRange_, 1, 0, 100);
 
 	ImGui::End();
@@ -258,70 +260,66 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 	cv::cvtColor(frame, hsvFrame, cv::COLOR_BGR2HSV);
 
 	// RGBからHSV色空間に変換
-	cv::Mat hsvColor = ConvertRGBtoHSV(trackColor_);
+	cv::Mat hsvColor1 = ConvertRGBtoHSV(trackColor1_);
+	cv::Mat hsvColor2 = ConvertRGBtoHSV(trackColor2_);
 
 	// HSV値を取得
-	cv::Vec3b hsvValues = hsvColor.at<cv::Vec3b>(0, 0);
+	cv::Vec3b hsvValues1 = hsvColor1.at<cv::Vec3b>(0, 0);
+	cv::Vec3b hsvValues2 = hsvColor2.at<cv::Vec3b>(0, 0);
 
-	// 指定した色の範囲を定義
-	cv::Mat colorMask;
-	cv::inRange(hsvFrame, cv::Scalar(hsvValues[0] - colorRange_, 100, 100),
-		cv::Scalar(hsvValues[0] + colorRange_, 255, 255), colorMask);
-
-	// 白以外の色の範囲を定義（彩度 S > 50 で白以外を判定）
-	cv::Mat nonWhiteMask;
-	cv::inRange(hsvFrame, cv::Scalar(0, 50, 0), cv::Scalar(180, 255, 255), nonWhiteMask);
+	// 指定した2つの色の範囲を定義
+	cv::Mat colorMask1, colorMask2;
+	cv::inRange(hsvFrame, cv::Scalar(hsvValues1[0] - colorRange_, 100, 100),
+		cv::Scalar(hsvValues1[0] + colorRange_, 255, 255), colorMask1);
+	cv::inRange(hsvFrame, cv::Scalar(hsvValues2[0] - colorRange_, 100, 100),
+		cv::Scalar(hsvValues2[0] + colorRange_, 255, 255), colorMask2);
 
 	// モルフォロジー変換（開閉処理）でノイズ除去
 	cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5));
-	cv::morphologyEx(colorMask, colorMask, cv::MORPH_CLOSE, kernel);
-	cv::morphologyEx(colorMask, colorMask, cv::MORPH_OPEN, kernel);
+	cv::morphologyEx(colorMask1, colorMask1, cv::MORPH_CLOSE, kernel);
+	cv::morphologyEx(colorMask1, colorMask1, cv::MORPH_OPEN, kernel);
+	cv::morphologyEx(colorMask2, colorMask2, cv::MORPH_CLOSE, kernel);
+	cv::morphologyEx(colorMask2, colorMask2, cv::MORPH_OPEN, kernel);
 
-	cv::morphologyEx(nonWhiteMask, nonWhiteMask, cv::MORPH_CLOSE, kernel);
-	cv::morphologyEx(nonWhiteMask, nonWhiteMask, cv::MORPH_OPEN, kernel);
-
-	// 緑色の物体の輪郭を検出
-	std::vector<std::vector<cv::Point>> color_contours;
-	cv::findContours(colorMask, color_contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
-
-	// 白以外の物体の輪郭を検出
-	std::vector<std::vector<cv::Point>> nonWhite_contours;
-	cv::findContours(nonWhiteMask, nonWhite_contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+	// 2つの色の物体の輪郭を検出
+	std::vector<std::vector<cv::Point>> color_contours1, color_contours2;
+	cv::findContours(colorMask1, color_contours1, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+	cv::findContours(colorMask2, color_contours2, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
 	// 中心座標の計算
-	Vector2 currentColorCenter{};
-	Vector2 currentNonWhiteCenter{};
+	Vector2 currentColorCenter1{};
+	Vector2 currentColorCenter2{};
 
-	// 指定色の物体の中心座標を計算
-	foundTrackColor_ = false; // フラグをリセット
-	for (size_t i = 0; i < color_contours.size(); ++i) {
-		cv::Moments m = cv::moments(color_contours[i]);
-		double area = cv::contourArea(color_contours[i]);
+	// 1つ目の色の物体の中心座標を計算
+	foundTrackColor1_ = false; // フラグをリセット
+	for (size_t i = 0; i < color_contours1.size(); ++i) {
+		cv::Moments m = cv::moments(color_contours1[i]);
+		double area = cv::contourArea(color_contours1[i]);
 
 		if (area > 100 && m.m00 != 0) {
 			cv::Point center(
 				static_cast<int>(m.m10 / m.m00),
 				static_cast<int>(m.m01 / m.m00));
 
-			currentColorCenter = NormalizeCoordinates(center);
-			foundTrackColor_ = true;
+			currentColorCenter1 = NormalizeCoordinates(center);
+			foundTrackColor1_ = true;
 			break; // 最初に見つけた中心だけを取得
 		}
 	}
 
-	// 白以外の物体の中心座標を計算
-	foundOtherColor_ = false; // フラグをリセット
-	for (size_t i = 0; i < nonWhite_contours.size(); ++i) {
-		cv::Moments m = cv::moments(nonWhite_contours[i]);
-		double area = cv::contourArea(nonWhite_contours[i]);
+	// 2つ目の色の物体の中心座標を計算
+	foundTrackColor2_ = false; // フラグをリセット
+	for (size_t i = 0; i < color_contours2.size(); ++i) {
+		cv::Moments m = cv::moments(color_contours2[i]);
+		double area = cv::contourArea(color_contours2[i]);
 
 		if (area > 100 && m.m00 != 0) {
 			cv::Point center(
 				static_cast<int>(m.m10 / m.m00),
 				static_cast<int>(m.m01 / m.m00));
 
-			currentNonWhiteCenter = NormalizeCoordinates(center);
-			foundOtherColor_ = true;
+			currentColorCenter2 = NormalizeCoordinates(center);
+			foundTrackColor2_ = true;
 			break; // 最初に見つけた中心だけを取得
 		}
 	}
@@ -329,39 +327,39 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 	// フレーム間の追跡の平滑化
 	if (isFirstFrame_) {
 		// 最初のフレームでは現在の座標を使用
-		trackColorCenter_ = currentColorCenter;
-		otherColorCenter_ = currentNonWhiteCenter;
+		trackColorCenter1_ = currentColorCenter1;
+		trackColorCenter2_ = currentColorCenter2;
 		isFirstFrame_ = false;
 	} else {
 		// 前回のフレームの座標を使用するための条件を追加
-		if (foundTrackColor_) {
+		if (foundTrackColor1_) {
 			// 座標が取得できた場合は現在の座標を使用
-			trackColorCenter_ = currentColorCenter;
+			trackColorCenter1_ = currentColorCenter1;
 		} else {
 			// 座標が取得できなかった場合は前回の座標を使用
-			trackColorCenter_ = preTrackColorCenter_;
+			trackColorCenter1_ = preTrackColorCenter1_;
 		}
 
-		if (foundOtherColor_) {
+		if (foundTrackColor2_) {
 			// 座標が取得できた場合は現在の座標を使用
-			otherColorCenter_ = currentNonWhiteCenter;
+			trackColorCenter2_ = currentColorCenter2;
 		} else {
 			// 座標が取得できなかった場合は前回の座標を使用
-			otherColorCenter_ = preOtherColorCenter_;
+			trackColorCenter2_ = preTrackColorCenter2_;
 		}
 
 		// 平滑化の係数
 		float alpha = 0.5f;
-		trackColorCenter_.x = alpha * trackColorCenter_.x + (1.0f - alpha) * preTrackColorCenter_.x;
-		trackColorCenter_.y = alpha * trackColorCenter_.y + (1.0f - alpha) * preTrackColorCenter_.y;
+		trackColorCenter1_.x = alpha * trackColorCenter1_.x + (1.0f - alpha) * preTrackColorCenter1_.x;
+		trackColorCenter1_.y = alpha * trackColorCenter1_.y + (1.0f - alpha) * preTrackColorCenter1_.y;
 
-		otherColorCenter_.x = alpha * otherColorCenter_.x + (1.0f - alpha) * preOtherColorCenter_.x;
-		otherColorCenter_.y = alpha * otherColorCenter_.y + (1.0f - alpha) * preOtherColorCenter_.y;
+		trackColorCenter2_.x = alpha * trackColorCenter2_.x + (1.0f - alpha) * preTrackColorCenter2_.x;
+		trackColorCenter2_.y = alpha * trackColorCenter2_.y + (1.0f - alpha) * preTrackColorCenter2_.y;
 	}
 
 	// 前回の座標を更新
-	preTrackColorCenter_ = trackColorCenter_;
-	preOtherColorCenter_ = otherColorCenter_;
+	preTrackColorCenter1_ = trackColorCenter1_;
+	preTrackColorCenter2_ = trackColorCenter2_;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -403,10 +401,10 @@ void OpenCV::Update() {
 
 	bool updated = false;
 
-	updated |= ImGui::SliderInt2("Point 1", &point1_.x, 0, frame_.cols);
-	updated |= ImGui::SliderInt2("Point 2", &point2_.x, 0, frame_.cols);
-	updated |= ImGui::SliderInt2("Point 3", &point3_.x, 0, frame_.cols);
-	updated |= ImGui::SliderInt2("Point 4", &point4_.x, 0, frame_.cols);
+	updated |= ImGui::SliderInt2("Point 1", &point1_.x, -640, frame_.cols);
+	updated |= ImGui::SliderInt2("Point 2", &point2_.x, -640, frame_.cols);
+	updated |= ImGui::SliderInt2("Point 3", &point3_.x, -640, frame_.cols);
+	updated |= ImGui::SliderInt2("Point 4", &point4_.x, -640, frame_.cols);
 	ImGui::InputInt("exposure ", &exposure_);
 	ImGui::InputInt("kelvin ", &kelvin_);
 	ImGui::Checkbox("whiteBalance", &whiteBalance_);

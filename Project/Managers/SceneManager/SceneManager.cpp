@@ -18,21 +18,24 @@ SceneManager::SceneManager() {
 	// デフォルトでフルスクリーン設定
 	NewMoon::SetFullScreenMode(true);
 
-	// インスタンスの代入
-	openCV_ = OpenCV::GetInstance();
-	openCV_->Initialize();
-	// カメラ起動
-	openCV_->OpenCamera();
-	// ウィンドウサイズ
-	openCV_->SetEdgeSize({ NewMoon::kWindowWidthf,NewMoon::kWindowHeightf });
-	openCV_->SetGame3DMode(false);
-
 	// シーン遷移
 	transitionScene_ = std::make_unique<TransitionScene>();
 
 	currentSceneNo_ = TITLE;
 	currentScene_ = static_cast<std::unique_ptr<IScene>>(sceneFactory_.CreateScene(currentSceneNo_));
 	currentScene_->Initialize();
+
+	if (currentScene_->GetApplicationMode() == ApplicationMode::AR) {
+
+		// インスタンスの代入
+		openCV_ = OpenCV::GetInstance();
+		openCV_->Initialize();
+		// カメラ起動
+		openCV_->OpenCamera();
+		// ウィンドウサイズ
+		openCV_->SetEdgeSize({ NewMoon::kWindowWidthf,NewMoon::kWindowHeightf });
+		openCV_->SetGame3DMode(false);
+	}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +44,10 @@ SceneManager::SceneManager() {
 SceneManager::~SceneManager() {
 
 	currentScene_.reset();
-	openCV_->Finalize();
+	if (currentScene_->GetApplicationMode() == ApplicationMode::AR) {
+
+		openCV_->Finalize();
+	}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -81,8 +87,11 @@ void SceneManager::Run() {
 			}
 		}
 
-		// 常に更新
-		openCV_->Update();
+		if (currentScene_->GetApplicationMode() == ApplicationMode::AR) {
+
+			// 常に更新
+			openCV_->Update();
+		}
 
 		if (isTransition_) {
 
