@@ -328,13 +328,13 @@ PixelShaderOutput main(VertexShaderOutput input) {
 		}
 	} else {
         
-        // texture‚Ìƒ¿’l‚ª0.5fˆÈ‰º‚ÌŽž‚ÉPixel‚ðŠü‹p
-		if (textureColor.a <= 0.5f) {
-            
+		output.color = gMaterial.color * textureColor;
+
+		// texture‚Ìƒ¿’l‚ª0.0f‚ÌŽž‚ÉPixel‚ðŠü‹p
+		if (output.color.a == 0.0f) {
+
 			discard;
 		}
-        
-		output.color = gMaterial.color * textureColor;
 	}
 
 	return output;

@@ -61,6 +61,7 @@ public:
 	Vector3 GetCenterPos() const override;
 	Vector3 GetScale()const;
 	Vector3 GetRotate() const;
+	Vector4 GetColor() const;
 	GameObjectType GetType() const;
 	std::string GetObjectName() const;
 

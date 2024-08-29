@@ -96,7 +96,9 @@ private:
 	/*----------------------------------------------------------------------*/
 	// Kirai
 
-	std::unique_ptr<GameObject3D> kirai_;
+	static const uint32_t kiraiNum = 5;
+
+	std::array<std::unique_ptr<GameObject3D>, kiraiNum> kiraies_;
 	// Rotate
 	Vector3 rotate_;
 

@@ -80,6 +80,9 @@ public:
 
 	void Reset();
 
+	// 全てのHajikiが止まっているか
+	bool CheckAllHajikiStop();
+
 	void Initialize();
 	void Update();
 	void Draw();
@@ -92,6 +95,7 @@ public:
 	// setter
 
 	void SetBlocks(GameObject3D* block);
+	void SetKiraies(GameObject3D* kirai);
 	void SetApplicationMode(const ApplicationMode& mode);
 
 private:
@@ -132,6 +136,21 @@ private:
 	// クリア判定フラグ
 	bool isClear_;
 
+	// 動いた回数
+	int moveCounter_;
+	// 終了カウント
+	int gameOverCount_;
+	// 動いているかどうか
+	bool isMove_;
+	// ゲームオーバー
+	bool gameOver_;
+
+	// ゲームオーバーになったときに使う変数 ↓
+	// Z座標
+	float zPos_;
+	float changeAlpha_;
+	float alpha_;
+
 	/*----------------------------------------------------------------------*/
 
 	// ImGui
@@ -146,6 +165,8 @@ private:
 
 	// 衝突相手のブロック
 	std::vector<GameObject3D*> blocks_;
+	// 衝突相手の機雷
+	std::vector<GameObject3D*> kiraies_;
 
 	// 魂が抜けた時の指標オブジェクト
 	std::unique_ptr<GameObject3D> soulObject_;
@@ -172,6 +193,9 @@ private:
 
 	// ブロックとの衝突処理
 	void CheckBlockToHajikiCollision();
+
+	// 機雷との衝突処理
+	void CheckToHajikiCollision();
 
 	// 魂が離れているときのPlayerの更新
 	void LeaveSoulPlayerUpdate();

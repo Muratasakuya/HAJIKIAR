@@ -59,8 +59,17 @@ void SoloGame::Initialize() {
 	}
 
 	// Kirai
-	const std::string kiraiModelName = "kirai.gltf";
-	NewMoon::LoadGltfModel("./Resources/Gltf/Objects/", kiraiModelName);
+	std::string kiraiModelName[kiraiNum];
+	kiraiModelName[0] = "kirai.gltf";
+	for (int i = 1; i < kiraiNum; ++i) {
+		std::ostringstream oss;
+		oss << "kirai" << i + 1 << ".gltf";
+		kiraiModelName[i] = oss.str();
+	}
+	for (uint32_t i = 0; i < blockNum; i++) {
+
+		NewMoon::LoadGltfModel("./Resources/Gltf/Objects/", kiraiModelName[i]);
+	}
 
 	/*======================================================*/
 	// 3Dオブジェクト
@@ -207,16 +216,22 @@ void SoloGame::Initialize() {
 	const Vector3 kiraiInitPos = { 0.043f,0.09f,1.05f };
 	// 色
 	const Vector4 kiraiColor = { 0.0f,0.0f,0.0f,1.0f };
+	// 機雷モデルのハーフサイズ
+	const float kKiraiHalfSize = 0.018f;
 
-	kirai_ = std::make_unique<GameObject3D>(GameObjectType::Model);
+	for (uint32_t i = 0; i < kiraiNum; i++) {
 
-	// 初期化
-	kirai_->Initialize();
-	kirai_->SetTranslate(kiraiInitPos);
-	kirai_->SetColor(kiraiColor);
-	kirai_->SetObjectName("kirai");
-	kirai_->SetTexture(whiteTexName);
-	kirai_->SetModel(kiraiModelName);
+		kiraies_[i] = std::make_unique<GameObject3D>(GameObjectType::Model);
+
+		// 初期化
+		kiraies_[i]->Initialize();
+		kiraies_[i]->SetTranslate(kiraiInitPos);
+		kiraies_[i]->SetColor(kiraiColor);
+		kiraies_[i]->SetHalfSize(kKiraiHalfSize);
+		kiraies_[i]->SetObjectName("kirai");
+		kiraies_[i]->SetTexture(whiteTexName);
+		kiraies_[i]->SetModel(kiraiModelName[i]);
+	}
 
 	// 回転
 	rotate_.Initialize();
@@ -241,6 +256,12 @@ void SoloGame::Initialize() {
 		hajikiManager_->SetBlocks(block.get());
 	}
 
+	// Kirai
+	for (const auto& kirai : kiraies_) {
+
+		hajikiManager_->SetKiraies(kirai.get());
+	}
+
 	// 初期化
 	hajikiManager_->Initialize();
 
@@ -258,7 +279,10 @@ void SoloGame::Initialize() {
 
 		imgui_.Set(block.get());
 	}
-	imgui_.Set(kirai_.get());
+	for (const auto& kirai : kiraies_) {
+
+		imgui_.Set(kirai.get());
+	}
 	imgui_.Set(area_.get());
 
 }
@@ -339,7 +363,10 @@ void SoloGame::Draw() {
 	}
 
 	// Kirai
-	kirai_->Draw();
+	for (const auto& kirai : kiraies_) {
+
+		kirai->Draw();
+	}
 
 	///*======================================================*/
 	// エリアの描画
@@ -355,7 +382,10 @@ void SoloGame::KiraiUpdate() {
 	// Y軸回転
 	rotate_.y += std::numbers::pi_v<float> / 45.0f;
 
-	kirai_->SetRotate({ kirai_->GetRotate().x,rotate_.y,kirai_->GetRotate().z });
+	for (const auto& kirai : kiraies_) {
+
+		kirai->SetRotate({ kirai->GetRotate().x,rotate_.y,kirai->GetRotate().z });
+	}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -421,8 +451,7 @@ void SoloGame::LineUpdate() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void SoloGame::UpdateArea() {
 
-	if (hajikiManager_->GetHajiki(HajikiType::Player, Imaginary).physics.velocity.x == 0
-		&& hajikiManager_->GetHajiki(HajikiType::Player, Imaginary).physics.velocity.y == 0) {
+	if (hajikiManager_->CheckAllHajikiStop()) {
 		isShowArea = false;
 	} else if (hajikiManager_->GetHajiki(HajikiType::Player, Imaginary).object->GetIsPass()) {
 		isShowArea = true;

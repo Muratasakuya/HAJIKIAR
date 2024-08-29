@@ -60,6 +60,8 @@ Vector3 GameObject3D::GetCenterPos() const { return transform_.translate; }
 Vector3 GameObject3D::GetScale() const { return transform_.scale; }
 // 回転の取得
 Vector3 GameObject3D::GetRotate() const { return transform_.rotate; }
+// 色の取得
+Vector4 GameObject3D::GetColor() const { return material_.color; }
 // type_ getter
 GameObjectType GameObject3D::GetType() const { return type_; }
 // objectName_ getter

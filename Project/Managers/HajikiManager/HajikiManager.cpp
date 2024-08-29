@@ -65,8 +65,12 @@ void HajikiManager::AddHajiki(HajikiType type, std::unique_ptr<GameObject3D> obj
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::CollisionUpdate() {
 
+	// PlayerHajikiが間を通ったかの判定
+	CheckPassLineCollision();
 	// 虚の衝突判定
 	CheckBlockToHajikiCollision();
+	// 機雷との衝突判定
+	CheckToHajikiCollision();
 
 	// コライダーリセット
 	collisionManagers_[Reality]->Reset();
@@ -137,9 +141,6 @@ void HajikiManager::CollisionUpdate() {
 		}
 	}
 
-	// PlayerHajikiが間を通ったかの判定
-	CheckPassLineCollision();
-
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -151,6 +152,10 @@ void HajikiManager::MouseMove(HajikiType type) {
 		return;
 	}
 
+	if (gameOver_) {
+		return;
+	}
+
 	// マウス座標
 	mousePos_ = NewMoon::GetMousePos();
 
@@ -159,8 +164,15 @@ void HajikiManager::MouseMove(HajikiType type) {
 
 		// 左クリックしたときの座標
 		mousePressPos_ = NewMoon::GetMousePos();
-		// カウントを進める
-		moveCount_ = 1;
+
+		if (CheckAllHajikiStop()) {
+
+			// カウントを進める
+			moveCount_ = 1;
+		} else {
+
+			moveCount_ = 0;
+		}
 	}
 
 	hajikies_[type][Reality].mouseMove_ = true;
@@ -266,6 +278,8 @@ void HajikiManager::Reset() {
 
 				// 初期座標で初期化
 				hajikiList[i].object->SetTranslate(hajikiesInitPos_[pair.first][i]);
+				hajikiList[i].object->SetColor({
+					hajikiList[i].object->GetColor().x,hajikiList[i].object->GetColor().y ,hajikiList[i].object->GetColor().z ,1.0f });
 				hajikiList[i].pos = { hajikiList[i].object->GetCenterPos().x,hajikiList[i].object->GetCenterPos().y };
 
 				hajikiList[i].physics.velocity.Initialize();
@@ -280,6 +294,66 @@ void HajikiManager::Reset() {
 
 			block->SetIsHit(false);
 		}
+
+		hajikies_[HajikiType::Player][Reality].isPower_ = false;
+		hajikies_[HajikiType::Player][Reality].isLeave = false;
+
+		playerSoulFollow_ = false;
+		isLeaveWaitPlayerSoul_ = false;
+		// 60f
+		playerSoulInvincibleTime_ = 60.0f;
+
+		moveCounter_ = 0;
+		gameOverCount_ = -1;
+		isMove_ = false;
+		gameOver_ = false;
+
+		zPos_ = hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z;
+		changeAlpha_ = 0.01f;
+		alpha_ = 1.0f;
+	}
+
+	if (gameOver_ && alpha_ <= 0.0f) {
+
+		for (auto& pair : hajikies_) {
+			auto& hajikiList = pair.second;
+			for (uint32_t i = 0; i < hajikiList.size(); i++) {
+
+				// 初期座標で初期化
+				hajikiList[i].object->SetTranslate(hajikiesInitPos_[pair.first][i]);
+				hajikiList[i].object->SetColor({
+					hajikiList[i].object->GetColor().x,hajikiList[i].object->GetColor().y ,hajikiList[i].object->GetColor().z ,1.0f });
+				hajikiList[i].pos = { hajikiList[i].object->GetCenterPos().x,hajikiList[i].object->GetCenterPos().y };
+
+				hajikiList[i].physics.velocity.Initialize();
+				hajikiList[i].physics.acceleration.Initialize();
+
+				hajikiList[i].isLeave = false;
+				hajikiList[i].isPower_ = false;
+			}
+		}
+
+		for (const auto& block : blocks_) {
+
+			block->SetIsHit(false);
+		}
+
+		hajikies_[HajikiType::Player][Reality].isPower_ = false;
+		hajikies_[HajikiType::Player][Reality].isLeave = false;
+
+		playerSoulFollow_ = false;
+		isLeaveWaitPlayerSoul_ = false;
+		// 60f
+		playerSoulInvincibleTime_ = 60.0f;
+
+		moveCounter_ = 0;
+		gameOverCount_ = -1;
+		isMove_ = false;
+		gameOver_ = false;
+
+		zPos_ = hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z;
+		changeAlpha_ = 0.01f;
+		alpha_ = 1.0f;
 	}
 }
 
@@ -300,6 +374,16 @@ void HajikiManager::Initialize() {
 	playerSoulFollow_ = false;
 	// 60f
 	playerSoulInvincibleTime_ = 60.0f;
+
+	// カウンター0
+	moveCounter_ = 0;
+	gameOverCount_ = -1;
+	isMove_ = false;
+	gameOver_ = false;
+
+	zPos_ = hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z;
+	changeAlpha_ = 0.01f;
+	alpha_ = 1.0f;
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
 	// 魂が抜けた時のオブジェクト
@@ -362,48 +446,116 @@ void HajikiManager::Update() {
 	// ゴール判定
 	GoalCheck();
 
-	// TargetHajiki1の座標
-	Vector2 targetHajikiPos =
-	{ hajikies_[HajikiType::Target][Reality].object->GetCenterPos().x,hajikies_[HajikiType::Target][Reality].object->GetCenterPos().y };
+	/*--------------------------------------------------------------------------------------------------------------------------------------------*/
+	/// 動いた回数の更新とその処理
 
-	// TargetHajiki2のXY座標をTargetHajiki1と合わせる
-	hajikies_[HajikiType::Target][Imaginary].object->SetTranslate(
-		{ targetHajikiPos.x,targetHajikiPos.y,hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().z });
+	ImGui::Begin("PlayCount");
 
-	if (!hajikies_[HajikiType::Player][Reality].isLeave) {
+	ImGui::Text("moveCounter: %d", moveCounter_);
+	ImGui::Text("gameOverCount: %d", gameOverCount_);
+	ImGui::Text("alpha: %4.1f", alpha_);
 
-		// 無敵時間カウント
-		if (playerSoulFollow_) {
+	ImGui::End();
 
-			playerSoulInvincibleTime_ -= deltaTime_;
-			if (playerSoulInvincibleTime_ < 0.0f) {
+	if (moveCount_ == 2 && !isMove_) {
 
-				// 無敵時間終了
-				playerSoulFollow_ = false;
-			}
+		// 動いたら+1
+		moveCounter_++;
+		isMove_ = true;
+	}
+	if (isMove_ && moveCount_ == 0) {
+
+		isMove_ = false;
+
+		// 魂が離れた時のカウント
+		if (hajikies_[HajikiType::Player][Reality].isLeave) {
+
+			gameOverCount_++;
+		} else {
+
+			gameOverCount_ = -1;
 		}
-
-		// PlayerHajiki1の座標
-		Vector2 playerHajikiPos =
-		{ hajikies_[HajikiType::Player][Reality].object->GetCenterPos().x,hajikies_[HajikiType::Player][Reality].object->GetCenterPos().y };
-
-		// PlayerHajiki2のXY座標をPlayerHajiki1と合わせる
-		hajikies_[HajikiType::Player][Imaginary].object->SetTranslate(
-			{ playerHajikiPos.x,playerHajikiPos.y,hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z });
-
-		// PlayerHajiki1の速度をPlayerHajiki2に代入
-		hajikies_[HajikiType::Player][Imaginary].physics.velocity = hajikies_[HajikiType::Player][Reality].physics.velocity;
-		hajikies_[HajikiType::Player][Imaginary].physics.acceleration = hajikies_[HajikiType::Player][Reality].physics.acceleration;
-	} else {
-
-		// 座標はその場に留まる
-		hajikies_[HajikiType::Player][Imaginary].object->SetTranslate(
-			{ hajikies_[HajikiType::Player][Imaginary].prePos.x,hajikies_[HajikiType::Player][Imaginary].prePos.y,
-			hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z });
-		hajikies_[HajikiType::Player][Imaginary].physics.velocity = { 0.0f,0.0f };
-		hajikies_[HajikiType::Player][Imaginary].physics.acceleration = { 0.0f,0.0f };
 	}
 
+	if (gameOverCount_ == 2 && CheckAllHajikiStop()) {
+
+		// ゲームオーバー
+		gameOver_ = true;
+	}
+
+	// ゲームオーバーになったとき
+	if (gameOver_) {
+
+		zPos_ += 0.01f;
+
+		if (alpha_ > 0.0f) {
+
+			alpha_ -= changeAlpha_;
+		}
+
+		// Zを見た目上落として色の透明度も下げる
+		hajikies_[HajikiType::Player][Imaginary].object->SetTranslate({
+				hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().x,
+			hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().y,zPos_ });
+		hajikies_[HajikiType::Player][Imaginary].object->SetColor({
+				hajikies_[HajikiType::Player][Imaginary].object->GetColor().x,
+			hajikies_[HajikiType::Player][Imaginary].object->GetColor().y,
+			hajikies_[HajikiType::Player][Imaginary].object->GetColor().z,alpha_ });
+
+		// 上に載っているプレイヤーを少し透けさせる
+		hajikies_[HajikiType::Player][Reality].object->SetColor({
+			hajikies_[HajikiType::Player][Reality].object->GetColor().x,
+			hajikies_[HajikiType::Player][Reality].object->GetColor().y,
+			hajikies_[HajikiType::Player][Reality].object->GetColor().z,alpha_ });
+	}
+
+	/*--------------------------------------------------------------------------------------------------------------------------------------------*/
+	/// 座標更新
+
+	if (!gameOver_) {
+		// TargetHajiki1の座標
+		Vector2 targetHajikiPos =
+		{ hajikies_[HajikiType::Target][Reality].object->GetCenterPos().x,hajikies_[HajikiType::Target][Reality].object->GetCenterPos().y };
+
+		// TargetHajiki2のXY座標をTargetHajiki1と合わせる
+		hajikies_[HajikiType::Target][Imaginary].object->SetTranslate(
+			{ targetHajikiPos.x,targetHajikiPos.y,hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().z });
+
+		if (!hajikies_[HajikiType::Player][Reality].isLeave) {
+
+			// 無敵時間カウント
+			if (playerSoulFollow_) {
+
+				playerSoulInvincibleTime_ -= deltaTime_;
+				if (playerSoulInvincibleTime_ < 0.0f) {
+
+					// 無敵時間終了
+					playerSoulFollow_ = false;
+				}
+			}
+
+			// PlayerHajiki1の座標
+			Vector2 playerHajikiPos =
+			{ hajikies_[HajikiType::Player][Reality].object->GetCenterPos().x,hajikies_[HajikiType::Player][Reality].object->GetCenterPos().y };
+
+			// PlayerHajiki2のXY座標をPlayerHajiki1と合わせる
+			hajikies_[HajikiType::Player][Imaginary].object->SetTranslate(
+				{ playerHajikiPos.x,playerHajikiPos.y,hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z });
+
+			// PlayerHajiki1の速度をPlayerHajiki2に代入
+			hajikies_[HajikiType::Player][Imaginary].physics.velocity = hajikies_[HajikiType::Player][Reality].physics.velocity;
+			hajikies_[HajikiType::Player][Imaginary].physics.acceleration = hajikies_[HajikiType::Player][Reality].physics.acceleration;
+		} else {
+
+			// 座標はその場に留まる
+			hajikies_[HajikiType::Player][Imaginary].object->SetTranslate(
+				{ hajikies_[HajikiType::Player][Imaginary].prePos.x,hajikies_[HajikiType::Player][Imaginary].prePos.y,
+				hajikies_[HajikiType::Player][Imaginary].object->GetCenterPos().z });
+			hajikies_[HajikiType::Player][Imaginary].physics.velocity = { 0.0f,0.0f };
+			hajikies_[HajikiType::Player][Imaginary].physics.acceleration = { 0.0f,0.0f };
+		}
+
+	}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -466,9 +618,35 @@ void HajikiManager::SetBlocks(GameObject3D* block) {
 	blocks_.push_back(block);
 }
 
+/*////////////////////////////////////////////////////////////////////////////////
+*							衝突相手の機雷のセット
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::SetKiraies(GameObject3D* kirai) {
+
+	kiraies_.push_back(kirai);
+}
+
 void HajikiManager::SetApplicationMode(const ApplicationMode& mode) {
 
 	mode_ = mode;
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*						全てのHajikiが止まっているか
+////////////////////////////////////////////////////////////////////////////////*/
+bool HajikiManager::CheckAllHajikiStop() {
+
+	if (hajikies_[HajikiType::Player][0].physics.velocity == Vector2(0.0f, 0.0f) &&
+		hajikies_[HajikiType::Player][1].physics.velocity == Vector2(0.0f, 0.0f) &&
+		hajikies_[HajikiType::Line][0].physics.velocity == Vector2(0.0f, 0.0f) &&
+		hajikies_[HajikiType::Line][1].physics.velocity == Vector2(0.0f, 0.0f) &&
+		hajikies_[HajikiType::Target][0].physics.velocity == Vector2(0.0f, 0.0f) &&
+		hajikies_[HajikiType::Target][1].physics.velocity == Vector2(0.0f, 0.0f)) {
+
+		return true;
+	}
+
+	return false;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -509,8 +687,8 @@ void HajikiManager::ReflectVelocity(HajikiData& hajiki1, HajikiData& hajiki2) {
 	float angle2 = std::atan2(pos1.y - pos2.y, pos1.x - pos2.x);
 
 	// 反射速度の計算
-	float speed1 = Vector2::Length({ velocity1.x * 0.7f + velocity2.x * 0.4f, velocity1.y * 0.7f + velocity2.y * 0.4f });
-	float speed2 = Vector2::Length({ velocity2.x * 0.7f + velocity1.x * 0.4f, velocity2.y * 0.7f + velocity1.y * 0.4f });
+	float speed1 = Vector2::Length({ velocity1.x * 0.8f + velocity2.x * 0.5f, velocity1.y * 0.8f + velocity2.y * 0.5f });
+	float speed2 = Vector2::Length({ velocity2.x * 0.8f + velocity1.x * 0.5f, velocity2.y * 0.8f + velocity1.y * 0.5f });
 
 	hajiki1.physics.velocity = { -speed1 * std::cosf(angle1), -speed1 * std::sinf(angle1) };
 	hajiki2.physics.velocity = { -speed2 * std::cosf(angle2), -speed2 * std::sinf(angle2) };
@@ -523,6 +701,10 @@ void HajikiManager::ReflectVelocity(HajikiData& hajiki1, HajikiData& hajiki2) {
 *								 速度の適応
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::ApplyVelocityAndFriction(HajikiData& hajiki) {
+
+	if (gameOver_) {
+		return;
+	}
 
 	// 速度が0.0f以外ならカウントを進める
 	if (Vector2::fabs(hajiki.physics.velocity) != Vector2(0.0f, 0.0f)) {
@@ -662,6 +844,21 @@ void HajikiManager::CheckBlockToHajikiCollision() {
 			hajikies_[HajikiType::Player][Reality].object.get(), soulObject_.get())) {
 
 			isLeaveWaitPlayerSoul_ = true;
+		}
+	}
+}
+
+/*////////////////////////////////////////////////////////////////////////////////
+*								 機雷との衝突処理
+////////////////////////////////////////////////////////////////////////////////*/
+void HajikiManager::CheckToHajikiCollision() {
+
+	// 衝突すれば即死
+	for (const auto& kirai : kiraies_) {
+		if (collisionManagers_[Imaginary]->SphereToSphereCheckCollision(
+			hajikies_[HajikiType::Player][Imaginary].object.get(), kirai)) {
+
+			gameOver_ = true;
 		}
 	}
 }
