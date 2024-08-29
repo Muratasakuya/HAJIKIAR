@@ -31,6 +31,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	///===============================================================================
 	/// Load
 
+#pragma region
 	// タイトルロゴ
 	const std::string titleLogoTextureName = "titleSceneLogoType.png";
 	NewMoon::LoadTexture("./Resources/Images/Scenes/Title/" + titleLogoTextureName);
@@ -103,6 +104,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	const std::string soulModelName = "mainHajiki4.gltf";
 	NewMoon::LoadModel("./Resources/Gltf/Hajiki/", soulModelName);
+#pragma endregion
 
 	///===============================================================================
 
