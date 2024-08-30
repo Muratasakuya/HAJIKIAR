@@ -6,6 +6,10 @@
 // 2D
 #include "GameObject2D.h"
 
+// Hajiki
+#include "HajikiManager.h"
+
+// ImGui
 #include "ImGuiRenderer.h"
 
 // c++
@@ -35,6 +39,9 @@ private:
 
 	ImGuiRenderer imgui_;
 
+	// Hajiki
+	std::unique_ptr<HajikiManager> hajikiManager_;
+
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
 
@@ -45,6 +52,52 @@ private:
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト
 
+	/*----------------------------------------------------------------------*/
+	// PlayerHajiki
 
+	static const uint32_t playerHajikiNum = 2;
+
+	/*----------------------------------------------------------------------*/
+	// LineHajiki
+
+	static const uint32_t lineHajikiNum = 2;
+
+	/*----------------------------------------------------------------------*/
+	// Line
+
+	std::unique_ptr<GameObject3D> line_;
+	// Color
+	float changeAlpha_;
+	float lineColorAlpha_;
+
+	/*----------------------------------------------------------------------*/
+	// TargetHajiki
+
+	static const uint32_t targetHajikiNum = 2;
+
+	/*----------------------------------------------------------------------*/
+	// Area
+
+	std::unique_ptr<GameObject3D> area_;
+	float kAreaTranslateZ = 0.0f;
+	bool isShowArea = false;
+
+private:
+	/*-----------------------------*/
+	///			private関数
+	/*-----------------------------*/
+
+	// Line更新
+	void LineUpdate();
+
+	/*-----------------------------*/
+	///			Area用関数
+	/*-----------------------------*/
+
+	// エリア更新
+	void UpdateArea();
+
+	// エリア描画
+	void DrawArea();
 
 };
