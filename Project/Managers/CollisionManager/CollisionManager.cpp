@@ -114,7 +114,7 @@ bool CollisionManager::PassLineCheckCollision(Collider<Vector3>* linePointA, Col
     Vector3 previousPos = collider->GetPreviousPos();  // 前のフレームの位置を取得
 
     // 補間のステップ数
-    int steps = 10;  // 必要に応じて増やす
+    int steps = 25;  // 必要に応じて増やす
 
     for (int i = 0; i <= steps; i++) {
         float t = static_cast<float>(i) / static_cast<float>(steps);
