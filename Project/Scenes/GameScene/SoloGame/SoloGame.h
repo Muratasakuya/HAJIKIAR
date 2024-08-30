@@ -97,13 +97,13 @@ private:
 	/*----------------------------------------------------------------------*/
 	// Block
 
-	static const uint32_t blockNum = 5;
+	static const uint32_t blockNum = 2;
 	std::array<std::unique_ptr<GameObject3D>, blockNum> blocks_;
 
 	/*----------------------------------------------------------------------*/
 	// Kirai
 
-	static const uint32_t kiraiNum = 5;
+	static const uint32_t kiraiNum = 1;
 
 	std::array<std::unique_ptr<GameObject3D>, kiraiNum> kiraies_;
 	// Rotate

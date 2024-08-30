@@ -101,6 +101,7 @@ void GameScene::Update() {
 
 	ImGui::Begin("GameScene");
 	ImGui::Text("SpaceKey: Game -> Result");
+	ImGui::Text("EnterKey: Game -> Tutorial");
 	ImGui::End();
 
 	NewMoon::InputImGui();
@@ -129,6 +130,17 @@ void GameScene::Update() {
 
 	// Game -> Result
 	if (NewMoon::TriggerKey(DIK_SPACE)) {
+
+		SceneManager::GetInstance()->ChangeScene(RESULT);
+	}
+
+	// Game -> Tutorial
+	if (NewMoon::TriggerKey(DIK_RETURN)) {
+
+		SceneManager::GetInstance()->ChangeScene(TUTORIAL);
+	}
+
+	if (isClear_) {
 
 		SceneManager::GetInstance()->ChangeScene(RESULT);
 	}

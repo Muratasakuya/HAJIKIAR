@@ -281,8 +281,11 @@ void SoloGame::Initialize() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void SoloGame::Update() {
 
-	// クリア判定更新
-	isClear_ = hajikiManager_->IsClear();
+	if (hajikiManager_->CheckAllHajikiStop()) {
+
+		// クリア判定更新
+		isClear_ = hajikiManager_->IsClear();
+	}
 
 	/*======================================================*/
 	// ImGui
