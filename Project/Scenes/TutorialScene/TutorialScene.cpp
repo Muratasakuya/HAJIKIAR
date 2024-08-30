@@ -66,10 +66,11 @@ void TutorialScene::Update() {
 	/*======================================================*/
 	// シーン遷移処理
 
-	// Tutorial -> Select
+	// Tutorial -> Game SoloMode
 	if (NewMoon::TriggerKey(DIK_SPACE)) {
 
-		SceneManager::GetInstance()->ChangeScene(SELECT);
+		gameMode_ = GameMode::SOLO;
+		SceneManager::GetInstance()->ChangeScene(GAME);
 	}
 
 	/*======================================================*/

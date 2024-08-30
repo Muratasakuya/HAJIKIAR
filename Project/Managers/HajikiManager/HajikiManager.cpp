@@ -501,12 +501,6 @@ void HajikiManager::Update() {
 				hajikies_[HajikiType::Player][Imaginary].object->GetColor().x,
 			hajikies_[HajikiType::Player][Imaginary].object->GetColor().y,
 			hajikies_[HajikiType::Player][Imaginary].object->GetColor().z,alpha_ });
-
-		// 上に載っているプレイヤーを少し透けさせる
-		hajikies_[HajikiType::Player][Reality].object->SetColor({
-			hajikies_[HajikiType::Player][Reality].object->GetColor().x,
-			hajikies_[HajikiType::Player][Reality].object->GetColor().y,
-			hajikies_[HajikiType::Player][Reality].object->GetColor().z,alpha_ });
 	}
 
 	/*--------------------------------------------------------------------------------------------------------------------------------------------*/

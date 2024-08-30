@@ -131,7 +131,7 @@ void SoloGame::Initialize() {
 	Vector3(0.06f,-0.133f,1.05f)
 	};
 	// 色
-	const Vector4 targetHajikiColor = { 0.65f,0.0f ,0.0f ,1.0f };
+	const Vector4 targetHajikiColor = { 1.0f, 1.0f, 0.098f,1.0f };
 
 	// 2 //
 	for (uint32_t i = 0; i < targetHajikiNum; i++) {
@@ -154,7 +154,7 @@ void SoloGame::Initialize() {
 	// Line
 
 	// Lineの初期スケール
-	const Vector3 lineInitScale = { 2.7f,0.5f,0.1f };
+	const Vector3 lineInitScale = { 2.7f,0.5f,0.25f };
 
 	// LineColor
 	changeAlpha_ = 0.005f;
@@ -204,9 +204,9 @@ void SoloGame::Initialize() {
 	// 初期座標
 	const Vector3 kiraiInitPos = { 0.043f,0.09f,1.05f };
 	// 色
-	const Vector4 kiraiColor = { 0.2f,0.2f,0.2f,1.0f };
+	const Vector4 kiraiColor = { 1.0f,0.0f,0.0f,1.0f };
 	// 機雷モデルのハーフサイズ
-	const float kKiraiHalfSize = 0.018f;
+	const float kKiraiHalfSize = 0.02f;
 
 	for (uint32_t i = 0; i < kiraiNum; i++) {
 
@@ -403,7 +403,7 @@ void SoloGame::LineUpdate() {
 	}
 
 	// 色のセット
-	line_->SetColor({ 0.0f,0.0f,0.0f,lineColorAlpha_ });
+	line_->SetColor({ 0.0f, 0.8f, 1.0f,lineColorAlpha_ });
 
 	/*======================================================*/
 	// SRTの更新
