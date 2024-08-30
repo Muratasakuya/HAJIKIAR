@@ -118,6 +118,9 @@ private:
 	
 	const float deltaTime_ = 1.0f;
 
+	// 閾値
+	float thresholdVelocity_ = 0.01f;
+
 	// マウス座標
 	Vector2 mousePos_;
 	// クリックした座標

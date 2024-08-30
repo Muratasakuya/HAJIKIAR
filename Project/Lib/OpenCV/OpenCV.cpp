@@ -177,10 +177,10 @@ void OpenCV::OpenCamera() {
 	camera_.set(cv::CAP_PROP_FRAME_HEIGHT, 360);
 	camera_.set(cv::CAP_PROP_FPS, framerate_);
 
-	trackColor1_ = { 1.0f, 0.0f, 0.0f };
 	trackColor1_ = { 0.0f, 0.0f, 1.0f };
+	trackColor2_ = { 0.3529f, 1.0f, 0.0f};
 
-	colorRange_ = 40;
+	colorRange_ = 22;
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

@@ -28,7 +28,7 @@ void HajikiManager::AddHajiki(HajikiType type, std::unique_ptr<GameObject3D> obj
 	// 重力加速度
 	friction.kGravity_ = { 0.0f,-9.8f };
 	// 動摩擦係数
-	friction.miu_ = 0.16f;
+	friction.miu_ = 0.32f;
 	// 動摩擦力の大きさ
 	friction.magnitude_ = friction.miu_ * std::sqrtf(-physics.mass * friction.kGravity_.y);
 	// 向き
@@ -248,6 +248,13 @@ void HajikiManager::MouseMove(HajikiType type) {
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::ARMove() {
 
+	ImGui::Begin("Velocity");
+
+	ImGui::Text("playerVelocity: %f,%f", hajikies_[HajikiType::Player][Reality].physics.velocity.x, hajikies_[HajikiType::Player][Reality].physics.velocity.y);
+	ImGui::Text("targetVelocity: %f,%f", hajikies_[HajikiType::Target][Reality].physics.velocity.x, hajikies_[HajikiType::Target][Reality].physics.velocity.y);
+
+	ImGui::End();
+
 	// 壁の端
 	const Vector2 edgeSize = { 0.41f, 0.231f };
 
@@ -265,6 +272,30 @@ void HajikiManager::ARMove() {
 	hajikies_[HajikiType::Target][Reality].object->SetTranslate(
 		{ hajikies_[HajikiType::Target][Reality].pos.x,hajikies_[HajikiType::Target][Reality].pos.y * -1.0f,
 		hajikies_[HajikiType::Target][Reality].object->GetCenterPos().z });
+
+	// 速度の計算（60フレームごと）
+	static int frameCount = 0;
+	static Vector2 playerPreviousPos = hajikies_[HajikiType::Player][Reality].pos;
+	static Vector2 targetPreviousPos = hajikies_[HajikiType::Target][Reality].pos;
+
+	frameCount++;
+
+	if (frameCount >= 5) {
+		// 速度 = (現在位置 - 前回の位置) / 経過時間
+		hajikies_[HajikiType::Player][Reality].physics.velocity.x = (hajikies_[HajikiType::Player][Reality].pos.x - playerPreviousPos.x) * 5.0f;
+		hajikies_[HajikiType::Player][Reality].physics.velocity.y = (hajikies_[HajikiType::Player][Reality].pos.y - playerPreviousPos.y) * 5.0f;
+
+		hajikies_[HajikiType::Target][Reality].physics.velocity.x = (hajikies_[HajikiType::Target][Reality].pos.x - targetPreviousPos.x) * 5.0f;
+		hajikies_[HajikiType::Target][Reality].physics.velocity.y = (hajikies_[HajikiType::Target][Reality].pos.y - targetPreviousPos.y) * 5.0f;
+
+		// 次の計算のために位置を保存
+		playerPreviousPos = hajikies_[HajikiType::Player][Reality].pos;
+		targetPreviousPos = hajikies_[HajikiType::Target][Reality].pos;
+
+		// フレームカウントをリセット
+		frameCount = 0;
+	}
+
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -428,6 +459,7 @@ void HajikiManager::Update() {
 
 	ImGui::Text("playerSoulInvincibleTime_ : %4.1f", playerSoulInvincibleTime_);
 	ImGui::Text("playerSoulInvincibleTime_ : %4.1f", playerSoulInvincibleTime_);
+	ImGui::InputFloat("thresholdVelocity", &thresholdVelocity_);
 
 	std::string invincible = std::format("invincible {}", playerSoulFollow_);
 	ImGui::Text(invincible.c_str());
@@ -512,13 +544,26 @@ void HajikiManager::Update() {
 	/// 座標更新
 
 	if (!gameOver_) {
-		// TargetHajiki1の座標
-		Vector2 targetHajikiPos =
-		{ hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().x,hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().y };
 
-		// TargetHajiki2のXY座標をTargetHajiki1と合わせる
-		hajikies_[HajikiType::Target][Reality].object->SetTranslate(
-			{ targetHajikiPos.x,targetHajikiPos.y,hajikies_[HajikiType::Target][Reality].object->GetCenterPos().z });
+		if (mode_ == ApplicationMode::GAME3D) {
+
+			// TargetHajiki1の座標
+			Vector2 targetHajikiPos =
+			{ hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().x,hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().y };
+
+			// TargetHajiki2のXY座標をTargetHajiki1と合わせる
+			hajikies_[HajikiType::Target][Reality].object->SetTranslate(
+				{ targetHajikiPos.x,targetHajikiPos.y,hajikies_[HajikiType::Target][Reality].object->GetCenterPos().z });
+		} else if (mode_ == ApplicationMode::AR) {
+
+			// TargetHajiki1の座標
+			Vector2 targetHajikiPos =
+			{ hajikies_[HajikiType::Target][Reality].object->GetCenterPos().x,hajikies_[HajikiType::Target][Reality].object->GetCenterPos().y };
+
+			// TargetHajiki2のXY座標をTargetHajiki1と合わせる
+			hajikies_[HajikiType::Target][Imaginary].object->SetTranslate(
+				{ targetHajikiPos.x,targetHajikiPos.y,hajikies_[HajikiType::Target][Imaginary].object->GetCenterPos().z });
+		}
 
 		if (!hajikies_[HajikiType::Player][Reality].isLeave) {
 
@@ -640,14 +685,42 @@ void HajikiManager::SetApplicationMode(const ApplicationMode& mode) {
 ////////////////////////////////////////////////////////////////////////////////*/
 bool HajikiManager::CheckAllHajikiStop() {
 
-	if (hajikies_[HajikiType::Player][0].physics.velocity == Vector2(0.0f, 0.0f) &&
-		hajikies_[HajikiType::Player][1].physics.velocity == Vector2(0.0f, 0.0f) &&
-		hajikies_[HajikiType::Line][0].physics.velocity == Vector2(0.0f, 0.0f) &&
-		hajikies_[HajikiType::Line][1].physics.velocity == Vector2(0.0f, 0.0f) &&
-		hajikies_[HajikiType::Target][0].physics.velocity == Vector2(0.0f, 0.0f) &&
-		hajikies_[HajikiType::Target][1].physics.velocity == Vector2(0.0f, 0.0f)) {
+	if (mode_ == ApplicationMode::GAME3D) {
+		if (hajikies_[HajikiType::Player][0].physics.velocity == Vector2(0.0f, 0.0f) &&
+			hajikies_[HajikiType::Player][1].physics.velocity == Vector2(0.0f, 0.0f) &&
+			hajikies_[HajikiType::Line][0].physics.velocity == Vector2(0.0f, 0.0f) &&
+			hajikies_[HajikiType::Line][1].physics.velocity == Vector2(0.0f, 0.0f) &&
+			hajikies_[HajikiType::Target][0].physics.velocity == Vector2(0.0f, 0.0f) &&
+			hajikies_[HajikiType::Target][1].physics.velocity == Vector2(0.0f, 0.0f)) {
 
-		return true;
+			return true;
+		}
+	} else if (mode_ == ApplicationMode::AR) {
+
+		float playerVelocity0 = Vector2::Length(hajikies_[HajikiType::Player][0].physics.velocity);
+		float playerVelocity1 = Vector2::Length(hajikies_[HajikiType::Player][1].physics.velocity);
+
+		float targetVelocity0 = Vector2::Length(hajikies_[HajikiType::Target][0].physics.velocity);
+		float targetVelocity1 = Vector2::Length(hajikies_[HajikiType::Target][1].physics.velocity);
+
+		ImGui::Begin("testVelocity");
+
+		ImGui::Text("playerVelocity0: %f", playerVelocity0);
+		ImGui::Text("playerVelocity1: %f", playerVelocity1);
+		ImGui::Text("targetVelocity0: %f", targetVelocity0);
+		ImGui::Text("targetVelocity1: %f", targetVelocity1);
+
+		ImGui::End();
+
+		if (std::fabs(playerVelocity0) < thresholdVelocity_ &&
+			std::fabs(playerVelocity1) < thresholdVelocity_ &&
+			hajikies_[HajikiType::Line][0].physics.velocity == Vector2(0.0f, 0.0f) &&
+			hajikies_[HajikiType::Line][1].physics.velocity == Vector2(0.0f, 0.0f) &&
+			std::fabs(targetVelocity0) < thresholdVelocity_ &&
+			std::fabs(targetVelocity1) < thresholdVelocity_) {
+
+			return true;
+		}
 	}
 
 	return false;
@@ -691,8 +764,8 @@ void HajikiManager::ReflectVelocity(HajikiData& hajiki1, HajikiData& hajiki2) {
 	float angle2 = std::atan2(pos1.y - pos2.y, pos1.x - pos2.x);
 
 	// 反射速度の計算
-	float speed1 = Vector2::Length({ velocity1.x * 0.8f + velocity2.x * 0.5f, velocity1.y * 0.8f + velocity2.y * 0.5f });
-	float speed2 = Vector2::Length({ velocity2.x * 0.8f + velocity1.x * 0.5f, velocity2.y * 0.8f + velocity1.y * 0.5f });
+	float speed1 = Vector2::Length({ velocity1.x * 0.6f + velocity2.x * 0.4f, velocity1.y * 0.6f + velocity2.y * 0.4f });
+	float speed2 = Vector2::Length({ velocity2.x * 0.6f + velocity1.x * 0.4f, velocity2.y * 0.6f + velocity1.y * 0.4f });
 
 	hajiki1.physics.velocity = { -speed1 * std::cosf(angle1), -speed1 * std::sinf(angle1) };
 	hajiki2.physics.velocity = { -speed2 * std::cosf(angle2), -speed2 * std::sinf(angle2) };
@@ -707,6 +780,10 @@ void HajikiManager::ReflectVelocity(HajikiData& hajiki1, HajikiData& hajiki2) {
 void HajikiManager::ApplyVelocityAndFriction(HajikiData& hajiki) {
 
 	if (gameOver_) {
+		return;
+	}
+
+	if (hajiki.name_ == "HajikiPlayer" || hajiki.name_ == "HajikiTarget") {
 		return;
 	}
 
