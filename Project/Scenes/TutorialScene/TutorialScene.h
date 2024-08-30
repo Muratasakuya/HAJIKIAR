@@ -42,6 +42,15 @@ private:
 	// Hajiki
 	std::unique_ptr<HajikiManager> hajikiManager_;
 
+	// ステップカウント
+	uint32_t stepCount_;
+	// 次のステップに進めるかどうか
+	bool nextStep_;
+	// 次のシーンに遷移
+	bool nextScene_;
+	// 始めるまでのcoolTime;
+	float startCoolTime_;
+
 	/*----------------------------------------------------------------------*/
 	// 2Dオブジェクト
 
@@ -81,6 +90,12 @@ private:
 	std::unique_ptr<GameObject3D> area_;
 	float kAreaTranslateZ = 0.0f;
 	bool isShowArea = false;
+
+	/*----------------------------------------------------------------------*/
+	// Block
+
+	static const uint32_t blockNum = 2;
+	std::array<std::unique_ptr<GameObject3D>, blockNum> blocks_;
 
 private:
 	/*-----------------------------*/

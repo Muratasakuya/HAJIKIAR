@@ -98,6 +98,8 @@ public:
 	void SetBlocks(GameObject3D* block);
 	void SetKiraies(GameObject3D* kirai);
 	void SetApplicationMode(const ApplicationMode& mode);
+	void SetTutorialMode(bool tutorialMode);
+	void SetTutorialStepCount(uint32_t tutorialStepCount);
 
 private:
 	/*-----------------------------*/
@@ -120,6 +122,11 @@ private:
 
 	// 閾値
 	float thresholdVelocity_ = 0.01f;
+
+	// チュートリアルモード
+	bool tutorialMode_;
+	uint32_t tutorialStepCount_;
+	uint32_t resetCount_;
 
 	// マウス座標
 	Vector2 mousePos_;

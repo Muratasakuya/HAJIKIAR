@@ -24,6 +24,15 @@ void TutorialScene::Initialize() {
 	// モードセット
 	hajikiManager_->SetApplicationMode(applicationMode_);
 
+	// ステップカウント 0スタート
+	// 0 はじいて動かさせる
+	// 1 クリア方法を知ってもらう
+	// 2 気を付けてほしいこと
+	stepCount_ = -1;
+	nextStep_ = false;
+	nextScene_ = false;
+	startCoolTime_ = 60.0f;
+
 	/*======================================================*/
 	// テクスチャ モデル
 
@@ -39,6 +48,14 @@ void TutorialScene::Initialize() {
 	const std::string lineHajikiModelName[lineHajikiNum] = { "lineHajiki.gltf" ,"lineHajiki2.gltf" };
 	// line
 	const std::string lineModelName = "line.gltf";
+	// Cube
+	std::string cubeModelName[blockNum];
+	cubeModelName[0] = "cube.gltf";
+	for (int i = 1; i < blockNum; ++i) {
+		std::ostringstream oss;
+		oss << "cube" << i + 1 << ".gltf";
+		cubeModelName[i] = oss.str();
+	}
 
 	/*======================================================*/
 	// 2Dオブジェクト
@@ -64,6 +81,7 @@ void TutorialScene::Initialize() {
 		Vector3(-0.1f,0.0f,1.0f),
 		Vector3(-0.1f,0.0f,1.05f)
 	};
+
 	// 色
 	const Vector4 playerHajikiColor = { 0.16f,0.16f ,0.16f ,1.0f };
 
@@ -177,10 +195,44 @@ void TutorialScene::Initialize() {
 	area_->SetTexture(whiteTexName);
 
 	/*-------------------------------------------------------------------------------------------------------------------*/
+	// Block
+
+	// 初期座標
+	const Vector3 blockInitPos = { -0.044f,0.136f,1.05f };
+	// 色
+	const Vector4 blockColor = { 0.2f,0.2f,0.2f,1.0f };
+	// ブロックモデルのハーフサイズ
+	const float kBlockHalfSize = 0.02f;
+
+	for (uint32_t i = 0; i < blockNum; i++) {
+
+		blocks_[i] = std::make_unique<GameObject3D>(GameObjectType::Model);
+
+		// 初期化
+		blocks_[i]->Initialize();
+		blocks_[i]->SetTranslate(blockInitPos);
+		blocks_[i]->SetColor(blockColor);
+		blocks_[i]->SetHalfSize(kBlockHalfSize);
+		// 使用するテクスチャとモデル
+		blocks_[i]->SetObjectName("block");
+		blocks_[i]->SetTexture(whiteTexName);
+		blocks_[i]->SetModel(cubeModelName[i]);
+	}
+
+	/*-------------------------------------------------------------------------------------------------------------------*/
 	// HajikiManagerにオブジェクトのセット
 
+	// Block
+	for (const auto& block : blocks_) {
+
+		hajikiManager_->SetBlocks(block.get());
+	}
+
 	// 初期化
+	hajikiManager_->SetTutorialMode(true);
+	hajikiManager_->SetTutorialStepCount(stepCount_);
 	hajikiManager_->Initialize();
+	hajikiManager_->ARMove();
 
 	/*======================================================*/
 	// ImGuiセット
@@ -219,33 +271,114 @@ void TutorialScene::Update() {
 		hajikiManager_->MouseMove(HajikiType::Player);
 	} else if (applicationMode_ == ApplicationMode::AR) {
 
-		// AR移動
-		hajikiManager_->ARMove();
+		if (stepCount_ == -1) {
+
+			// AR移動
+			hajikiManager_->ARMove();
+			startCoolTime_--;
+			if (startCoolTime_ <= 0.0f) {
+
+				stepCount_ = 0;
+				hajikiManager_->SetTutorialStepCount(stepCount_);
+			}
+		}
+
+		if (stepCount_ == 0) {
+
+			// AR移動
+			hajikiManager_->ARMove();
+
+			// ある程度動いたら次のステップに進める
+			float playerVelocity = Vector2::Length(hajikiManager_->GetHajiki(HajikiType::Player, 1).physics.velocity);
+			if (playerVelocity >= 0.7f) {
+
+				nextStep_ = true;
+			}
+
+			if (nextStep_) {
+				//止まってから次に進める
+				if (hajikiManager_->CheckAllHajikiStop()) {
+
+					// 次に進める
+					stepCount_ = 1;
+					hajikiManager_->SetTutorialStepCount(stepCount_);
+					hajikiManager_->Reset();
+				}
+			}
+		}
+		if (stepCount_ == 1) {
+
+			// AR移動
+			hajikiManager_->ARMove();
+
+			// クリアの仕方
+			// Line更新
+			LineUpdate();
+			// エリア更新
+			UpdateArea();
+
+			// クリアしたら次に進める
+			if (hajikiManager_->CheckAllHajikiStop()) {
+				if (hajikiManager_->IsClear()) {
+
+					nextStep_ = true;
+				} else {
+					nextStep_ = false;
+				}
+			}
+			if (nextStep_) {
+
+				// 次に進める
+				stepCount_ = 2;
+				hajikiManager_->SetTutorialStepCount(stepCount_);
+				nextStep_ = false;
+			}
+		}
+		if (stepCount_ == 2) {
+
+			// AR移動
+			hajikiManager_->ARMove();
+
+			if (!nextStep_) {
+				// 魂が抜けて、それから回収出来たらチュートリアル終了
+				if (hajikiManager_->GetHajiki(HajikiType::Player, 0).isLeave) {
+
+					nextStep_ = true;
+				} else {
+
+					// 離れていないうちは次に進めない
+					nextStep_ = false;
+				}
+			}
+
+			// 魂を回収出来たら次のシーンに遷移する
+			if (nextStep_) {
+				// 回収済み
+				if (!hajikiManager_->GetHajiki(HajikiType::Player, 0).isLeave) {
+
+					nextScene_ = true;
+				}
+			}
+		}
 	}
-
-	// Line更新
-	LineUpdate();
-
-	// エリア更新
-	UpdateArea();
 
 	/*======================================================*/
 	// 衝突判定
 
+	// 常に更新させてカウントで管理する
 	hajikiManager_->CollisionUpdate();
-	// 更新
 	hajikiManager_->Update();
 
 	/*======================================================*/
 	// シーン遷移処理
 
-	// Tutorial -> Game SoloMode
-	if (NewMoon::TriggerKey(DIK_SPACE)) {
+	if (nextScene_) {
+		// 全てのオブジェクトが止まったら次に進む
+		if (hajikiManager_->CheckAllHajikiStop()) {
 
-		gameMode_ = GameMode::SOLO;
-		SceneManager::GetInstance()->ChangeScene(GAME);
+			SceneManager::GetInstance()->ChangeScene(GAME);
+		}
 	}
-
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
@@ -266,14 +399,27 @@ void TutorialScene::Draw() {
 	// Hajiki
 	hajikiManager_->Draw();
 
-	// Line
-	line_->Draw();
+	if (stepCount_ == 1) {
 
-	///*======================================================*/
-	// エリアの描画
+		// Line
+		line_->Draw();
+		// エリア
+		DrawArea();
+	}
+	if (stepCount_ == 2) {
 
-	DrawArea();
+		// Block
+		for (const auto& block : blocks_) {
 
+			// 消滅したブロックは描画しない
+			if (block->GetIsHit()) {
+
+				continue;
+			}
+
+			block->Draw();
+		}
+	}
 }
 
 /*////////////////////////////////////////////////////////////////////////////////
