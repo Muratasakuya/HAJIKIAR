@@ -20,6 +20,9 @@ TitleScene::~TitleScene() {}
 ////////////////////////////////////////////////////////////////////////////////*/
 void TitleScene::Initialize() {
 
+	// ARMode
+	applicationMode_ = ApplicationMode::GAME3D;
+
 	// 衝突判定
 	collisionManager_ = std::make_unique<CollisionManager>();
 
