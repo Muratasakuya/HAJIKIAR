@@ -464,6 +464,20 @@ void HajikiManager::Update() {
 	std::string invincible = std::format("invincible {}", playerSoulFollow_);
 	ImGui::Text(invincible.c_str());
 
+	// 全Hajikiの更新
+	for (auto& pair : hajikies_) {
+		auto& hajikiList = pair.second;
+		for (size_t i = 0; i < hajikiList.size(); i++) {
+
+			auto& hajiki = hajikiList[i];
+
+			if (hajiki.object) {
+
+				hajiki.object->Update();
+			}
+		}
+	}
+
 	ImGui::End();
 
 	// リセット処理
@@ -718,6 +732,8 @@ bool HajikiManager::CheckAllHajikiStop() {
 			hajikies_[HajikiType::Line][1].physics.velocity == Vector2(0.0f, 0.0f) &&
 			std::fabs(targetVelocity0) < thresholdVelocity_ &&
 			std::fabs(targetVelocity1) < thresholdVelocity_) {
+
+			hajikies_[HajikiType::Player][Reality].isPower_ = false;
 
 			return true;
 		}

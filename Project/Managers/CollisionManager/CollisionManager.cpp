@@ -105,25 +105,38 @@ bool CollisionManager::MouseToCheckCollision(const Vector2& mousePos, Collider<V
 ////////////////////////////////////////////////////////////////////////////////*/
 bool CollisionManager::PassLineCheckCollision(Collider<Vector3>* linePointA, Collider<Vector3>* linePointB, Collider<Vector3>* collider) {
 
-	Vector3 posA = linePointB->GetCenterPos() - linePointA->GetCenterPos();
-	Vector3 posB = collider->GetCenterPos() - linePointA->GetCenterPos();
+	// 線の端点を取得
+    Vector3 posA = linePointA->GetCenterPos();
+    Vector3 posB = linePointB->GetCenterPos();
+    
+    // オブジェクトの現在の位置と前回の位置を取得
+    Vector3 currentPos = collider->GetCenterPos();
+    Vector3 previousPos = collider->GetPreviousPos();  // 前のフレームの位置を取得
 
-	float cross = posA.x * posB.y - posA.y * posB.x;
+    // 補間のステップ数
+    int steps = 10;  // 必要に応じて増やす
 
-	// 線分を越えているかどうかチェック
-	float tolerance = 0.001f;
-	if (std::fabs(cross) < tolerance) {
+    for (int i = 0; i <= steps; i++) {
+        float t = static_cast<float>(i) / static_cast<float>(steps);
+        Vector3 interpolatedPos = previousPos * (1.0f - t) + currentPos * t;
 
-		float dot1 = posA.x * posB.x + posA.y * posB.y;
-		float dot2 = posA.x * posA.x + posA.y * posA.y;
+        Vector3 posAtoB = posB - posA;
+        Vector3 posAtoInterpolated = interpolatedPos - posA;
 
-		if (dot1 >= 0 && dot1 <= dot2) {
+        float cross = posAtoB.x * posAtoInterpolated.y - posAtoB.y * posAtoInterpolated.x;
 
-			return true;
-		}
-	}
+        float tolerance = 0.001f;
+        if (std::fabs(cross) < tolerance) {
+            float dot1 = posAtoB.x * posAtoInterpolated.x + posAtoB.y * posAtoInterpolated.y;
+            float dot2 = posAtoB.x * posAtoB.x + posAtoB.y * posAtoB.y;
 
-	return false;
+            if (dot1 >= 0 && dot1 <= dot2) {
+                return true;  // 通過判定成功
+            }
+        }
+    }
+
+    return false;  // 通過していない
 }
 
 /*////////////////////////////////////////////////////////////////////////////////

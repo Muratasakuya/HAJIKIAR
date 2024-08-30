@@ -58,6 +58,10 @@ Vector2 GameObject2D::GetCenterPos() const {
 
 	return transform2D_.pos;
 }
+Vector2 GameObject2D::GetPreviousPos() const{
+
+	return prePos_;
+}
 Vector4 GameObject2D::GetColor() const {
 
 	return color_;
@@ -118,7 +122,10 @@ void GameObject2D::Initialize() {
 /*////////////////////////////////////////////////////////////////////////////////
 *								   更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void GameObject2D::Update() {}
+void GameObject2D::Update() {
+
+	prePos_ = transform2D_.pos;
+}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								   描画処理

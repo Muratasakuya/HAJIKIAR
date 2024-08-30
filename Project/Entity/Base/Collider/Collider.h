@@ -90,6 +90,7 @@ public:
 	// getter
 
 	virtual VectorType GetCenterPos() const = 0;
+	virtual VectorType GetPreviousPos() const = 0;
 	float GetHalfSize() const;
 	Vector2 GetDiffSize() const;
 	bool GetIsHit() const;

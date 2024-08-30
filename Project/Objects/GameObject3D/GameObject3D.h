@@ -61,6 +61,7 @@ public:
 	// getter
 
 	Vector3 GetCenterPos() const override;
+	Vector3 GetPreviousPos() const override;
 	Vector3 GetScale()const;
 	Vector3 GetRotate() const;
 	Vector4 GetColor() const;
@@ -77,6 +78,7 @@ private:
 
 	// SRT
 	Transform transform_{};
+	Vector3 prePos_;
 
 	// マテリアル
 	Material material_{};

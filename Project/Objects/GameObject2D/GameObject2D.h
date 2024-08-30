@@ -50,6 +50,7 @@ public:
 	// getter
 
 	Vector2 GetCenterPos() const override;
+	Vector2 GetPreviousPos() const override;
 	Vector4 GetColor() const;
 	float GetAnchor() const;
 	GameObjectType GetType() const;
@@ -65,6 +66,7 @@ private:
 
 	// トランスフォーム
 	Transform2D transform2D_{};
+	Vector2 prePos_;
 
 	// 色
 	Vector4 color_{};

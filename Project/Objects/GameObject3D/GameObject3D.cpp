@@ -63,6 +63,10 @@ void GameObject3D::SetObjectName(const std::string name) { objectName_ = name; }
 
 // 中心座標取得 transform_.translate getter
 Vector3 GameObject3D::GetCenterPos() const { return transform_.translate; }
+Vector3 GameObject3D::GetPreviousPos() const{
+
+	return prePos_;
+}
 // スケールの取得
 Vector3 GameObject3D::GetScale() const { return transform_.scale; }
 // 回転の取得
@@ -118,7 +122,10 @@ void GameObject3D::Initialize() {
 /*////////////////////////////////////////////////////////////////////////////////
 *								   更新処理
 ////////////////////////////////////////////////////////////////////////////////*/
-void GameObject3D::Update() {}
+void GameObject3D::Update() {
+
+	prePos_ = transform_.translate;
+}
 
 /*////////////////////////////////////////////////////////////////////////////////
 *								   描画処理
