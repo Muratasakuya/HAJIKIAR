@@ -325,12 +325,16 @@ void HajikiManager::MouseMove(HajikiType type) {
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::ARMove() {
 
+#ifdef _DEBUG
+
 	ImGui::Begin("Velocity");
 
 	ImGui::Text("playerVelocity: %f,%f", hajikies_[HajikiType::Player][Reality].physics.velocity.x, hajikies_[HajikiType::Player][Reality].physics.velocity.y);
 	ImGui::Text("targetVelocity: %f,%f", hajikies_[HajikiType::Target][Reality].physics.velocity.x, hajikies_[HajikiType::Target][Reality].physics.velocity.y);
 
 	ImGui::End();
+
+#endif // _DEBUG
 
 	// 壁の端
 	const Vector2 edgeSize = { 0.41f, 0.231f };
@@ -589,16 +593,16 @@ void HajikiManager::Initialize() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::Update() {
 
-	ImGui::Begin("DeltaTime");
+#ifdef _DEBUG
 
-	ImGui::Text("playerSoulInvincibleTime_ : %4.1f", playerSoulInvincibleTime_);
-	ImGui::Text("playerSoulInvincibleTime_ : %4.1f", playerSoulInvincibleTime_);
-	ImGui::InputFloat("thresholdVelocity", &thresholdVelocity_);
+	ImGui::Begin("Velocity");
 
-	std::string invincible = std::format("invincible {}", playerSoulFollow_);
-	ImGui::Text(invincible.c_str());
+	ImGui::Text("playerVelocity: %f,%f", hajikies_[HajikiType::Player][Reality].physics.velocity.x, hajikies_[HajikiType::Player][Reality].physics.velocity.y);
+	ImGui::Text("targetVelocity: %f,%f", hajikies_[HajikiType::Target][Reality].physics.velocity.x, hajikies_[HajikiType::Target][Reality].physics.velocity.y);
 
 	ImGui::End();
+
+#endif // _DEBUG
 
 	// 全Hajikiの更新
 	for (auto& pair : hajikies_) {
@@ -629,6 +633,8 @@ void HajikiManager::Update() {
 	/*--------------------------------------------------------------------------------------------------------------------------------------------*/
 	/// 動いた回数の更新とその処理
 
+#ifdef _DEBUG
+
 	ImGui::Begin("PlayCount");
 
 	ImGui::Text("moveCounter: %d", moveCounter_);
@@ -636,6 +642,8 @@ void HajikiManager::Update() {
 	ImGui::Text("alpha: %4.1f", alpha_);
 
 	ImGui::End();
+
+#endif // _DEBUG
 
 	if (moveCount_ == 2 && !isMove_) {
 
@@ -886,6 +894,8 @@ bool HajikiManager::CheckAllHajikiStop() {
 		float targetVelocity0 = Vector2::Length(hajikies_[HajikiType::Target][0].physics.velocity);
 		float targetVelocity1 = Vector2::Length(hajikies_[HajikiType::Target][1].physics.velocity);
 
+#ifdef _DEBUG
+
 		ImGui::Begin("testVelocity");
 
 		ImGui::Text("playerVelocity0: %f", playerVelocity0);
@@ -894,6 +904,8 @@ bool HajikiManager::CheckAllHajikiStop() {
 		ImGui::Text("targetVelocity1: %f", targetVelocity1);
 
 		ImGui::End();
+
+#endif // _DEBUG
 
 		if (std::fabs(playerVelocity0) < thresholdVelocity_ &&
 			std::fabs(playerVelocity1) < thresholdVelocity_ &&
@@ -1238,12 +1250,16 @@ void HajikiManager::LeaveSoulPlayerUpdate() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void HajikiManager::GoalCheck() {
 
+#ifdef _DEBUG
+
 	ImGui::Begin("Clear");
 
 	std::string clear = std::format("isClear {}", isClear_);
 	ImGui::Text(clear.c_str());
 
 	ImGui::End();
+
+#endif // _DEBUG
 
 	if (!tutorialMode_) {
 

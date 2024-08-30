@@ -99,6 +99,8 @@ void GameScene::Update() {
 	/*======================================================*/
 	// ImGui
 
+#ifdef _DEBUG
+
 	ImGui::Begin("GameScene");
 	ImGui::Text("SpaceKey: Game -> Result");
 	ImGui::Text("EnterKey: Game -> Tutorial");
@@ -107,6 +109,8 @@ void GameScene::Update() {
 	NewMoon::InputImGui();
 
 	imgui_.Render();
+
+#endif // _DEBUG
 
 	/*======================================================*/
 	// 2Dオブジェクト

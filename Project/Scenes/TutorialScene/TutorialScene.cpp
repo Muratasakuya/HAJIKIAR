@@ -39,6 +39,10 @@ void TutorialScene::Initialize() {
 	// 背景画像
 	const std::string bgTextureName = "bg.png";
 	const std::string gridTextureName = "grid.png";
+	std::string tutorialChar[3];
+	tutorialChar[0] = "tutorialText1.png";
+	tutorialChar[1] = "tutorialText2.png";
+	tutorialChar[2] = "tutorialText3.png";
 	// debug用White
 	const std::string whiteTexName = "white.png";
 	// mainHajiki
@@ -69,6 +73,16 @@ void TutorialScene::Initialize() {
 	grid_ = std::make_unique<GameObject2D>();
 	grid_->Initialize();
 	grid_->SetTexture(gridTextureName);
+
+	// チュートリアル文字
+	for (uint32_t i = 0; i < 3; i++) {
+
+		stepChar_[i] = std::make_unique<GameObject2D>();
+		stepChar_[i]->Initialize();
+		stepChar_[i]->SetPos({ 960.0f,180.0f });
+		stepChar_[i]->SetTexture(tutorialChar[i]);
+		stepChar_[i]->SetAnchor({ 0.5f,0.5f });
+	}
 
 	/*======================================================*/
 	// 3Dオブジェクト
@@ -198,7 +212,7 @@ void TutorialScene::Initialize() {
 	// Block
 
 	// 初期座標
-	const Vector3 blockInitPos = { -0.044f,0.136f,1.05f };
+	const Vector3 blockInitPos = { -0.044f,0.05f,1.05f };
 	// 色
 	const Vector4 blockColor = { 0.2f,0.2f,0.2f,1.0f };
 	// ブロックモデルのハーフサイズ
@@ -251,11 +265,15 @@ void TutorialScene::Update() {
 	/*======================================================*/
 	// ImGui
 
+#ifdef _DEBUG
+
 	ImGui::Begin("TutorialScene");
 	ImGui::Text("SpaceKey: Tutorial -> Select");
 	ImGui::End();
 
 	imgui_.Render();
+
+#endif // _DEBUG
 
 	/*======================================================*/
 	// 2Dオブジェクト
@@ -278,7 +296,7 @@ void TutorialScene::Update() {
 			startCoolTime_--;
 			if (startCoolTime_ <= 0.0f) {
 
-				stepCount_ = 0;
+				stepCount_ = 1;
 				hajikiManager_->SetTutorialStepCount(stepCount_);
 			}
 		}
@@ -290,7 +308,7 @@ void TutorialScene::Update() {
 
 			// ある程度動いたら次のステップに進める
 			float playerVelocity = Vector2::Length(hajikiManager_->GetHajiki(HajikiType::Player, 1).physics.velocity);
-			if (playerVelocity >= 0.7f) {
+			if (playerVelocity >= 0.2f) {
 
 				nextStep_ = true;
 			}
@@ -392,6 +410,21 @@ void TutorialScene::Draw() {
 	// 背景画像
 	background_->Draw();
 	grid_->Draw();
+
+	if (stepCount_ == 0) {
+
+		stepChar_[0]->Draw();
+	}
+
+	if (stepCount_ == 1) {
+
+		stepChar_[1]->Draw();
+	}
+
+	if (stepCount_ == 2) {
+
+		stepChar_[2]->Draw();
+	}
 
 	/*======================================================*/
 	// 3Dオブジェクト

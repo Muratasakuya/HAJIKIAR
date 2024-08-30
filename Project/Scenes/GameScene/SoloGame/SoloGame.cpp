@@ -290,11 +290,15 @@ void SoloGame::Update() {
 	/*======================================================*/
 	// ImGui
 
+#ifdef _DEBUG
+
 	ImGui::Begin("GameScene");
 	ImGui::Text("SoloMode");
 	ImGui::End();
 
 	imgui_.Render();
+
+#endif // _DEBUG
 
 	/*======================================================*/
 	// 3Dオブジェクト

@@ -58,6 +58,9 @@ private:
 	std::unique_ptr<GameObject2D> background_;
 	std::unique_ptr<GameObject2D> grid_;
 
+	// チュートリアル文字
+	std::array<std::unique_ptr<GameObject2D>, 3> stepChar_;
+
 	/*----------------------------------------------------------------------*/
 	// 3Dオブジェクト
 

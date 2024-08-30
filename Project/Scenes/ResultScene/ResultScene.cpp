@@ -41,9 +41,13 @@ void ResultScene::Update() {
 	/*======================================================*/
 	// ImGui
 
+#ifdef _DEBUG
+
 	ImGui::Begin("ResultScene");
 	ImGui::Text("EnterKey: Result -> Game");
 	ImGui::End();
+
+#endif
 
 	/*======================================================*/
 	// シーン遷移処理

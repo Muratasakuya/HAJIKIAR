@@ -1,7 +1,7 @@
 #include "IScene.h"
 
 // タイトルシーンで初期化
-SceneNo IScene::sceneNo_ = SceneNo::TITLE;
+SceneNo IScene::sceneNo_ = SceneNo::GAME;
 
 // ゲームモード とりあえずソロ
 GameMode IScene::gameMode_ = GameMode::SOLO;

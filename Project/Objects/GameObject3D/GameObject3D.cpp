@@ -183,6 +183,8 @@ void GameObject3D::OnCollision() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void GameObject3D::ImGui() {
 
+#ifdef _DEBUG
+
 	ImGui::Begin("NewMoon");
 
 	static bool showTransform = false;
@@ -284,4 +286,7 @@ void GameObject3D::ImGui() {
 	}
 
 	ImGui::End();
+
+#endif // _DEBUG
+
 }

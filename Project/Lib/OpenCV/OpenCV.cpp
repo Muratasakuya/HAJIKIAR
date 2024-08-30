@@ -242,6 +242,9 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 
 	/*======================================================*/
 	// ImGui
+
+#ifdef _DEBUG
+
 	ImGui::Begin("OpenCV");
 
 	// 2つの色の設定
@@ -250,6 +253,7 @@ void OpenCV::ColorTracking(cv::Mat& frame) {
 	ImGui::DragInt("colorRange", &colorRange_, 1, 0, 100);
 
 	ImGui::End();
+#endif
 
 	/*======================================================*/
 
@@ -396,6 +400,8 @@ void OpenCV::Initialize() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void OpenCV::Update() {
 
+#ifdef _DEBUG
+
 	// ImGuiを使用してROIの範囲を設定
 	ImGui::Begin("Polygon ROI Control");
 
@@ -420,7 +426,9 @@ void OpenCV::Update() {
 		MessageBoxA(nullptr, message.c_str(), "Save Confirmation", 0);
 	}
 
-	ImGui::End();
+ImGui::End();
+
+#endif // _DEBUG
 
 	// ImGuiで変更した値の適応
 	camera_.set(cv::CAP_PROP_AUTO_WB, whiteBalance_);
@@ -545,6 +553,9 @@ void OpenCV::QRTracking(const std::vector<std::string>& qrCodeDataList) {
 }
 void OpenCV::RenderToneCurveEditor(std::vector<cv::Point>& points, const char* label) {
 
+
+#ifdef _DEBUG
+
 	ImGui::Begin(label);
 
 	ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
@@ -576,6 +587,9 @@ void OpenCV::RenderToneCurveEditor(std::vector<cv::Point>& points, const char* l
 	}
 
 	ImGui::End();
+
+#endif // _DEBUG
+
 }
 void OpenCV::ApplyToneCurve(const cv::Mat& inputImage, cv::Mat& outputImage, const std::vector<cv::Point>& toneCurvePoints) {
 

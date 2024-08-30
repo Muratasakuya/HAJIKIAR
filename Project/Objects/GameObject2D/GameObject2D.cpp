@@ -149,6 +149,8 @@ void GameObject2D::OnCollision() {
 ////////////////////////////////////////////////////////////////////////////////*/
 void GameObject2D::ImGui() {
 
+#ifdef _DEBUG
+
 	ImGui::Begin("NewMoon");
 
 	ImGui::Separator();
@@ -163,4 +165,6 @@ void GameObject2D::ImGui() {
 	ImGui::Checkbox("isFlipY", &transform2D_.isFlipY);
 
 	ImGui::End();
+
+#endif // _DEBUG
 }

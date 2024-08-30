@@ -116,12 +116,16 @@ void TitleScene::Update() {
 	/*======================================================*/
 	// ImGui
 
+#ifdef _DEBUG
+
 	ImGui::Begin("TitleScene");
 	ImGui::Text("SpaceKey: Title -> Tutorial");
 	ImGui::End();
 
 	// セットしたオブジェクトのImGui
 	imgui_.Render();
+
+#endif
 
 	/*======================================================*/
 	// 2Dオブジェクト
@@ -150,7 +154,7 @@ void TitleScene::Update() {
 			// 1秒以上置いてあれば次のシーンに遷移
 			if (waitStartTime_ < 0.0f) {
 
-				SceneManager::GetInstance()->ChangeScene(TUTORIAL);
+				SceneManager::GetInstance()->ChangeScene(GAME);
 			}
 		} else {
 
@@ -172,7 +176,7 @@ void TitleScene::Update() {
 			// 左クリックスタート 基本どこでも、ただしクレジットの文字の場所以外
 			if (NewMoon::PushMouseLeft()) {
 
-				SceneManager::GetInstance()->ChangeScene(TUTORIAL);
+				SceneManager::GetInstance()->ChangeScene(GAME);
 			}
 		}
 	}

@@ -48,6 +48,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	const std::string gridTextureName = "grid.png";
 	NewMoon::LoadTexture("./Resources/Images/Common/Backgrounds/" + gridTextureName);
 
+	// チュートリアル文字
+	std::string tutorialChar[3];
+	tutorialChar[0] = "tutorialText1.png";
+	tutorialChar[1] = "tutorialText2.png";
+	tutorialChar[2] = "tutorialText3.png";
+	NewMoon::LoadTexture("./Resources/Images/Scenes/Tutorial/" + tutorialChar[0]);
+	NewMoon::LoadTexture("./Resources/Images/Scenes/Tutorial/" + tutorialChar[1]);
+	NewMoon::LoadTexture("./Resources/Images/Scenes/Tutorial/" + tutorialChar[2]);
+
 	// DebugHajiki
 	const std::string playerHajikiTextureName = "playerHajiki.png";
 	NewMoon::LoadTexture("./Resources/Images/Common/Objects/" + playerHajikiTextureName);
